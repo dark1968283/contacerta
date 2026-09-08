@@ -1,7 +1,7 @@
-import { cache } from "react";
+﻿import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "./server";
-import type { UserRole } from "@/lib/types/database.types";
+export type UserRole = string;
 
 export interface BusinessContext {
   userId: string;
@@ -11,13 +11,13 @@ export interface BusinessContext {
 }
 
 /**
- * Busca o negócio e papel do utilizador autenticado.
- * Envolvido em React.cache() para que múltiplas páginas/layouts no mesmo
- * pedido só disparem UMA query, mesmo chamando esta função várias vezes.
+ * Busca o negÃ³cio e papel do utilizador autenticado.
+ * Envolvido em React.cache() para que mÃºltiplas pÃ¡ginas/layouts no mesmo
+ * pedido sÃ³ disparem UMA query, mesmo chamando esta funÃ§Ã£o vÃ¡rias vezes.
  *
- * Redireciona automaticamente para /login (sem sessão) ou /onboarding
- * (sem negócio ainda) — por isso quem chama esta função pode assumir
- * sempre que recebe um contexto válido de volta.
+ * Redireciona automaticamente para /login (sem sessÃ£o) ou /onboarding
+ * (sem negÃ³cio ainda) â€” por isso quem chama esta funÃ§Ã£o pode assumir
+ * sempre que recebe um contexto vÃ¡lido de volta.
  */
 export const getBusinessContext = cache(async (): Promise<BusinessContext> => {
   const supabase = createClient();

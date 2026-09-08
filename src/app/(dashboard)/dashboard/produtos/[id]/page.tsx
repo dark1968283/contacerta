@@ -24,13 +24,19 @@ export default async function ProdutoDetalhePage({
   const { role } = await getBusinessContext();
   const supabase = createClient();
 
-  const { data: product } = await supabase
-    .from("products")
-    .select("*, categories(name)")
-    .eq("id", params.id)
-    .single();
+ const { data: product, error: productError } = await supabase
+  .from("products")
+  .select(`
+    *,
+    categories!products_category_id_fkey(name)
+  `)
+  .eq("id", params.id)
+  .single();
+
+
 
   if (!product) {
+
     notFound();
   }
 
@@ -52,20 +58,36 @@ export default async function ProdutoDetalhePage({
     <div className="space-y-8">
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-semibold text-ink">{product.name}</h1>
+          <h1 className="text-xl font-semibold text-ink">
+            {product.name}
+          </h1>
+
           <StockBadge
             quantity={product.stock_quantity}
             threshold={product.low_stock_threshold}
           />
         </div>
+
         <p className="mt-1 text-ink/60">
-          {formatMT(product.selling_price)} · {product.stock_quantity} em stock
-          {(product.categories as unknown as { name: string } | null)?.name
-            ? ` · ${(product.categories as unknown as { name: string }).name}`
+          {formatMT(product.selling_price)} ·{" "}
+          {product.stock_quantity} em stock
+          {(product.categories as unknown as {
+            name: string;
+          } | null)?.name
+            ? ` · ${
+                (
+                  product.categories as unknown as {
+                    name: string;
+                  }
+                ).name
+              }`
             : ""}
         </p>
+
         {!product.is_active && (
-          <p className="mt-1 text-sm text-alert">Este produto está desativado.</p>
+          <p className="mt-1 text-sm text-alert">
+            Este produto está desativado.
+          </p>
         )}
       </div>
 
@@ -75,6 +97,7 @@ export default async function ProdutoDetalhePage({
             <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
               Registar movimento de stock
             </h2>
+
             <StockAdjustmentForm productId={product.id} />
           </section>
 
@@ -82,10 +105,17 @@ export default async function ProdutoDetalhePage({
             <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
               Editar produto
             </h2>
-            <EditProductForm product={product} categories={categories ?? []} />
+
+            <EditProductForm
+              product={product}
+              categories={categories ?? []}
+            />
           </section>
 
-          <ToggleActiveButton productId={product.id} isActive={product.is_active} />
+          <ToggleActiveButton
+            productId={product.id}
+            isActive={product.is_active}
+          />
         </>
       )}
 
@@ -93,9 +123,13 @@ export default async function ProdutoDetalhePage({
         <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">
           Histórico de movimentos
         </h2>
+
         {movements?.length === 0 && (
-          <p className="text-ink/50">Ainda não há movimentos registados.</p>
+          <p className="text-ink/50">
+            Ainda não há movimentos registados.
+          </p>
         )}
+
         <div className="space-y-2">
           {movements?.map((m) => (
             <div
@@ -107,17 +141,28 @@ export default async function ProdutoDetalhePage({
                   {movementLabel[m.type] ?? m.type}
                   {m.note ? ` — ${m.note}` : ""}
                 </p>
+
                 <p className="text-ink/50">
-                  {new Date(m.created_at).toLocaleDateString("pt-MZ", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {new Date(m.created_at).toLocaleDateString(
+                    "pt-MZ",
+                    {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    },
+                  )}
                 </p>
               </div>
-              <span className={m.quantity > 0 ? "text-brand" : "text-alert"}>
+
+              <span
+                className={
+                  m.quantity > 0
+                    ? "text-brand"
+                    : "text-alert"
+                }
+              >
                 {m.quantity > 0 ? "+" : ""}
                 {m.quantity}
               </span>

@@ -38,8 +38,8 @@ export async function createProduct(
   const { data, error } = await supabase.rpc("create_product", {
     p_business_id: businessId,
     p_name: name,
-    p_category_id: categoryId,
-    p_cost_price: costPrice,
+    p_category_id: categoryId as string,
+    p_cost_price: costPrice as number,
     p_selling_price: sellingPrice,
     p_initial_stock: initialStock,
     p_low_stock_threshold: lowStockThreshold,
@@ -128,7 +128,7 @@ export async function adjustStock(
     p_product_id: productId,
     p_type: type,
     p_quantity: quantity,
-    p_note: note,
+    p_note: note ?? undefined,
   });
 
   if (error) {

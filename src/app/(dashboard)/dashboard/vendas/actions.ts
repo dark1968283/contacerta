@@ -50,7 +50,7 @@ export async function createSale(
   const { error } = await supabase.rpc("create_sale", {
     p_business_id: businessId,
     p_payment_method: paymentMethod,
-    p_customer_id: customerId,
+    p_customer_id: customerId as string,
     p_items: items,
   });
 

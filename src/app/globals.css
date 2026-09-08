@@ -5,29 +5,180 @@
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
   }
-  /* Foco de teclado sempre visível — acessibilidade, não decoração */
+
+  body {
+    @apply bg-paper text-ink;
+  }
+
   :focus-visible {
     outline: 2px solid theme("colors.brand.DEFAULT");
     outline-offset: 2px;
   }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 @layer components {
+  /* ================================
+     BUTTONS
+     ================================ */
+
   .btn-primary {
-    @apply w-full rounded-xl bg-brand text-white font-medium py-3.5 text-base
-      active:bg-brand/90 disabled:opacity-50 disabled:pointer-events-none
-      transition-colors;
+    @apply w-full rounded-xl bg-brand px-4 py-3.5
+      text-base font-semibold text-white
+      transition-all duration-200
+      hover:bg-brand-dark
+      active:scale-[0.98]
+      disabled:pointer-events-none
+      disabled:opacity-50;
   }
+
+  .btn-secondary {
+    @apply w-full rounded-xl bg-brand-soft px-4 py-3.5
+      text-base font-semibold text-brand
+      transition-all duration-200
+      hover:bg-brand-soft/80
+      active:scale-[0.98]
+      disabled:pointer-events-none
+      disabled:opacity-50;
+  }
+
+  .btn-outline {
+    @apply w-full rounded-xl border border-line bg-white px-4 py-3.5
+      text-base font-semibold text-ink
+      transition-all duration-200
+      hover:border-brand hover:text-brand
+      active:scale-[0.98]
+      disabled:pointer-events-none
+      disabled:opacity-50;
+  }
+
+  /* ================================
+     FORM
+     ================================ */
+
   .input-field {
-    @apply w-full rounded-xl border border-line bg-white px-4 py-3 text-base
-      text-ink placeholder:text-ink/40 focus:border-brand outline-none
-      transition-colors;
+    @apply w-full rounded-xl border border-line bg-white
+      px-4 py-3 text-base text-ink
+      placeholder:text-ink/40
+      outline-none
+      transition-all duration-200
+      focus:border-brand
+      focus:ring-2 focus:ring-brand/10;
   }
+
   .field-label {
-    @apply block text-sm font-medium text-ink/70 mb-1.5;
+    @apply mb-1.5 block text-sm font-medium text-ink/70;
   }
+
   .error-text {
-    @apply text-sm text-alert mt-2;
+    @apply mt-2 text-sm text-alert;
+  }
+
+  /* ================================
+     CARDS
+     ================================ */
+
+  .card {
+    @apply rounded-card border border-line/70
+      bg-surface shadow-card;
+  }
+
+  .card-padding {
+    @apply p-4 sm:p-5;
+  }
+
+  .card-lg {
+    @apply rounded-card-lg border border-line/70
+      bg-surface shadow-card;
+  }
+
+  /* ================================
+     PAGE
+     ================================ */
+
+  .page-container {
+    @apply mx-auto w-full max-w-app px-4 pb-24 pt-5 sm:px-5;
+  }
+
+  .section-title {
+    @apply text-lg font-bold tracking-tight text-ink;
+  }
+
+  .section-subtitle {
+    @apply text-sm text-muted;
+  }
+
+  /* ================================
+     METRICS
+     ================================ */
+
+  .metric-label {
+    @apply text-xs font-medium uppercase tracking-wide text-muted;
+  }
+
+  .metric-value {
+    @apply text-xl font-bold tracking-tight text-ink;
+  }
+
+  /* ================================
+     BADGES
+     ================================ */
+
+  .badge-success {
+    @apply inline-flex items-center rounded-full
+      bg-brand-soft px-2.5 py-1
+      text-xs font-semibold text-brand;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center rounded-full
+      bg-warn-soft px-2.5 py-1
+      text-xs font-semibold text-warn;
+  }
+
+  .badge-danger {
+    @apply inline-flex items-center rounded-full
+      bg-alert-soft px-2.5 py-1
+      text-xs font-semibold text-alert;
+  }
+
+  .badge-info {
+    @apply inline-flex items-center rounded-full
+      bg-info-soft px-2.5 py-1
+      text-xs font-semibold text-info;
+  }
+
+  /* ================================
+     ICON BUTTON
+     ================================ */
+
+  .icon-button {
+    @apply inline-flex h-10 w-10
+      items-center justify-center
+      rounded-xl
+      text-ink/70
+      transition-all duration-200
+      hover:bg-black/5
+      hover:text-ink
+      active:scale-95;
+  }
+
+  /* ================================
+     LIST ITEMS
+     ================================ */
+
+  .list-item {
+    @apply flex items-center gap-3
+      border-b border-line/70
+      py-3.5 last:border-b-0;
   }
 }
