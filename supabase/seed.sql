@@ -1,0 +1,16 @@
+-- ============================================================
+-- ContaCerta — Seed de desenvolvimento
+-- ============================================================
+-- O seed completo (secção 18 do prompt de engenharia) precisa de
+-- categorias, produtos, clientes, vendas e dívidas — nenhuma dessas
+-- tabelas existe ainda nesta fase. Será construído incrementalmente:
+--
+--   Fase 2 (Produtos)  → seed de negócio + admin + funcionário + categorias + produtos
+--   Fase 3 (Clientes)  → + clientes
+--   Fase 4 (Vendas)    → + vendas pagas e a crédito
+--   Fase 5 (Dívidas)   → + pagamentos parciais
+--
+-- Para testar a Fase 1 manualmente, usa o fluxo real da aplicação:
+-- /signup → /onboarding → /dashboard. Não há atalho de seed para
+-- Auth porque o Supabase Auth gere passwords com hashing próprio,
+-- que não é seguro nem prático replicar diretamente em SQL de seed.

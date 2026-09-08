@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Foco de teclado sempre visível — acessibilidade, não decoração */
+  :focus-visible {
+    outline: 2px solid theme("colors.brand.DEFAULT");
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply w-full rounded-xl bg-brand text-white font-medium py-3.5 text-base
+      active:bg-brand/90 disabled:opacity-50 disabled:pointer-events-none
+      transition-colors;
+  }
+  .input-field {
+    @apply w-full rounded-xl border border-line bg-white px-4 py-3 text-base
+      text-ink placeholder:text-ink/40 focus:border-brand outline-none
+      transition-colors;
+  }
+  .field-label {
+    @apply block text-sm font-medium text-ink/70 mb-1.5;
+  }
+  .error-text {
+    @apply text-sm text-alert mt-2;
+  }
+}
