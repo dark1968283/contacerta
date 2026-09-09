@@ -161,10 +161,13 @@ export default async function DashboardPage({
     y: 112 - (point.value / chartMax) * 88,
   }));
   const linePath = chartPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-  const areaPath =
-    chartPoints.length > 0
-      ? `${linePath} L ${chartPoints[chartPoints.length - 1].x} 112 L ${chartPoints[0].x} 112 Z`
-      : "";
+  const firstPoint = chartPoints[0];
+const lastPoint = chartPoints[chartPoints.length - 1];
+
+const areaPath =
+  firstPoint && lastPoint
+    ? `${linePath} L ${lastPoint.x} 112 L ${firstPoint.x} 112 Z`
+    : "";
 
   const todayKey = zonedDayKey(now, BUSINESS_TIMEZONE);
 
