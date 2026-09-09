@@ -32,7 +32,7 @@ export default async function DashboardPage({
 }: {
   searchParams: { periodo?: string };
 }) {
-  const { userId, businessId } = await getBusinessContext();
+  const { userId, businessId, businessName } = await getBusinessContext();
   const supabase = createClient();
 
   const now = new Date();
@@ -135,6 +135,7 @@ export default async function DashboardPage({
   const topProducts = [...ranking.values()]
     .sort((a, b) => b.quantity - a.quantity || a.name.localeCompare(b.name))
     .slice(0, 3);
+  const distinctProductsSold = ranking.size;
 
   // Principais clientes devedores — a partir dos mesmos `debts` já
   // carregados para "Por receber" (nenhuma query nova).
@@ -171,175 +172,214 @@ export default async function DashboardPage({
   const outOfStockCount = activeProducts?.filter((p) => p.stock_quantity === 0).length ?? 0;
 
   return (
-    <div className="space-y-7">
-      <div className="flex items-start justify-between gap-3 sm:items-center">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-ink sm:text-2xl">
-            Olá, {profile?.name?.split(" ")[0] ?? ""} 👋
-          </h1>
-          <p className="mt-0.5 text-sm text-ink/60">Como está o seu negócio hoje?</p>
-        </div>
-        <Link
-          href="/dashboard/vendas/nova"
-          className="group flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-brand/90 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-brand/30 focus:ring-offset-2 sm:px-4 sm:py-3"
-        >
-          <IconPlus className="h-4 w-4 transition-transform group-hover:rotate-90" />
-          Nova Venda
-        </Link>
-      </div>
-
-      <nav className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-line/60 bg-ink/[0.03] p-1">
-        {(Object.entries(periods) as [Period, string][]).map(([value, label]) => (
-          <Link
-            key={value}
-            href={value === "hoje" ? "/dashboard" : `/dashboard?periodo=${value}`}
-            className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
-              value === period ? "bg-brand text-white shadow-sm" : "text-ink/60 hover:bg-white hover:text-ink"
-            }`}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
-
-      {/* Dinheiro — hero financeiro, o elemento visual dominante da página. */}
-      <section className="relative overflow-hidden rounded-2xl bg-brand p-6 text-white shadow-lg shadow-brand/20">
-        {/* Camadas decorativas abstratas, muito subtis — não é gaming. */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.16),transparent_55%)]" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05] [background-image:repeating-linear-gradient(135deg,#fff_0px,#fff_1px,transparent_1px,transparent_14px)]" />
-        <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
-        <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-white/5 blur-2xl" />
-
-        <div className="relative flex items-start justify-between">
-          <div>
-            <p className="text-sm font-medium text-white/70">Vendido · {periods[period]}</p>
-            <p className="mt-1.5 text-4xl font-semibold tabular-nums tracking-tight sm:text-5xl">{formatMT(total)}</p>
-          </div>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
-            <IconWallet className="h-5 w-5" />
-          </span>
-        </div>
-
-        <div className="relative mt-4 border-t border-white/15 pt-3">
-          {hasSalesInPeriod ? (
-            <p className="text-sm text-white/80">
-              <span className="font-medium text-white">{sales!.length}</span> venda{sales!.length === 1 ? "" : "s"} ·
-              ticket médio <span className="font-medium tabular-nums text-white">{formatMT(avgTicket ?? 0)}</span>
-            </p>
-          ) : (
-            <p className="text-sm text-white/70">Ainda não existem vendas neste período.</p>
-          )}
-        </div>
-      </section>
-
-      {/* Métricas secundárias — cada uma com a sua própria personalidade. */}
-      <section className="grid grid-cols-2 gap-3">
-        <StatCard
-          icon={<IconWallet className="h-4 w-4" />}
-          label="Recebido"
-          value={formatMT(received)}
-          hint="Vendas + dívidas cobradas"
-          tone="brand"
-        />
-        <StatCard
-          icon={<IconClock className="h-4 w-4" />}
-          label="Por receber"
-          value={formatMT(outstanding)}
-          hint={hasOverdueDebt ? "Há dívidas vencidas" : undefined}
-          tone={outstanding === 0 ? "neutral" : hasOverdueDebt ? "alert" : "warn"}
-        />
-        <StatCard
-          icon={<IconTrendingUp className="h-4 w-4" />}
-          label="Lucro bruto"
-          value={hasProfitData ? formatMT(grossProfit) : "—"}
-          hint={hasProfitData ? undefined : "Registe o custo dos produtos"}
-          tone={hasProfitData ? "brand" : "neutral"}
-        />
-        <StatCard
-          icon={<IconReceipt className="h-4 w-4" />}
-          label="Ticket médio"
-          value={avgTicket !== null ? formatMT(avgTicket) : "—"}
-          hint={avgTicket !== null ? undefined : "Sem vendas no período"}
-          tone="neutral"
-        />
-      </section>
-
-      {/* Performance + Operação — lado a lado no desktop, empilhados no mobile. */}
-      <div className="space-y-7 lg:grid lg:grid-cols-5 lg:items-start lg:gap-5 lg:space-y-0">
-        {/* Performance — evolução das vendas no período. */}
-        <section className="rounded-xl border border-line bg-white p-4 transition-shadow hover:shadow-sm lg:col-span-3">
-          <h2 className="font-semibold text-ink">Vendas ao longo do tempo</h2>
-          <p className="text-sm text-ink/60">Acompanhe o movimento das suas vendas</p>
-          {chart.every((p) => p.value === 0) && !hasSalesInPeriod ? (
-            <div className="flex flex-col items-center gap-2 py-10 text-center">
-              <IconTrendingUp className="h-6 w-6 text-ink/20" />
-              <p className="text-sm text-ink/50">Ainda não existem vendas neste período.</p>
+    <div className="-mx-6 -mt-6 bg-[#F7F8F7] px-6 pb-10 pt-6 [background-image:radial-gradient(ellipse_900px_420px_at_50%_-120px,rgba(22,108,78,0.08),transparent)]">
+      <div className="space-y-8">
+        {/* Command bar — saudação, negócio, ação principal e período, como uma unidade coesa. */}
+        <header className="space-y-4">
+          <div className="flex items-start justify-between gap-3 sm:items-center">
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+                Olá, {profile?.name?.split(" ")[0] ?? ""} 👋
+              </h1>
+              <p className="mt-0.5 text-sm text-ink/50">{businessName}</p>
             </div>
-          ) : (
-            <svg viewBox="0 0 300 136" className="mt-4 h-40 w-full" role="img" aria-label="Gráfico de vendas">
-              <defs>
-                <linearGradient id="chart-area" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#168f5b" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#168f5b" stopOpacity="0" />
-                </linearGradient>
-              </defs>
+            <Link
+              href="/dashboard/vendas/nova"
+              className="group flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-brand/90 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-brand/30 focus:ring-offset-2 sm:px-4 sm:py-3"
+            >
+              <IconPlus className="h-4 w-4 transition-transform group-hover:rotate-90" />
+              Nova Venda
+            </Link>
+          </div>
 
-              {/* Grid horizontal discreto. */}
-              {[24, 68, 112].map((gy) => (
-                <line key={gy} x1="8" y1={gy} x2="292" y2={gy} stroke="#E4E2DC" strokeWidth="1" />
-              ))}
+          <nav className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-line/60 bg-ink/[0.03] p-1">
+            {(Object.entries(periods) as [Period, string][]).map(([value, label]) => (
+              <Link
+                key={value}
+                href={value === "hoje" ? "/dashboard" : `/dashboard?periodo=${value}`}
+                className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
+                  value === period ? "bg-brand text-white shadow-sm" : "text-ink/60 hover:bg-white hover:text-ink"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </header>
 
-              {areaPath && <path d={areaPath} fill="url(#chart-area)" />}
-              {linePath && (
-                <path d={linePath} fill="none" stroke="#168f5b" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Nível 1 — Visão financeira. Um único painel integrado, não hero + 4 cards soltos. */}
+        <section className="relative overflow-hidden rounded-3xl border border-ink/[0.06] bg-white/80 p-6 shadow-2xl shadow-ink/[0.06] backdrop-blur-sm sm:p-8">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-brand/5 blur-3xl" />
+
+          <div className="relative">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand">
+              <IconWallet className="h-3 w-3" />
+              Visão financeira · {periods[period]}
+            </span>
+            <p className="mt-4 text-[2.75rem] font-bold leading-none tracking-tight tabular-nums text-ink sm:text-6xl">
+              {formatMT(total)}
+            </p>
+            <p className="mt-3 text-sm text-ink/50">
+              {hasSalesInPeriod ? (
+                <>
+                  <span className="font-medium text-ink/70">{sales!.length}</span> venda{sales!.length === 1 ? "" : "s"} ·
+                  ticket médio <span className="font-medium tabular-nums text-ink/70">{formatMT(avgTicket ?? 0)}</span>
+                </>
+              ) : (
+                "Ainda não existem vendas neste período."
               )}
+            </p>
+          </div>
 
-              {chartPoints.map((point, i) => {
-                const isLast = i === chartPoints.length - 1;
-                return (
-                  <g key={point.key}>
-                    <title>{`${point.label}: ${formatMT(point.value)}`}</title>
-                    {isLast && <circle cx={point.x} cy={point.y} r="7" fill="#168f5b" opacity="0.15" />}
-                    <circle cx={point.x} cy={point.y} r={isLast ? 4 : 2.5} fill="#168f5b" stroke="white" strokeWidth={isLast ? 1.5 : 0} />
-                    <text x={point.x} y="130" textAnchor="middle" fontSize="9" fill="#697386">
-                      {point.label}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-          )}
+          <div className="relative mt-6 grid grid-cols-3 divide-x divide-ink/[0.06] border-t border-ink/[0.06] pt-5">
+            <SubMetric label="Recebido" value={formatMT(received)} tone="brand" />
+            <SubMetric
+              label="Por receber"
+              value={formatMT(outstanding)}
+              tone={outstanding === 0 ? "neutral" : hasOverdueDebt ? "alert" : "warn"}
+            />
+            <SubMetric
+              label="Lucro bruto"
+              value={hasProfitData ? formatMT(grossProfit) : "—"}
+              tone={hasProfitData ? "brand" : "neutral"}
+            />
+          </div>
+          <p className="relative mt-3 text-[11px] text-ink/35">Recebido inclui vendas pagas + dívidas cobradas no período.</p>
         </section>
 
-        {/* Operação — "business health": dívidas e stock. */}
-        <div className="lg:col-span-2">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink/50">Operação</h2>
-          <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0 lg:grid-cols-1 lg:space-y-4">
-            <section className="rounded-xl border border-line bg-white p-4 transition-shadow hover:shadow-sm">
-              <div className="flex justify-between">
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <IconAlertTriangle className={`h-4 w-4 ${outstanding > 0 ? "text-alert" : "text-ink/30"}`} />
-                    <h3 className="font-semibold text-ink">Dívidas</h3>
-                  </div>
-                  <p className="mt-1 text-lg font-semibold tabular-nums text-alert">{formatMT(outstanding)}</p>
-                  <p className="text-sm text-ink/60">
-                    {debtCustomers} cliente{debtCustomers === 1 ? "" : "s"} com dívida
-                  </p>
-                </div>
-                <Link
-                  href="/dashboard/dividas"
-                  className="flex items-center text-sm font-medium text-brand transition-colors hover:text-brand/70"
-                >
-                  Ver <IconArrowUpRight className="ml-0.5 h-3.5 w-3.5" />
-                </Link>
+        {/* Nível 2 — Performance: gráfico + resumo, lado a lado no desktop. */}
+        <div className="grid gap-4 lg:grid-cols-3">
+          <section className="rounded-2xl border border-ink/[0.06] bg-white/70 p-5 shadow-lg shadow-ink/[0.04] backdrop-blur-sm lg:col-span-2">
+            <h2 className="font-semibold text-ink">Vendas ao longo do tempo</h2>
+            <p className="text-sm text-ink/60">Acompanhe o movimento das suas vendas</p>
+            {chart.every((p) => p.value === 0) && !hasSalesInPeriod ? (
+              <div className="flex flex-col items-center gap-2 py-10 text-center">
+                <IconTrendingUp className="h-6 w-6 text-ink/20" />
+                <p className="text-sm text-ink/50">Ainda não existem vendas neste período.</p>
               </div>
+            ) : (
+              <svg viewBox="0 0 300 136" className="mt-4 h-40 w-full" role="img" aria-label="Gráfico de vendas">
+                <defs>
+                  <linearGradient id="chart-area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#168f5b" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="#168f5b" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+
+                {[24, 68, 112].map((gy) => (
+                  <line key={gy} x1="8" y1={gy} x2="292" y2={gy} stroke="#E4E2DC" strokeWidth="1" />
+                ))}
+
+                {areaPath && <path d={areaPath} fill="url(#chart-area)" />}
+                {linePath && (
+                  <path d={linePath} fill="none" stroke="#168f5b" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
+                )}
+
+                {chartPoints.map((point, i) => {
+                  const isLast = i === chartPoints.length - 1;
+                  return (
+                    <g key={point.key}>
+                      <title>{`${point.label}: ${formatMT(point.value)}`}</title>
+                      {isLast && <circle cx={point.x} cy={point.y} r="7" fill="#168f5b" opacity="0.15" />}
+                      <circle cx={point.x} cy={point.y} r={isLast ? 4 : 2.5} fill="#168f5b" stroke="white" strokeWidth={isLast ? 1.5 : 0} />
+                      <text x={point.x} y="130" textAnchor="middle" fontSize="9" fill="#697386">
+                        {point.label}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
+            )}
+          </section>
+
+          <section className="rounded-2xl border border-ink/[0.06] bg-white/70 p-5 shadow-lg shadow-ink/[0.04] backdrop-blur-sm">
+            <h2 className="flex items-center gap-1.5 font-semibold text-ink">
+              <IconReceipt className="h-4 w-4 text-ink/40" />
+              Resumo
+            </h2>
+            <dl className="mt-3 divide-y divide-ink/[0.06]">
+              <div className="flex items-center justify-between py-2.5 text-sm">
+                <dt className="text-ink/60">Ticket médio</dt>
+                <dd className="font-medium tabular-nums text-ink">{avgTicket !== null ? formatMT(avgTicket) : "—"}</dd>
+              </div>
+              <div className="flex items-center justify-between py-2.5 text-sm">
+                <dt className="text-ink/60">Nº de vendas</dt>
+                <dd className="font-medium tabular-nums text-ink">{sales?.length ?? 0}</dd>
+              </div>
+              <div className="flex items-center justify-between py-2.5 text-sm">
+                <dt className="text-ink/60">Produtos vendidos</dt>
+                <dd className="font-medium tabular-nums text-ink">{distinctProductsSold}</dd>
+              </div>
+            </dl>
+          </section>
+        </div>
+
+        {/* Nível 3 — Operação: atenção necessária + rankings, lado a lado no desktop. */}
+        <div className="grid gap-4 lg:grid-cols-2">
+          <section className="rounded-2xl border border-ink/[0.06] bg-white/70 p-5 shadow-lg shadow-ink/[0.04] backdrop-blur-sm">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Atenção necessária</h2>
+            <div className="mt-3 divide-y divide-ink/[0.06]">
+              <AttentionRow
+                icon={<IconAlertTriangle className={`h-4 w-4 ${outstanding > 0 ? "text-alert" : "text-ink/30"}`} />}
+                title="Dívidas"
+                detail={`${formatMT(outstanding)} · ${debtCustomers} cliente${debtCustomers === 1 ? "" : "s"}`}
+                ok={outstanding === 0}
+                href="/dashboard/dividas"
+                cta="Ver detalhes"
+              />
+              <AttentionRow
+                icon={<IconClock className={`h-4 w-4 ${lowStockCount > 0 ? "text-warn" : "text-ink/30"}`} />}
+                title="Stock baixo"
+                detail={
+                  lowStockCount > 0 ? `${lowStockCount} produto${lowStockCount === 1 ? "" : "s"}` : "Nenhum produto em risco"
+                }
+                ok={lowStockCount === 0}
+                href="/dashboard/produtos"
+                cta="Ver stock"
+              />
+              <AttentionRow
+                icon={<IconPackage className={`h-4 w-4 ${outOfStockCount > 0 ? "text-alert" : "text-ink/30"}`} />}
+                title="Esgotados"
+                detail={
+                  outOfStockCount > 0 ? `${outOfStockCount} produto${outOfStockCount === 1 ? "" : "s"}` : "Nenhum produto esgotado"
+                }
+                ok={outOfStockCount === 0}
+                href="/dashboard/produtos"
+                cta="Ver stock"
+              />
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-ink/[0.06] bg-white/70 p-5 shadow-lg shadow-ink/[0.04] backdrop-blur-sm">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Rankings</h2>
+
+            <div className="mt-3">
+              <p className="mb-1 text-sm font-medium text-ink">Produtos mais vendidos</p>
+              {topProducts.length ? (
+                <ol className="divide-y divide-ink/[0.06]">
+                  {topProducts.map((p, i) => (
+                    <li key={p.name} className="flex items-center justify-between gap-2 py-1.5 text-sm">
+                      <span className="flex min-w-0 items-center gap-2 text-ink/80">
+                        <span className="w-4 shrink-0 font-mono text-xs text-ink/35">{String(i + 1).padStart(2, "0")}</span>
+                        <span className="truncate">{p.name}</span>
+                      </span>
+                      <span className="shrink-0 tabular-nums text-ink/60">{p.quantity} un.</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="text-sm text-ink/50">Ainda não existem produtos vendidos neste período.</p>
+              )}
+            </div>
+
+            <div className="mt-4 border-t border-ink/[0.06] pt-3">
+              <p className="mb-1 text-sm font-medium text-ink">Clientes em dívida</p>
               {topDebtors.length ? (
-                <ul className="mt-3 divide-y divide-line border-t border-line">
+                <ul className="divide-y divide-ink/[0.06]">
                   {topDebtors.map((d) => (
-                    <li key={d.name} className="flex items-center justify-between gap-2 py-2 text-sm first:pt-3">
+                    <li key={d.name} className="flex items-center justify-between gap-2 py-1.5 text-sm">
                       <span className="flex min-w-0 items-center gap-2 text-ink/70">
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-alert-soft text-[11px] font-semibold text-alert">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-alert-soft text-[10px] font-semibold text-alert">
                           {initials(d.name)}
                         </span>
                         <span className="truncate">{d.name}</span>
@@ -349,92 +389,45 @@ export default async function DashboardPage({
                   ))}
                 </ul>
               ) : (
-                <p className="mt-3 text-sm text-ink/60">Tudo certo! Não existem valores por receber.</p>
+                <p className="text-sm text-ink/50">Não existem clientes com dívida.</p>
               )}
-            </section>
-
-            <section className="rounded-xl border border-line bg-white p-4 transition-shadow hover:shadow-sm">
-              <div className="flex justify-between">
-                <div className="flex items-center gap-1.5">
-                  <IconPackage className="h-4 w-4 text-ink/40" />
-                  <h3 className="font-semibold text-ink">Stock</h3>
-                </div>
-                <Link
-                  href="/dashboard/produtos"
-                  className="flex items-center text-sm font-medium text-brand transition-colors hover:text-brand/70"
-                >
-                  Ver <IconArrowUpRight className="ml-0.5 h-3.5 w-3.5" />
-                </Link>
-              </div>
-
-              {lowStockCount === 0 && outOfStockCount === 0 ? (
-                <p className="mt-3 text-sm text-ink/60">O seu stock está em ordem.</p>
-              ) : (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {lowStockCount > 0 && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-warn-soft px-2.5 py-1 text-xs font-medium text-warn">
-                      <IconClock className="h-3 w-3" />
-                      {lowStockCount} stock baixo
-                    </span>
-                  )}
-                  {outOfStockCount > 0 && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-alert-soft px-2.5 py-1 text-xs font-medium text-alert">
-                      <IconAlertTriangle className="h-3 w-3" />
-                      {outOfStockCount} esgotados
-                    </span>
-                  )}
-                </div>
-              )}
-
-              <div className="mt-4 border-t border-line pt-3">
-                <p className="mb-1 text-sm font-medium text-ink">Produtos mais vendidos</p>
-                {topProducts.length ? (
-                  <ol className="divide-y divide-line">
-                    {topProducts.map((p, i) => (
-                      <li key={p.name} className="flex items-center justify-between gap-2 py-1.5 text-sm">
-                        <span className="flex min-w-0 items-center gap-2 text-ink/80">
-                          <span className="w-4 shrink-0 font-mono text-xs text-ink/35">{String(i + 1).padStart(2, "0")}</span>
-                          <span className="truncate">{p.name}</span>
-                        </span>
-                        <span className="shrink-0 tabular-nums text-ink/60">{p.quantity} un.</span>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="text-sm text-ink/50">Ainda não existem produtos vendidos neste período.</p>
-                )}
-              </div>
-            </section>
-          </div>
-        </div>
-      </div>
-
-      {/* Histórico — atividade recente. */}
-      <Section title="Últimas vendas" link="/dashboard/vendas" action="Ver todas →">
-        {sales?.slice(0, 5).map((s) => {
-          const saleDate = new Date(s.created_at);
-          const isToday = zonedDayKey(saleDate, BUSINESS_TIMEZONE) === todayKey;
-          const timeLabel = isToday ? `Hoje, ${zonedTime(saleDate, BUSINESS_TIMEZONE)}` : zonedShortDate(saleDate);
-          return (
-            <div key={s.id} className="flex items-center justify-between gap-3 border-t border-line py-3 text-sm">
-              <span
-                className={`h-2 w-2 shrink-0 rounded-full ${s.payment_method === "pago" ? "bg-brand" : "bg-warn"}`}
-                aria-hidden
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-ink">
-                  {s.customer_id ? customerNames.get(s.customer_id) ?? "Cliente" : "Cliente avulso"}
-                </p>
-                <p className="text-ink/50">{timeLabel}</p>
-              </div>
-              <b className="shrink-0 tabular-nums text-ink">{formatMT(s.total_amount)}</b>
             </div>
-          );
-        })}
-        {!sales?.length && (
-          <p className="text-sm text-ink/50">Ainda não existem vendas. Registe uma venda para começar.</p>
-        )}
-      </Section>
+          </section>
+        </div>
+
+        {/* Nível 4 — Histórico: camada mais leve, não compete com a informação financeira. */}
+        <section className="rounded-2xl border border-ink/[0.05] bg-white/50 p-5">
+          <div className="mb-2 flex justify-between">
+            <h2 className="text-sm font-medium text-ink/70">Últimas vendas</h2>
+            <Link href="/dashboard/vendas" className="text-sm font-medium text-brand transition-colors hover:text-brand/70">
+              Ver todas →
+            </Link>
+          </div>
+          {sales?.slice(0, 5).map((s) => {
+            const saleDate = new Date(s.created_at);
+            const isToday = zonedDayKey(saleDate, BUSINESS_TIMEZONE) === todayKey;
+            const timeLabel = isToday ? `Hoje, ${zonedTime(saleDate, BUSINESS_TIMEZONE)}` : zonedShortDate(saleDate);
+            return (
+              <div key={s.id} className="flex items-center justify-between gap-3 border-t border-ink/[0.05] py-2.5 text-sm">
+                <span
+                  className={`h-1.5 w-1.5 shrink-0 rounded-full ${s.payment_method === "pago" ? "bg-brand" : "bg-warn"}`}
+                  aria-hidden
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-ink/80">
+                    {s.customer_id ? customerNames.get(s.customer_id) ?? "Cliente" : "Cliente avulso"}
+                  </p>
+                  <p className="text-xs text-ink/40">{timeLabel}</p>
+                </div>
+                <span className="shrink-0 tabular-nums text-ink/70">{formatMT(s.total_amount)}</span>
+              </div>
+            );
+          })}
+          {!sales?.length && (
+            <p className="text-sm text-ink/50">Ainda não existem vendas. Registe uma venda para começar.</p>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
@@ -447,64 +440,60 @@ function initials(name: string): string {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
-function StatCard({
-  icon,
+/** Uma métrica secundária integrada na mesma superfície do total vendido (não um card à parte). */
+function SubMetric({
   label,
   value,
-  hint,
   tone,
 }: {
-  icon: React.ReactNode;
   label: string;
   value: string;
-  hint?: string;
   tone: "brand" | "warn" | "alert" | "neutral";
 }) {
-  const toneClasses = {
-    brand: "bg-brand-soft text-brand",
-    warn: "bg-warn-soft text-warn",
-    alert: "bg-alert-soft text-alert",
-    neutral: "bg-ink/5 text-ink/40",
-  }[tone];
-  const valueToneClasses = { brand: "text-ink", warn: "text-warn", alert: "text-alert", neutral: "text-ink" }[tone];
-  const accentClasses = { brand: "bg-brand", warn: "bg-warn", alert: "bg-alert", neutral: "bg-ink/10" }[tone];
-
+  const valueTone = { brand: "text-ink", warn: "text-warn", alert: "text-alert", neutral: "text-ink/40" }[tone];
   return (
-    <div className="relative min-w-0 overflow-hidden rounded-xl border border-line bg-white p-3.5 pt-4 transition-shadow hover:shadow-sm">
-      <span className={`absolute inset-x-0 top-0 h-0.5 ${accentClasses}`} aria-hidden />
-      <span className={`flex h-8 w-8 items-center justify-center rounded-full ${toneClasses}`}>{icon}</span>
-      <p className="mt-2 truncate text-xs text-ink/50">{label}</p>
-      <p className={`break-words text-sm font-semibold leading-snug tabular-nums sm:text-base ${valueToneClasses}`}>
-        {value}
-      </p>
-      {hint && <p className="mt-0.5 truncate text-[11px] text-ink/40">{hint}</p>}
+    <div className="min-w-0 px-3 first:pl-0 last:pr-0">
+      <p className="truncate text-[11px] uppercase tracking-wide text-ink/40">{label}</p>
+      <p className={`mt-1 truncate text-base font-semibold tabular-nums sm:text-lg ${valueTone}`}>{value}</p>
     </div>
   );
 }
 
-function Section({
+/** Uma linha de estado dentro do painel "Atenção necessária" — ícone, título, detalhe e CTA. */
+function AttentionRow({
+  icon,
   title,
-  link,
-  action,
-  children,
+  detail,
+  ok,
+  href,
+  cta,
 }: {
+  icon: React.ReactNode;
   title: string;
-  link: string;
-  action: string;
-  children: React.ReactNode;
+  detail: string;
+  ok: boolean;
+  href: string;
+  cta: string;
 }) {
   return (
-    <section className="rounded-xl border border-line bg-white p-4 transition-shadow hover:shadow-sm">
-      <div className="mb-3 flex justify-between">
-        <h2 className="font-semibold text-ink">{title}</h2>
-        <Link href={link} className="text-sm font-medium text-brand transition-colors hover:text-brand/70">
-          {action}
-        </Link>
+    <div className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+      <div className="flex min-w-0 items-center gap-2.5">
+        <span className="shrink-0">{icon}</span>
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-ink">{title}</p>
+          <p className={`truncate text-xs ${ok ? "text-ink/40" : "text-ink/60"}`}>{detail}</p>
+        </div>
       </div>
-      {children}
-    </section>
+      <Link
+        href={href}
+        className="flex shrink-0 items-center text-xs font-medium text-brand transition-colors hover:text-brand/70"
+      >
+        {cta} <IconArrowUpRight className="ml-0.5 h-3 w-3" />
+      </Link>
+    </div>
   );
 }
+
 
 /**
  * Ícones inline, estilo Lucide (stroke 2, 24×24, currentColor).

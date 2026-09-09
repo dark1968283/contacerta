@@ -12,7 +12,7 @@ export default async function DashboardLayout({
   const { data: isPlatformAdmin } = await createClient().rpc("is_platform_admin");
 
   return (
-    <div className="mx-auto min-h-dvh max-w-app pb-20">
+    <div className="mx-auto min-h-dvh max-w-app pb-20 md:max-w-2xl lg:max-w-5xl">
       <header className="flex items-center justify-between border-b border-line px-6 py-4">
         <div><span className="font-semibold text-ink">{businessName}</span><div className="mt-1 flex gap-3 text-xs"><a href="/dashboard/planos" className="text-ink/60">Planos</a><a href="/dashboard/meu-plano" className="text-ink/60">Meu plano</a><a href="/dashboard/pagamentos" className="text-ink/60">Pagamentos</a>{isPlatformAdmin && <a href="/platform-admin" className="text-brand">Plataforma</a>}</div></div>
         <form action={signOut}>
