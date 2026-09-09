@@ -2,8 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteURL } from "@/lib/site-url";
 
-export type AuthActionState = { error: string | null };
+export type AuthActionState = {
+  error: string | null;
+  emailNotConfirmed?: boolean;
+  email?: string;
+};
 
 export async function signUp(
   _prevState: AuthActionState,
@@ -24,14 +29,17 @@ export async function signUp(
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { name } },
+    options: {
+      data: { name },
+      emailRedirectTo: `${getSiteURL()}/auth/callback`,
+    },
   });
 
   if (error) {
     return { error: traduzErroAuth(error.message) };
   }
 
-  redirect("/onboarding");
+  redirect(`/verificar-email?email=${encodeURIComponent(email)}`);
 }
 
 export async function signIn(
@@ -49,6 +57,13 @@ export async function signIn(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    if (error.message.includes("Email not confirmed")) {
+      return {
+        error: "A sua conta ainda não foi ativada. Verifique o seu email e clique no link de confirmação antes de iniciar sessão.",
+        emailNotConfirmed: true,
+        email,
+      };
+    }
     return { error: traduzErroAuth(error.message) };
   }
 

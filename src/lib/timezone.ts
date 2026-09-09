@@ -69,6 +69,13 @@ export function zonedHourLabel(instant: Date, timeZone: string = BUSINESS_TIMEZO
   return `${zonedHour(instant, timeZone).toString().padStart(2, "0")}h`;
 }
 
+/** Hora curta "14:32" para exibição, no timezone do negócio. */
+export function zonedTime(instant: Date, timeZone: string = BUSINESS_TIMEZONE): string {
+  return new Intl.DateTimeFormat("pt-MZ", { timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(
+    instant
+  );
+}
+
 /** Data curta "07/09/2026" para listas (últimas vendas), no timezone do negócio. */
 export function zonedShortDate(instant: Date, timeZone: string = BUSINESS_TIMEZONE): string {
   return new Intl.DateTimeFormat("pt-MZ", {

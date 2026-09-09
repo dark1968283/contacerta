@@ -1,64 +1,110 @@
 "use client";
 
-import { useFormState } from "react-dom";
 import Link from "next/link";
+import { useFormState, useFormStatus } from "react-dom";
 import { signIn, type AuthActionState } from "../actions";
-import { SubmitButton } from "@/components/ui/SubmitButton";
 
-const initialState: AuthActionState = { error: null };
+const initialState: AuthActionState = {
+error: null,
+};
+
+function SubmitButton() {
+const { pending } = useFormStatus();
+
+return ( <button
+   type="submit"
+   disabled={pending}
+   className="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+ >
+{pending ? "A entrar..." : "Entrar"} </button>
+);
+}
 
 export default function LoginPage() {
-  const [state, formAction] = useFormState(signIn, initialState);
+const [state, formAction] = useFormState(signIn, initialState);
 
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-app flex-col justify-center px-6 py-10">
-      <div className="mb-10">
-        <h1 className="text-2xl font-semibold text-ink">Entrar</h1>
-        <p className="mt-1 text-ink/60">O seu negócio. Sob controlo.</p>
+return ( <main className="flex min-h-screen items-center justify-center bg-gray-50 p-4"> <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg"> <div className="mb-8 text-center"> <h1 className="text-3xl font-bold text-gray-900">
+ContaCerta </h1>
+
+```
+      <p className="mt-2 text-sm text-gray-500">
+        Entre na sua conta para continuar.
+      </p>
+    </div>
+
+    {state?.error && (
+      <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <p>{state.error}</p>
+
+        {state.emailNotConfirmed && state.email && (
+          <div className="mt-2">
+            <Link
+              href={`/verificar-email?email=${encodeURIComponent(
+                state.email
+              )}`}
+              className="font-medium underline"
+            >
+              Verificar email
+            </Link>
+          </div>
+        )}
+      </div>
+    )}
+
+    <form action={formAction} className="space-y-5">
+      <div>
+        <label
+          htmlFor="email"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
+          Email
+        </label>
+
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="seu@email.com"
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        />
       </div>
 
-      <form action={formAction} className="space-y-5">
-        <div>
-          <label htmlFor="email" className="field-label">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            className="input-field"
-            placeholder="voce@exemplo.com"
-          />
-        </div>
+      <div>
+        <label
+          htmlFor="password"
+          className="mb-2 block text-sm font-medium text-gray-700"
+        >
+          Palavra-passe
+        </label>
 
-        <div>
-          <label htmlFor="password" className="field-label">
-            Palavra-passe
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            className="input-field"
-            placeholder="••••••••"
-          />
-        </div>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autoComplete="current-password"
+          placeholder="••••••••"
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        />
+      </div>
 
-        {state.error && <p className="error-text">{state.error}</p>}
+      <SubmitButton />
+    </form>
 
-        <SubmitButton>Entrar</SubmitButton>
-      </form>
+    <div className="mt-6 text-center text-sm text-gray-600">
+      Ainda não tem uma conta?{" "}
+      <Link
+        href="/signup"
+        className="font-medium text-blue-600 hover:underline"
+      >
+        Criar conta
+      </Link>
+    </div>
+  </div>
+</main>
 
-      <p className="mt-8 text-center text-sm text-ink/60">
-        Ainda não tem conta?{" "}
-        <Link href="/signup" className="font-medium text-brand">
-          Criar conta
-        </Link>
-      </p>
-    </main>
-  );
+
+);
 }
