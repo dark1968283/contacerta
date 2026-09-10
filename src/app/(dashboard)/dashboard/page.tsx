@@ -4,6 +4,17 @@ import { getBusinessContext } from "@/lib/supabase/business";
 import { formatMT } from "@/lib/format";
 import { BUSINESS_TIMEZONE, zonedDayKey, zonedShortDate, zonedStartOfDay, zonedTime } from "@/lib/timezone";
 import { buildEmptyBuckets, fillBuckets } from "@/lib/dashboard-chart";
+import { PaymentMethodIcon } from "@/components/ui/payment-method-icon";
+import {
+  Wallet,
+  Clock3,
+  TrendingUp,
+  Receipt,
+  Package,
+  AlertTriangle,
+  ArrowUpRight,
+  Plus,
+} from "lucide-react";
 
 const periods = { hoje: "Hoje", "7-dias": "7 dias", "30-dias": "30 dias", mes: "Este mês" } as const;
 type Period = keyof typeof periods;
@@ -32,7 +43,7 @@ export default async function DashboardPage({
 }: {
   searchParams: { periodo?: string };
 }) {
-  const { userId, businessId, businessName } = await getBusinessContext();
+  const { userId, businessId } = await getBusinessContext();
   const supabase = createClient();
 
   const now = new Date();
@@ -162,12 +173,9 @@ export default async function DashboardPage({
   }));
   const linePath = chartPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const firstPoint = chartPoints[0];
-const lastPoint = chartPoints[chartPoints.length - 1];
-
-const areaPath =
-  firstPoint && lastPoint
-    ? `${linePath} L ${lastPoint.x} 112 L ${firstPoint.x} 112 Z`
-    : "";
+  const lastPoint = chartPoints.at(-1);
+  const areaPath =
+    firstPoint && lastPoint ? `${linePath} L ${lastPoint.x} 112 L ${firstPoint.x} 112 Z` : "";
 
   const todayKey = zonedDayKey(now, BUSINESS_TIMEZONE);
 
@@ -175,33 +183,36 @@ const areaPath =
   const outOfStockCount = activeProducts?.filter((p) => p.stock_quantity === 0).length ?? 0;
 
   return (
-    <div className="-mx-6 -mt-6 bg-[#F7F8F7] px-6 pb-10 pt-6 [background-image:radial-gradient(ellipse_900px_420px_at_50%_-120px,rgba(22,108,78,0.08),transparent)]">
+    <div className="-mx-4 -mt-5 -mb-6 bg-dark-bg px-4 pb-16 pt-5 sm:-mx-6 sm:px-6 [background-image:radial-gradient(ellipse_900px_420px_at_50%_-120px,rgba(34,199,102,0.10),transparent)]">
       <div className="space-y-8">
-        {/* Command bar — saudação, negócio, ação principal e período, como uma unidade coesa. */}
+        {/* Command bar — o nome do negócio já vive na navegação flutuante partilhada; aqui só saudação + ação + período. */}
         <header className="space-y-4">
           <div className="flex items-start justify-between gap-3 sm:items-center">
             <div>
-              <h1 className="text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+              <h1 className="text-xl font-semibold tracking-tight text-dark-text sm:text-2xl">
                 Olá, {profile?.name?.split(" ")[0] ?? ""} 👋
               </h1>
-              <p className="mt-0.5 text-sm text-ink/50">{businessName}</p>
+              <p className="mt-0.5 text-sm text-dark-muted">Como está o seu negócio hoje?</p>
             </div>
             <Link
               href="/dashboard/vendas/nova"
-              className="group flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-brand/90 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-brand/30 focus:ring-offset-2 sm:px-4 sm:py-3"
+              className="group flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2.5 text-sm font-medium text-white shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 hover:shadow-brand/30 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-brandGlow/40 focus:ring-offset-2 focus:ring-offset-dark-bg sm:px-4 sm:py-3"
             >
-              <IconPlus className="h-4 w-4 transition-transform group-hover:rotate-90" />
+              <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" aria-hidden />
               Nova Venda
             </Link>
           </div>
 
-          <nav className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-line/60 bg-ink/[0.03] p-1">
+          <nav
+            aria-label="Período"
+            className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-dark-border bg-white/[0.03] p-1"
+          >
             {(Object.entries(periods) as [Period, string][]).map(([value, label]) => (
               <Link
                 key={value}
                 href={value === "hoje" ? "/dashboard" : `/dashboard?periodo=${value}`}
                 className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
-                  value === period ? "bg-brand text-white shadow-sm" : "text-ink/60 hover:bg-white hover:text-ink"
+                  value === period ? "bg-brand text-white shadow-sm" : "text-dark-muted hover:bg-white/5 hover:text-dark-text"
                 }`}
               >
                 {label}
@@ -210,23 +221,25 @@ const areaPath =
           </nav>
         </header>
 
-        {/* Nível 1 — Visão financeira. Um único painel integrado, não hero + 4 cards soltos. */}
-        <section className="relative overflow-hidden rounded-3xl border border-ink/[0.06] bg-white/80 p-6 shadow-2xl shadow-ink/[0.06] backdrop-blur-sm sm:p-8">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-brand/5 blur-3xl" />
+        {/* Nível 1 — Visão financeira. Superfície "elevated", a mais destacada da página. */}
+        <section className="relative overflow-hidden rounded-3xl border border-dark-border bg-dark-elevated p-6 shadow-2xl shadow-black/40 sm:p-8">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brandGlow/40 to-transparent" />
 
           <div className="relative">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand">
-              <IconWallet className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-brandGlow">
+              <Wallet className="h-3 w-3" aria-hidden />
               Visão financeira · {periods[period]}
             </span>
-            <p className="mt-4 text-[2.75rem] font-bold leading-none tracking-tight tabular-nums text-ink sm:text-6xl">
+            <p className="mt-4 text-[2.75rem] font-bold leading-none tracking-tight tabular-nums text-dark-text sm:text-6xl">
               {formatMT(total)}
             </p>
-            <p className="mt-3 text-sm text-ink/50">
+            <p className="mt-3 text-sm text-dark-muted">
               {hasSalesInPeriod ? (
                 <>
-                  <span className="font-medium text-ink/70">{sales!.length}</span> venda{sales!.length === 1 ? "" : "s"} ·
-                  ticket médio <span className="font-medium tabular-nums text-ink/70">{formatMT(avgTicket ?? 0)}</span>
+                  <span className="font-medium text-dark-text/80">{sales!.length}</span> venda
+                  {sales!.length === 1 ? "" : "s"} · ticket médio{" "}
+                  <span className="font-medium tabular-nums text-dark-text/80">{formatMT(avgTicket ?? 0)}</span>
                 </>
               ) : (
                 "Ainda não existem vendas neste período."
@@ -234,7 +247,7 @@ const areaPath =
             </p>
           </div>
 
-          <div className="relative mt-6 grid grid-cols-3 divide-x divide-ink/[0.06] border-t border-ink/[0.06] pt-5">
+          <div className="relative mt-6 grid grid-cols-3 divide-x divide-dark-border border-t border-dark-border pt-5">
             <SubMetric label="Recebido" value={formatMT(received)} tone="brand" />
             <SubMetric
               label="Por receber"
@@ -247,35 +260,35 @@ const areaPath =
               tone={hasProfitData ? "brand" : "neutral"}
             />
           </div>
-          <p className="relative mt-3 text-[11px] text-ink/35">Recebido inclui vendas pagas + dívidas cobradas no período.</p>
+          <p className="relative mt-3 text-[11px] text-dark-faint">Recebido inclui vendas pagas + dívidas cobradas no período.</p>
         </section>
 
-        {/* Nível 2 — Performance: gráfico + resumo, lado a lado no desktop. */}
+        {/* Nível 2 — Performance: gráfico + resumo, lado a lado no desktop. Superfície "surface". */}
         <div className="grid gap-4 lg:grid-cols-3">
-          <section className="rounded-2xl border border-ink/[0.06] bg-white/70 p-5 shadow-lg shadow-ink/[0.04] backdrop-blur-sm lg:col-span-2">
-            <h2 className="font-semibold text-ink">Vendas ao longo do tempo</h2>
-            <p className="text-sm text-ink/60">Acompanhe o movimento das suas vendas</p>
+          <section className="rounded-2xl border border-dark-border bg-dark-surface p-5 shadow-lg shadow-black/20 lg:col-span-2">
+            <h2 className="font-semibold text-dark-text">Vendas ao longo do tempo</h2>
+            <p className="text-sm text-dark-muted">Acompanhe o movimento das suas vendas</p>
             {chart.every((p) => p.value === 0) && !hasSalesInPeriod ? (
               <div className="flex flex-col items-center gap-2 py-10 text-center">
-                <IconTrendingUp className="h-6 w-6 text-ink/20" />
-                <p className="text-sm text-ink/50">Ainda não existem vendas neste período.</p>
+                <TrendingUp className="h-6 w-6 text-white/15" aria-hidden />
+                <p className="text-sm text-dark-faint">Ainda não existem vendas neste período.</p>
               </div>
             ) : (
               <svg viewBox="0 0 300 136" className="mt-4 h-40 w-full" role="img" aria-label="Gráfico de vendas">
                 <defs>
                   <linearGradient id="chart-area" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#168f5b" stopOpacity="0.22" />
-                    <stop offset="100%" stopColor="#168f5b" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#22C766" stopOpacity="0.35" />
+                    <stop offset="100%" stopColor="#22C766" stopOpacity="0" />
                   </linearGradient>
                 </defs>
 
                 {[24, 68, 112].map((gy) => (
-                  <line key={gy} x1="8" y1={gy} x2="292" y2={gy} stroke="#E4E2DC" strokeWidth="1" />
+                  <line key={gy} x1="8" y1={gy} x2="292" y2={gy} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
                 ))}
 
                 {areaPath && <path d={areaPath} fill="url(#chart-area)" />}
                 {linePath && (
-                  <path d={linePath} fill="none" stroke="#168f5b" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d={linePath} fill="none" stroke="#22C766" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
                 )}
 
                 {chartPoints.map((point, i) => {
@@ -283,9 +296,16 @@ const areaPath =
                   return (
                     <g key={point.key}>
                       <title>{`${point.label}: ${formatMT(point.value)}`}</title>
-                      {isLast && <circle cx={point.x} cy={point.y} r="7" fill="#168f5b" opacity="0.15" />}
-                      <circle cx={point.x} cy={point.y} r={isLast ? 4 : 2.5} fill="#168f5b" stroke="white" strokeWidth={isLast ? 1.5 : 0} />
-                      <text x={point.x} y="130" textAnchor="middle" fontSize="9" fill="#697386">
+                      {isLast && <circle cx={point.x} cy={point.y} r="8" fill="#22C766" opacity="0.2" />}
+                      <circle
+                        cx={point.x}
+                        cy={point.y}
+                        r={isLast ? 4 : 2.5}
+                        fill="#22C766"
+                        stroke="#101816"
+                        strokeWidth={isLast ? 1.5 : 0}
+                      />
+                      <text x={point.x} y="130" textAnchor="middle" fontSize="9" fill="rgba(245,246,244,0.4)">
                         {point.label}
                       </text>
                     </g>
@@ -295,23 +315,23 @@ const areaPath =
             )}
           </section>
 
-          <section className="rounded-2xl border border-ink/[0.06] bg-white/70 p-5 shadow-lg shadow-ink/[0.04] backdrop-blur-sm">
-            <h2 className="flex items-center gap-1.5 font-semibold text-ink">
-              <IconReceipt className="h-4 w-4 text-ink/40" />
+          <section className="rounded-2xl border border-dark-border bg-dark-surface p-5 shadow-lg shadow-black/20">
+            <h2 className="flex items-center gap-1.5 font-semibold text-dark-text">
+              <Receipt className="h-4 w-4 text-dark-faint" aria-hidden />
               Resumo
             </h2>
-            <dl className="mt-3 divide-y divide-ink/[0.06]">
+            <dl className="mt-3 divide-y divide-dark-border">
               <div className="flex items-center justify-between py-2.5 text-sm">
-                <dt className="text-ink/60">Ticket médio</dt>
-                <dd className="font-medium tabular-nums text-ink">{avgTicket !== null ? formatMT(avgTicket) : "—"}</dd>
+                <dt className="text-dark-muted">Ticket médio</dt>
+                <dd className="font-medium tabular-nums text-dark-text">{avgTicket !== null ? formatMT(avgTicket) : "—"}</dd>
               </div>
               <div className="flex items-center justify-between py-2.5 text-sm">
-                <dt className="text-ink/60">Nº de vendas</dt>
-                <dd className="font-medium tabular-nums text-ink">{sales?.length ?? 0}</dd>
+                <dt className="text-dark-muted">Nº de vendas</dt>
+                <dd className="font-medium tabular-nums text-dark-text">{sales?.length ?? 0}</dd>
               </div>
               <div className="flex items-center justify-between py-2.5 text-sm">
-                <dt className="text-ink/60">Produtos vendidos</dt>
-                <dd className="font-medium tabular-nums text-ink">{distinctProductsSold}</dd>
+                <dt className="text-dark-muted">Produtos vendidos</dt>
+                <dd className="font-medium tabular-nums text-dark-text">{distinctProductsSold}</dd>
               </div>
             </dl>
           </section>
@@ -319,11 +339,11 @@ const areaPath =
 
         {/* Nível 3 — Operação: atenção necessária + rankings, lado a lado no desktop. */}
         <div className="grid gap-4 lg:grid-cols-2">
-          <section className="rounded-2xl border border-ink/[0.06] bg-white/70 p-5 shadow-lg shadow-ink/[0.04] backdrop-blur-sm">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Atenção necessária</h2>
-            <div className="mt-3 divide-y divide-ink/[0.06]">
+          <section className="rounded-2xl border border-dark-border bg-dark-surface p-5 shadow-lg shadow-black/20">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-dark-faint">Atenção necessária</h2>
+            <div className="mt-3 divide-y divide-dark-border">
               <AttentionRow
-                icon={<IconAlertTriangle className={`h-4 w-4 ${outstanding > 0 ? "text-alert" : "text-ink/30"}`} />}
+                icon={<AlertTriangle className={`h-4 w-4 ${outstanding > 0 ? "text-danger" : "text-white/20"}`} aria-hidden />}
                 title="Dívidas"
                 detail={`${formatMT(outstanding)} · ${debtCustomers} cliente${debtCustomers === 1 ? "" : "s"}`}
                 ok={outstanding === 0}
@@ -331,7 +351,7 @@ const areaPath =
                 cta="Ver detalhes"
               />
               <AttentionRow
-                icon={<IconClock className={`h-4 w-4 ${lowStockCount > 0 ? "text-warn" : "text-ink/30"}`} />}
+                icon={<Clock3 className={`h-4 w-4 ${lowStockCount > 0 ? "text-warning" : "text-white/20"}`} aria-hidden />}
                 title="Stock baixo"
                 detail={
                   lowStockCount > 0 ? `${lowStockCount} produto${lowStockCount === 1 ? "" : "s"}` : "Nenhum produto em risco"
@@ -341,7 +361,7 @@ const areaPath =
                 cta="Ver stock"
               />
               <AttentionRow
-                icon={<IconPackage className={`h-4 w-4 ${outOfStockCount > 0 ? "text-alert" : "text-ink/30"}`} />}
+                icon={<Package className={`h-4 w-4 ${outOfStockCount > 0 ? "text-danger" : "text-white/20"}`} aria-hidden />}
                 title="Esgotados"
                 detail={
                   outOfStockCount > 0 ? `${outOfStockCount} produto${outOfStockCount === 1 ? "" : "s"}` : "Nenhum produto esgotado"
@@ -353,57 +373,60 @@ const areaPath =
             </div>
           </section>
 
-          <section className="rounded-2xl border border-ink/[0.06] bg-white/70 p-5 shadow-lg shadow-ink/[0.04] backdrop-blur-sm">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ink/50">Rankings</h2>
+          <section className="rounded-2xl border border-dark-border bg-dark-surface p-5 shadow-lg shadow-black/20">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-dark-faint">Rankings</h2>
 
             <div className="mt-3">
-              <p className="mb-1 text-sm font-medium text-ink">Produtos mais vendidos</p>
+              <p className="mb-1 text-sm font-medium text-dark-text">Produtos mais vendidos</p>
               {topProducts.length ? (
-                <ol className="divide-y divide-ink/[0.06]">
+                <ol className="divide-y divide-dark-border">
                   {topProducts.map((p, i) => (
                     <li key={p.name} className="flex items-center justify-between gap-2 py-1.5 text-sm">
-                      <span className="flex min-w-0 items-center gap-2 text-ink/80">
-                        <span className="w-4 shrink-0 font-mono text-xs text-ink/35">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="flex min-w-0 items-center gap-2 text-dark-text/80">
+                        <span className="w-4 shrink-0 font-mono text-xs text-dark-faint">{String(i + 1).padStart(2, "0")}</span>
                         <span className="truncate">{p.name}</span>
                       </span>
-                      <span className="shrink-0 tabular-nums text-ink/60">{p.quantity} un.</span>
+                      <span className="shrink-0 tabular-nums text-dark-muted">{p.quantity} un.</span>
                     </li>
                   ))}
                 </ol>
               ) : (
-                <p className="text-sm text-ink/50">Ainda não existem produtos vendidos neste período.</p>
+                <p className="text-sm text-dark-faint">Ainda não existem produtos vendidos neste período.</p>
               )}
             </div>
 
-            <div className="mt-4 border-t border-ink/[0.06] pt-3">
-              <p className="mb-1 text-sm font-medium text-ink">Clientes em dívida</p>
+            <div className="mt-4 border-t border-dark-border pt-3">
+              <p className="mb-1 text-sm font-medium text-dark-text">Clientes em dívida</p>
               {topDebtors.length ? (
-                <ul className="divide-y divide-ink/[0.06]">
+                <ul className="divide-y divide-dark-border">
                   {topDebtors.map((d) => (
                     <li key={d.name} className="flex items-center justify-between gap-2 py-1.5 text-sm">
-                      <span className="flex min-w-0 items-center gap-2 text-ink/70">
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-alert-soft text-[10px] font-semibold text-alert">
+                      <span className="flex min-w-0 items-center gap-2 text-dark-text/80">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-danger/15 text-[10px] font-semibold text-danger">
                           {initials(d.name)}
                         </span>
                         <span className="truncate">{d.name}</span>
                       </span>
-                      <span className="shrink-0 font-medium tabular-nums text-ink">{formatMT(d.amount)}</span>
+                      <span className="shrink-0 font-medium tabular-nums text-dark-text">{formatMT(d.amount)}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-ink/50">Não existem clientes com dívida.</p>
+                <p className="text-sm text-dark-faint">Não existem clientes com dívida.</p>
               )}
             </div>
           </section>
         </div>
 
-        {/* Nível 4 — Histórico: camada mais leve, não compete com a informação financeira. */}
-        <section className="rounded-2xl border border-ink/[0.05] bg-white/50 p-5">
+        {/* Nível 4 — Histórico: a camada mais discreta, não compete com a informação financeira. */}
+        <section className="rounded-2xl border border-white/[0.04] bg-white/[0.015] p-5">
           <div className="mb-2 flex justify-between">
-            <h2 className="text-sm font-medium text-ink/70">Últimas vendas</h2>
-            <Link href="/dashboard/vendas" className="text-sm font-medium text-brand transition-colors hover:text-brand/70">
-              Ver todas →
+            <h2 className="text-sm font-medium text-dark-muted">Últimas vendas</h2>
+            <Link
+              href="/dashboard/vendas"
+              className="flex items-center gap-0.5 text-sm font-medium text-brandGlow transition-colors hover:text-brandGlow/70"
+            >
+              Ver todas <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
             </Link>
           </div>
           {sales?.slice(0, 5).map((s) => {
@@ -411,23 +434,20 @@ const areaPath =
             const isToday = zonedDayKey(saleDate, BUSINESS_TIMEZONE) === todayKey;
             const timeLabel = isToday ? `Hoje, ${zonedTime(saleDate, BUSINESS_TIMEZONE)}` : zonedShortDate(saleDate);
             return (
-              <div key={s.id} className="flex items-center justify-between gap-3 border-t border-ink/[0.05] py-2.5 text-sm">
-                <span
-                  className={`h-1.5 w-1.5 shrink-0 rounded-full ${s.payment_method === "pago" ? "bg-brand" : "bg-warn"}`}
-                  aria-hidden
-                />
+              <div key={s.id} className="flex items-center justify-between gap-3 border-t border-white/[0.04] py-2.5 text-sm">
+                <PaymentMethodIcon method={s.payment_method} className="h-6 w-6" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-ink/80">
+                  <p className="truncate text-dark-text/80">
                     {s.customer_id ? customerNames.get(s.customer_id) ?? "Cliente" : "Cliente avulso"}
                   </p>
-                  <p className="text-xs text-ink/40">{timeLabel}</p>
+                  <p className="text-xs text-dark-faint">{timeLabel}</p>
                 </div>
-                <span className="shrink-0 tabular-nums text-ink/70">{formatMT(s.total_amount)}</span>
+                <span className="shrink-0 tabular-nums text-dark-text/70">{formatMT(s.total_amount)}</span>
               </div>
             );
           })}
           {!sales?.length && (
-            <p className="text-sm text-ink/50">Ainda não existem vendas. Registe uma venda para começar.</p>
+            <p className="text-sm text-dark-faint">Ainda não existem vendas. Registe uma venda para começar.</p>
           )}
         </section>
       </div>
@@ -435,17 +455,15 @@ const areaPath =
   );
 }
 
+
 /** Iniciais (até 2 letras) a partir do nome do cliente, para o avatar circular. */
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
-
-  if (parts.length === 0) return "?";
-
-  if (parts.length === 1) {
-    return parts[0]!.slice(0, 2).toUpperCase();
-  }
-
-  return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
+  const first = parts[0];
+  if (!first) return "?";
+  const last = parts[parts.length - 1];
+  if (parts.length === 1 || !last) return first.slice(0, 2).toUpperCase();
+  return `${first[0] ?? ""}${last[0] ?? ""}`.toUpperCase();
 }
 
 /** Uma métrica secundária integrada na mesma superfície do total vendido (não um card à parte). */
@@ -458,10 +476,12 @@ function SubMetric({
   value: string;
   tone: "brand" | "warn" | "alert" | "neutral";
 }) {
-  const valueTone = { brand: "text-ink", warn: "text-warn", alert: "text-alert", neutral: "text-ink/40" }[tone];
+  const valueTone = { brand: "text-brandGlow", warn: "text-warning", alert: "text-danger", neutral: "text-dark-faint" }[
+    tone
+  ];
   return (
     <div className="min-w-0 px-3 first:pl-0 last:pr-0">
-      <p className="truncate text-[11px] uppercase tracking-wide text-ink/40">{label}</p>
+      <p className="truncate text-[11px] uppercase tracking-wide text-dark-faint">{label}</p>
       <p className={`mt-1 truncate text-base font-semibold tabular-nums sm:text-lg ${valueTone}`}>{value}</p>
     </div>
   );
@@ -488,107 +508,16 @@ function AttentionRow({
       <div className="flex min-w-0 items-center gap-2.5">
         <span className="shrink-0">{icon}</span>
         <div className="min-w-0">
-          <p className="text-sm font-medium text-ink">{title}</p>
-          <p className={`truncate text-xs ${ok ? "text-ink/40" : "text-ink/60"}`}>{detail}</p>
+          <p className="text-sm font-medium text-dark-text">{title}</p>
+          <p className={`truncate text-xs ${ok ? "text-dark-faint" : "text-dark-muted"}`}>{detail}</p>
         </div>
       </div>
       <Link
         href={href}
-        className="flex shrink-0 items-center text-xs font-medium text-brand transition-colors hover:text-brand/70"
+        className="flex shrink-0 items-center gap-0.5 text-xs font-medium text-brandGlow transition-colors hover:text-brandGlow/70"
       >
-        {cta} <IconArrowUpRight className="ml-0.5 h-3 w-3" />
+        {cta} <ArrowUpRight className="h-3 w-3" aria-hidden />
       </Link>
     </div>
-  );
-}
-
-
-/**
- * Ícones inline, estilo Lucide (stroke 2, 24×24, currentColor).
- *
- * `lucide-react` NÃO está instalado neste projeto (confirmado em
- * package.json/node_modules) apesar de referido no pedido — para não
- * instalar uma dependência nova, os poucos ícones necessários foram
- * desenhados à mão aqui, na mesma linguagem visual.
- */
-const iconProps = {
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 2,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
-
-function IconWallet({ className }: { className?: string }) {
-  return (
-    <svg {...iconProps} className={className} aria-hidden>
-      <path d="M20 7H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-3" />
-      <path d="M3 9V6a2 2 0 0 1 2-2h13" />
-      <path d="M17 13h.01" />
-      <path d="M20 10h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1a2.5 2.5 0 0 1 0-5Z" />
-    </svg>
-  );
-}
-
-function IconClock({ className }: { className?: string }) {
-  return (
-    <svg {...iconProps} className={className} aria-hidden>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 3" />
-    </svg>
-  );
-}
-
-function IconTrendingUp({ className }: { className?: string }) {
-  return (
-    <svg {...iconProps} className={className} aria-hidden>
-      <path d="M3 17l6-6 4 4 8-8" />
-      <path d="M17 7h4v4" />
-    </svg>
-  );
-}
-
-function IconReceipt({ className }: { className?: string }) {
-  return (
-    <svg {...iconProps} className={className} aria-hidden>
-      <path d="M4 3h16v18l-3-2-2 2-2-2-2 2-2-2-2 2-3-2Z" />
-      <path d="M8 8h8M8 12h8M8 16h4" />
-    </svg>
-  );
-}
-
-function IconPackage({ className }: { className?: string }) {
-  return (
-    <svg {...iconProps} className={className} aria-hidden>
-      <path d="m7.5 4.27 9 5.15" />
-      <path d="M21 8v8a1 1 0 0 1-.5.87l-8 4.62a1 1 0 0 1-1 0l-8-4.62A1 1 0 0 1 3 16V8a1 1 0 0 1 .5-.87l8-4.62a1 1 0 0 1 1 0l8 4.62A1 1 0 0 1 21 8Z" />
-      <path d="M3.29 7.24 12 12l8.71-4.76M12 22V12" />
-    </svg>
-  );
-}
-
-function IconAlertTriangle({ className }: { className?: string }) {
-  return (
-    <svg {...iconProps} className={className} aria-hidden>
-      <path d="m10.29 3.86-8.18 14.18A2 2 0 0 0 3.83 21h16.34a2 2 0 0 0 1.72-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
-      <path d="M12 9v4M12 17h.01" />
-    </svg>
-  );
-}
-
-function IconArrowUpRight({ className }: { className?: string }) {
-  return (
-    <svg {...iconProps} className={className} aria-hidden>
-      <path d="M7 17 17 7M7 7h10v10" />
-    </svg>
-  );
-}
-
-function IconPlus({ className }: { className?: string }) {
-  return (
-    <svg {...iconProps} className={className} aria-hidden>
-      <path d="M12 5v14M5 12h14" />
-    </svg>
   );
 }
