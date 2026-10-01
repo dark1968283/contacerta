@@ -3,25 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, ShoppingCart, Package, WalletCards, Menu, type LucideIcon } from "lucide-react";
-
-const items: { href: string; label: string; Icon: LucideIcon }[] = [
-  { href: "/dashboard", label: "Início", Icon: LayoutDashboard },
-  { href: "/dashboard/vendas", label: "Vendas", Icon: ShoppingCart },
-  { href: "/dashboard/produtos", label: "Produtos", Icon: Package },
-  { href: "/dashboard/dividas", label: "Dívidas", Icon: WalletCards },
-  { href: "/dashboard/mais", label: "Mais", Icon: Menu },
-];
+import { MOBILE_ITEMS, MORE_GROUP_HREFS, isActivePath } from "./nav-items";
 
 /**
- * Barra de navegação inferior, flutuante, para mobile. Inspirada no
- * FloatingNav fornecido como referência, mas adaptada ao ContaCerta:
- * rotas reais do produto (não Home/Search/Alerts/Profile genéricos),
- * estado ativo derivado de usePathname() (nunca um setActive(index) local),
- * e navegação real via <Link>, não botões que só mudam estado visual.
+ * Substitui a MobileNav actual (mesmo caminho e mesmo export nomeado).
+ * Mantém o visual e a animação; "Mais" fica activo também em Clientes, Planos,
+ * Meu plano e Pagamentos, que só são alcançáveis a partir de /dashboard/mais.
  */
 export function MobileNav() {
   const pathname = usePathname();
+  const moreActive = MORE_GROUP_HREFS.some((h) => isActivePath(pathname, h));
 
   return (
     <nav
@@ -29,8 +20,8 @@ export function MobileNav() {
       className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden"
     >
       <div className="flex items-center gap-1 rounded-full border border-dark-border bg-dark-surface/95 p-1.5 shadow-2xl shadow-black/40 backdrop-blur">
-        {items.map((item) => {
-          const active = item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href);
+        {MOBILE_ITEMS.map((item) => {
+          const active = item.href === "/dashboard/mais" ? moreActive : isActivePath(pathname, item.href);
           return (
             <Link
               key={item.href}
