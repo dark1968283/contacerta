@@ -59,7 +59,8 @@ export async function signIn(
   if (error) {
     if (error.message.includes("Email not confirmed")) {
       return {
-        error: "A sua conta ainda não foi ativada. Verifique o seu email e clique no link de confirmação antes de iniciar sessão.",
+        error:
+          "A sua conta ainda não foi ativada. Verifique o seu email e clique no link de confirmação antes de iniciar sessão.",
         emailNotConfirmed: true,
         email,
       };
@@ -68,6 +69,23 @@ export async function signIn(
   }
 
   redirect("/dashboard");
+}
+
+export async function signInWithGoogle() {
+  const supabase = createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${getSiteURL()}/auth/callback`,
+    },
+  });
+
+  if (error || !data.url) {
+    redirect("/login?error=google");
+  }
+
+  redirect(data.url);
 }
 
 export async function signOut() {

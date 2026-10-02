@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useFormState } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, Eye, EyeOff, Wallet, WalletCards, Package } from "lucide-react";
-import { signIn, type AuthActionState } from "../actions";
+import { Mail, Lock, Eye, EyeOff, Wallet, WalletCards, Package, Globe } from "lucide-react";
+import { signIn, signInWithGoogle, type AuthActionState } from "../actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
 const initialState: AuthActionState = { error: null };
@@ -62,6 +62,22 @@ export default function LoginPage() {
 
           <h1 className="text-2xl font-semibold text-dark-text">Entrar</h1>
           <p className="mt-1 text-sm text-dark-muted">Aceda à sua conta ContaCerta.</p>
+
+          <form action={signInWithGoogle} className="mt-8">
+            <button
+              type="submit"
+              className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-dark-text transition-colors hover:bg-white/10"
+            >
+              <Globe className="h-4 w-4" aria-hidden />
+              Continuar com Google
+            </button>
+          </form>
+
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="text-xs text-dark-faint">ou</span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
 
           <form action={formAction} className="mt-8 space-y-4">
             <div>
