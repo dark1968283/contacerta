@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useFormState } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Lock, Eye, EyeOff, Wallet, WalletCards, Package, Globe } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Wallet, WalletCards, Package } from "lucide-react";
 import { signIn, signInWithGoogle, type AuthActionState } from "../actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
+import { GoogleIcon } from "@/components/ui/GoogleIcon";
 
 const initialState: AuthActionState = { error: null };
 
@@ -68,7 +69,7 @@ export default function LoginPage() {
               type="submit"
               className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-dark-text transition-colors hover:bg-white/10"
             >
-              <Globe className="h-4 w-4" aria-hidden />
+              <GoogleIcon />
               Continuar com Google
             </button>
           </form>
