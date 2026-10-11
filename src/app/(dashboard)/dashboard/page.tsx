@@ -4,10 +4,11 @@ import { getBusinessContext } from "@/lib/supabase/business";
 import { formatMT } from "@/lib/format";
 import { BUSINESS_TIMEZONE, zonedDayKey, zonedShortDate, zonedStartOfDay, zonedTime } from "@/lib/timezone";
 import { buildEmptyBuckets, fillBuckets } from "@/lib/dashboard-chart";
-import { MetricCard } from "@/components/dashboard/MetricCard";
+import { FinanceWallet } from "@/components/dashboard/FinanceWallet";
 import { Panel } from "@/components/dashboard/Panel";
 import { RecentActivity, type ActivityItem } from "@/components/dashboard/RecentActivity";
 import { SalesChart, type ChartPoint } from "@/components/dashboard/SalesChart";
+import { LowStockAlert } from "./LowStockAlert";
 import {
   Wallet,
   Clock3,
@@ -204,6 +205,21 @@ export default async function DashboardPage({
   return (
     <div className="-mx-4 -mt-5 -mb-6 bg-dark-bg px-4 pb-16 pt-5 shadow-[0_0_0_100vmax_theme(colors.dark.bg)] [clip-path:inset(-6rem_-100vmax_-8rem_-100vmax)] sm:-mx-6 sm:px-6 [background-image:radial-gradient(ellipse_520px_420px_at_50%_-120px,rgba(34,199,102,0.10),transparent)]">
       <div className="space-y-6 sm:space-y-8">
+        <LowStockAlert
+          products={(activeProducts ?? [])
+            .filter(
+              (product) =>
+                product.stock_quantity === 0 ||
+                (product.stock_quantity > 0 &&
+                  product.stock_quantity <= product.low_stock_threshold)
+            )
+            .map((product) => ({
+              id: product.id,
+              name: product.name,
+              stock_quantity: product.stock_quantity,
+              low_stock_threshold: product.low_stock_threshold,
+            }))}
+        />
         {/* Header — saudação, contexto temporal, ação principal e período (todos já existentes). */}
         <header className="space-y-4">
           <div className="flex items-start justify-between gap-3 sm:items-center">
@@ -247,66 +263,15 @@ export default async function DashboardPage({
           </nav>
         </header>
 
-        {/* Métricas — Vendas é o destaque; "A receber" muda de cor conforme o estado das dívidas (lógica original). */}
-        <section aria-label="Resumo financeiro" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-          <MetricCard
-            featured
-            className="col-span-2 md:col-span-1"
-            label="Vendas"
-            value={formatMT(total)}
-            icon={ShoppingCart}
-            accent="brand"
-            hint={
-              hasSalesInPeriod ? (
-                <>
-                  <span className="font-medium text-dark-text/80">{sales!.length}</span> venda
-                  {sales!.length === 1 ? "" : "s"} · ticket médio{" "}
-                  <span className="font-medium tabular-nums text-dark-text/80">{formatMT(avgTicket ?? 0)}</span>
-                </>
-              ) : (
-                "Ainda não existem vendas neste período."
-              )
-            }
-          />
-          <MetricCard
-            label="Recebido"
-            value={formatMT(received)}
-            icon={Wallet}
-            accent="brand"
-            hint={
-              receivedFromDebts > 0
-                ? `Inclui ${formatMT(receivedFromDebts)} de dívidas cobradas`
-                : "Vendas pagas no período"
-            }
-          />
-          <MetricCard
-            label="A receber"
-            value={formatMT(outstanding)}
-            icon={Clock3}
-            accent={outstanding === 0 ? "neutral" : hasOverdueDebt ? "danger" : "warn"}
-            valueTone={outstanding === 0 ? "muted" : hasOverdueDebt ? "danger" : "warn"}
-            hint={
-              outstanding === 0
-                ? "Sem dívidas em aberto"
-                : `${debtCustomers} cliente${debtCustomers === 1 ? "" : "s"}${hasOverdueDebt ? " · há dívidas vencidas" : ""}`
-            }
-          />
-          <MetricCard
-            className="col-span-2 md:col-span-1"
-            label="Lucro bruto"
-            value={hasProfitData ? formatMT(grossProfit) : "—"}
-            icon={TrendingUp}
-            accent={hasProfitData ? "brand" : "neutral"}
-            valueTone={hasProfitData ? "brand" : "muted"}
-            hint={
-              hasProfitData
-                ? "Só itens com custo registado"
-                : hasSalesInPeriod
-                  ? "Sem custo registado nos produtos vendidos"
-                  : "Sem vendas neste período"
-            }
-          />
-        </section>
+        {/* Cartão financeiro — apresentação visual; mantém os cálculos originais. */}
+        <FinanceWallet
+          profit={formatMT(grossProfit)}
+          sales={formatMT(total)}
+          received={formatMT(received)}
+          outstanding={formatMT(outstanding)}
+          periodLabel={periods[period]}
+          hasProfitData={hasProfitData}
+        />
 
         {/* Gráfico + atividade recente. */}
         <div className="grid gap-4 lg:grid-cols-5">

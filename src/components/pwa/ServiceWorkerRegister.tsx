@@ -2,26 +2,56 @@
 
 import { useEffect } from "react";
 
-/**
- * Regista o service worker (public/sw.js) apenas no browser, depois da
- * página carregar. Não usa nenhuma biblioteca externa. Não faz nada no
- * servidor — o "use client" + useEffect garante isso.
- */
+export type DeferredInstallPrompt = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{
+    outcome: "accepted" | "dismissed";
+    platform: string;
+  }>;
+};
+
+declare global {
+  interface Window {
+    __contacertaInstallPrompt?: DeferredInstallPrompt;
+  }
+}
+
 export function ServiceWorkerRegister() {
   useEffect(() => {
-    if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
+
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+
+      window.__contacertaInstallPrompt = event as DeferredInstallPrompt;
+      window.dispatchEvent(new Event("contacerta:pwa-install-available"));
+    };
+
+    const handleAppInstalled = () => {
+      delete window.__contacertaInstallPrompt;
+      window.dispatchEvent(new Event("contacerta:pwa-installed"));
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     const register = () => {
       navigator.serviceWorker.register("/sw.js").catch(() => {
-        // Registo falhou (ex.: browser sem suporte, ambiente de dev
-        // estrito) — a aplicação continua a funcionar normalmente sem
-        // o service worker, por isso o erro é silenciosamente ignorado.
+        // A aplicação continua funcional mesmo sem service worker.
       });
     };
 
-    window.addEventListener("load", register);
-    return () => window.removeEventListener("load", register);
+    if (document.readyState === "complete") {
+      register();
+    } else {
+      window.addEventListener("load", register);
+    }
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+      window.removeEventListener("load", register);
+    };
   }, []);
 
   return null;

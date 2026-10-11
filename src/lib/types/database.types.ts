@@ -761,6 +761,39 @@ export type Database = {
           },
         ]
       }
+      employee_invites: {
+        Row: {
+          accepted_user_id: string | null
+          business_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          status: string
+        }
+        Insert: {
+          accepted_user_id?: string | null
+          business_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          status?: string
+        }
+        Update: {
+          accepted_user_id?: string | null
+          business_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          status?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string
@@ -790,6 +823,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_pending_employee_invite: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       adjust_stock: {
         Args: {
           p_note?: string

@@ -9,13 +9,54 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { businessName } = await getBusinessContext();
-  const { data: isPlatformAdmin } = await createClient().rpc("is_platform_admin");
+  const { businessId, businessName } = await getBusinessContext();
+  const supabase = createClient();
+
+  const [
+    { data: isPlatformAdmin },
+    { data: { user } },
+    { data: activeSubscriptions },
+  ] = await Promise.all([
+    supabase.rpc("is_platform_admin"),
+    supabase.auth.getUser(),
+    supabase
+      .from("subscriptions")
+      .select("plans(name)")
+      .eq("business_id", businessId)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1),
+  ]);
+
+  const userLabel =
+    (typeof user?.user_metadata?.full_name === "string"
+      ? user.user_metadata.full_name.trim()
+      : "") ||
+    user?.email?.split("@")[0] ||
+    "Utilizador";
+
+  const avatarUrl =
+    typeof user?.user_metadata?.avatar_url === "string"
+      ? user.user_metadata.avatar_url
+      : "";
+
+  const planRelation = activeSubscriptions?.[0]?.plans as unknown as
+    | { name: string }
+    | { name: string }[]
+    | null
+    | undefined;
+
+  const planName = (
+    Array.isArray(planRelation) ? planRelation[0]?.name : planRelation?.name
+  )?.trim() || "Free";
 
   return (
     <AppShell
       businessName={businessName}
       isPlatformAdmin={!!isPlatformAdmin}
+      userLabel={userLabel}
+      planName={planName}
+      avatarUrl={avatarUrl}
       actions={
         <form action={signOut}>
           <button

@@ -6,8 +6,12 @@ import { MobileNav } from "./MobileNav";
 type AppShellProps = {
   businessName: string;
   isPlatformAdmin: boolean;
-  /** Slot da TopBar (botão Sair). O signOut continua no layout, sem alterações. */
+  userLabel: string;
+  planName: string;
+  avatarUrl?: string;
+  /** Acções da barra superior e do menu da conta. */
   actions?: ReactNode;
+  sidebarActions?: ReactNode;
   children: ReactNode;
 };
 
@@ -16,10 +20,26 @@ type AppShellProps = {
  * por isso só a "chrome" (sidebar, topo, barra mobile) é dark. As larguras
  * max-w-app / md:max-w-2xl / lg:max-w-5xl são as do layout actual.
  */
-export function AppShell({ businessName, isPlatformAdmin, actions, children }: AppShellProps) {
+export function AppShell({
+  businessName,
+  isPlatformAdmin,
+  userLabel,
+  planName,
+  avatarUrl,
+  actions,
+  sidebarActions,
+  children,
+}: AppShellProps) {
   return (
     <div className="min-h-dvh">
-      <Sidebar isPlatformAdmin={isPlatformAdmin} />
+      <Sidebar
+        isPlatformAdmin={isPlatformAdmin}
+        userLabel={userLabel}
+        businessName={businessName}
+        planName={planName}
+        avatarUrl={avatarUrl}
+        accountActions={sidebarActions}
+      />
 
       <div className="md:pl-60">
         <div className="mx-auto min-h-dvh max-w-app pb-28 md:max-w-2xl md:pb-10 lg:max-w-5xl">
@@ -28,7 +48,7 @@ export function AppShell({ businessName, isPlatformAdmin, actions, children }: A
         </div>
       </div>
 
-      <MobileNav />
+      <MobileNav userLabel={userLabel} avatarUrl={avatarUrl} />
     </div>
   );
 }

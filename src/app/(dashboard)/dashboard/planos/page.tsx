@@ -33,20 +33,20 @@ export default async function PlanosPage({
   }));
 
   return (
-    <div className="space-y-5">
+    <div className="-mx-4 -mt-5 -mb-6 min-h-[calc(100dvh-5rem)] bg-dark-bg px-4 pb-16 pt-5 shadow-[0_0_0_100vmax_theme(colors.dark.bg)] [clip-path:inset(-6rem_-100vmax_-100vmax_-100vmax)] sm:-mx-6 sm:px-6"><div className="space-y-5">
       <div>
         <Link
           href="/dashboard"
-          className="text-sm text-ink/60"
+          className="text-sm text-dark-muted transition-colors hover:text-brandGlow"
         >
           ← Início
         </Link>
 
-        <h1 className="mt-2 text-xl font-semibold text-ink">
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-dark-text sm:text-[28px]">
           Planos
         </h1>
 
-        <p className="mt-1 text-sm text-ink/60">
+        <p className="mt-1 text-sm text-dark-muted">
           Escolha o plano ideal para o seu negócio.
         </p>
       </div>
@@ -55,6 +55,7 @@ export default async function PlanosPage({
         plans={plans}
         error={searchParams.erro}
       />
+      </div>
     </div>
   );
 }
