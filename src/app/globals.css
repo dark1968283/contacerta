@@ -150,3 +150,139 @@
       py-3.5 last:border-b-0;
   }
 }
+/* ContaCerta — intro de abertura */
+@property --cc-reveal-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.cc-intro__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  opacity: 1;
+}
+
+.cc-intro__content {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px;
+}
+
+.cc-intro__mark {
+  position: relative;
+  width: min(76vw, 320px);
+  aspect-ratio: 1 / 1;
+}
+
+.cc-intro__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cc-intro__layer img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cc-intro__c {
+  -webkit-mask-image: conic-gradient(
+    from -115deg at 42% 47%,
+    #000 0deg var(--cc-reveal-angle),
+    transparent calc(var(--cc-reveal-angle) + 0.5deg) 360deg
+  );
+  mask-image: conic-gradient(
+    from -115deg at 42% 47%,
+    #000 0deg var(--cc-reveal-angle),
+    transparent calc(var(--cc-reveal-angle) + 0.5deg) 360deg
+  );
+  animation: cc-draw 1.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cc-draw {
+  from { --cc-reveal-angle: 0deg; }
+  to { --cc-reveal-angle: 360deg; }
+}
+
+.cc-intro__green {
+  z-index: 2;
+}
+
+.cc-intro__o {
+  z-index: 3;
+}
+
+.cc-intro__final {
+  z-index: 4;
+  opacity: 0;
+  animation: cc-final-reveal 0.3s ease 2.55s forwards;
+}
+
+@keyframes cc-final-reveal {
+  to { opacity: 1; }
+}
+
+.cc-intro__wordmark {
+  margin-top: -12px;
+  color: #14532d;
+  font-size: clamp(28px, 7vw, 38px);
+  font-weight: 750;
+  letter-spacing: -0.055em;
+  opacity: 0;
+  animation: cc-final-reveal 0.35s ease 2.6s forwards;
+}
+
+.cc-intro__wordmark span {
+  color: #22c55e;
+}
+
+.cc-intro__tagline {
+  margin-top: 10px;
+  color: #53715e;
+  font-size: 13px;
+  letter-spacing: 0.025em;
+  opacity: 0;
+  animation: cc-final-reveal 0.35s ease 2.7s forwards;
+}
+
+.cc-intro--reduced .cc-intro__c,
+.cc-intro--reduced .cc-intro__o {
+  display: none;
+}
+
+.cc-intro--reduced .cc-intro__final,
+.cc-intro--fallback .cc-intro__final {
+  opacity: 1;
+  animation: none;
+}
+
+.cc-intro--reduced .cc-intro__wordmark,
+.cc-intro--fallback .cc-intro__wordmark,
+.cc-intro--reduced .cc-intro__tagline,
+.cc-intro--fallback .cc-intro__tagline {
+  opacity: 1;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-intro__c,
+  .cc-intro__o,
+  .cc-intro__final,
+  .cc-intro__wordmark,
+  .cc-intro__tagline {
+    animation: none !important;
+    transition: none !important;
+  }
+}

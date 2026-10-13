@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
+import { ContaCertaIntro } from "@/components/intro/ContaCertaIntro";
 
 export const metadata: Metadata = {
   title: "ContaCerta — O seu negócio. Sob controlo.",
@@ -36,6 +37,9 @@ export default function RootLayout({
     <html lang="pt-MZ">
       <body className="bg-paper text-ink antialiased min-h-dvh">
         {children}
+
+        <ContaCertaIntro />
+
         <ServiceWorkerRegister />
       </body>
     </html>
