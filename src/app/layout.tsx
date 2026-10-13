@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
-import { ContaCertaIntro } from "@/components/intro/ContaCertaIntro";
+import IntroBootScript from "@/components/intro/IntroBootScript";
+import ContaCertaSplash from "@/components/intro/ContaCertaSplash";
 
 export const metadata: Metadata = {
   title: "ContaCerta — O seu negócio. Sob controlo.",
@@ -34,11 +35,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-MZ">
+    <html lang="pt-MZ" suppressHydrationWarning>
       <body className="bg-paper text-ink antialiased min-h-dvh">
-        {children}
+        <IntroBootScript />
+        <ContaCertaSplash />
 
-        <ContaCertaIntro />
+        {children}
 
         <ServiceWorkerRegister />
       </body>
