@@ -1,181 +1,52 @@
-/*
- * Linha do tempo da intro (duração total D = 4800 ms; as percentagens abaixo são desta duração).
- * Posições, escala (2,098×), rotação (−135°) e deslocamentos vêm do Figma. Os tempos são estimados:
- * ajuste aqui, ou mude INTRO_TOTAL_MS em introConfig.ts para acelerar/abrandar tudo em bloco.
- *
- *   ms      %        o que acontece
- *   0–400   0–8,33   logo aparece (frame 1)
- *   400–900          pausa
- *   900–1700 18,75–35,42   logo cresce 2,098× e roda −135° (frame 2)
- *   1700–1900        pausa
- *   1900–2600 39,58–54,17  logo volta a 1× e 0°, desloca-se −72,05 px; «onta» aparece 2100–2600 (frame 3)
- *   2600–2900        pausa
- *   2900–3500 60,42–72,92  fundo em gradiente aparece; logo −72,05 → −50 px; «onta» +1 px; «erta.» 3100–3600 (frame 4)
- *   3600–4300        pausa no resultado final
- *   4300–4800 89,58–100    a intro desvanece e deixa de bloquear a app
- */
-
 .root {
-  --ca-ease: cubic-bezier(0.65, 0, 0.35, 1);
   position: fixed;
   inset: 0;
   z-index: 2147483000;
-  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  cursor: pointer;
+  background: #050505;
+  opacity: 1;
+  animation: introExit 4600ms ease-in both;
+  pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
-  animation: rootExit var(--ca-intro-d, 4800ms) linear both;
-}
-
-/* Quando o script de arranque decide saltar (já vista nesta sessão, ou movimento reduzido). */
-:global(html[data-ca-intro='skip']) .root {
-  display: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .root {
-    display: none;
-  }
-}
-
-.bg,
-.stage {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.bg {
-  opacity: 0;
-  animation: bgIn var(--ca-intro-d, 4800ms) linear both;
-}
-
-.logoPos {
-  animation: logoPos var(--ca-intro-d, 4800ms) linear both;
 }
 
 .logo {
-  opacity: 0;
-  transform-box: fill-box;
+  display: block;
+  width: min(72vw, 340px);
+  height: auto;
+  max-height: 72dvh;
+  object-fit: contain;
+  transform: scale(1);
   transform-origin: center;
-  animation: logo var(--ca-intro-d, 4800ms) linear both;
+  animation: logoZoom 4600ms cubic-bezier(0.7, 0, 0.84, 0) both;
+  will-change: transform, opacity;
 }
 
-.onta {
-  opacity: 0;
-  animation: onta var(--ca-intro-d, 4800ms) linear both;
-}
-
-.erta {
-  opacity: 0;
-  animation: erta var(--ca-intro-d, 4800ms) linear both;
-}
-
-@keyframes rootExit {
+@keyframes introExit {
   0%,
-  89.5833% {
+  86.9565% {
     opacity: 1;
     visibility: visible;
-    animation-timing-function: ease-out;
   }
+
   100% {
     opacity: 0;
     visibility: hidden;
   }
 }
 
-@keyframes bgIn {
+@keyframes logoZoom {
   0%,
-  60.4167% {
+  86.9565% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
     opacity: 0;
-    animation-timing-function: var(--ca-ease);
-  }
-  72.9167%,
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes logoPos {
-  0%,
-  39.5833% {
-    transform: translate(0, 0);
-    animation-timing-function: var(--ca-ease);
-  }
-  54.1667%,
-  60.4167% {
-    transform: translate(-72.0467px, 0.186px);
-    animation-timing-function: var(--ca-ease);
-  }
-  72.9167%,
-  100% {
-    transform: translate(-50px, 0);
-  }
-}
-
-@keyframes logo {
-  0% {
-    opacity: 0;
-    transform: scale(1) rotate(0deg);
-    animation-timing-function: var(--ca-ease);
-  }
-  8.3333%,
-  18.75% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-    animation-timing-function: var(--ca-ease);
-  }
-  35.4167%,
-  39.5833% {
-    opacity: 1;
-    transform: scale(2.09778) rotate(-135deg);
-    animation-timing-function: var(--ca-ease);
-  }
-  54.1667%,
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-@keyframes onta {
-  0%,
-  43.75% {
-    opacity: 0;
-    transform: translateX(-1px);
-    animation-timing-function: var(--ca-ease);
-  }
-  54.1667%,
-  60.4167% {
-    opacity: 1;
-    transform: translateX(-1px);
-    animation-timing-function: var(--ca-ease);
-  }
-  72.9167%,
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes erta {
-  0%,
-  64.5833% {
-    opacity: 0;
-    animation-timing-function: var(--ca-ease);
-  }
-  75%,
-  100% {
-    opacity: 1;
-  }
-}
-
-/* A intro de abertura só é apresentada em ecrãs móveis. */
-@media (min-width: 768px) {
-  .root {
-    display: none !important;
-    pointer-events: none;
+    transform: scale(18);
   }
 }
