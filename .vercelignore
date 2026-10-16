@@ -1,0 +1,7 @@
+backups/
+**/*.backup
+**/*.backup2
+**/*.bak
+**/*.before-*
+**/*.logos-backup
+**/*.log

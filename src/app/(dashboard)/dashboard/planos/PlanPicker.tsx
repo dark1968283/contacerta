@@ -12,6 +12,7 @@ import {
 
 type Plan = {
   id: string;
+  slug: string;
   name: string;
   description: string | null;
   monthly_price: number;
@@ -219,23 +220,28 @@ export function PlanPicker({
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => { setSelected(plan.id); router.push(`/dashboard/efectuar-pagamento?plan=${encodeURIComponent(plan.id)}&ciclo=${cycle}`); }}
-                  aria-pressed={isSelected}
-                  className={`flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-all duration-200 ${
-                    isSelected
-                      ? "bg-brandGlow text-dark-bg"
-                      : "border border-dark-border bg-dark-surface text-dark-text hover:border-brandGlow hover:text-brandGlow"
-                  }`}
-                >
-                  {isSelected ? "Plano seleccionado" : "Escolher este plano"}
-                  {isSelected ? (
-                    <Check size={16} />
-                  ) : (
-                    <ArrowRight size={16} />
-                  )}
-                </button>
+                {plan.slug === "gratis" ? (
+                  <div className="w-full rounded-2xl border border-dark-border bg-dark-elevated px-4 py-3.5 text-center text-sm font-medium text-dark-muted">
+                    Plano gratuito após o teste
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelected(plan.id);
+                      router.push(`/dashboard/efectuar-pagamento?plan=${encodeURIComponent(plan.id)}&ciclo=${cycle}`);
+                    }}
+                    aria-pressed={isSelected}
+                    className={`flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold transition-all duration-200 ${
+                      isSelected
+                        ? "bg-brandGlow text-dark-bg"
+                        : "border border-dark-border bg-dark-surface text-dark-text hover:border-brandGlow hover:text-brandGlow"
+                    }`}
+                  >
+                    {isSelected ? "Plano seleccionado" : "Escolher este plano"}
+                    {isSelected ? <Check size={16} /> : <ArrowRight size={16} />}
+                  </button>
+                )}
               </article>
             );
           })}

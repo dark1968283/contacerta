@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, PackageX, X } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 type StockAlertProduct = {
   id: string;
@@ -15,164 +17,105 @@ type LowStockAlertProps = {
   products: StockAlertProduct[];
 };
 
-const DISMISS_KEY = "contacerta-stock-alert-dismissed";
-
 export function LowStockAlert({ products }: LowStockAlertProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (products.length === 0) return;
-
-    try {
-      if (sessionStorage.getItem(DISMISS_KEY) !== "1") {
-        setVisible(true);
-      }
-    } catch {
-      setVisible(true);
-    }
+    setVisible(products.length > 0);
   }, [products.length]);
 
-  if (!visible || products.length === 0) return null;
-
-  const sortedProducts = [...products].sort((a, b) => {
-    const aOut = a.stock_quantity === 0;
-    const bOut = b.stock_quantity === 0;
-
-    if (aOut !== bOut) return aOut ? -1 : 1;
-    return a.stock_quantity - b.stock_quantity;
-  });
-
-  const outOfStock = products.filter((p) => p.stock_quantity === 0).length;
-  const lowStock = products.length - outOfStock;
-
   function dismiss() {
-    try {
-      sessionStorage.setItem(DISMISS_KEY, "1");
-    } catch {
-      // O aviso continua a poder ser fechado mesmo se o armazenamento falhar.
-    }
     setVisible(false);
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm"
-      onClick={dismiss}
-    >
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="stock-alert-title"
-        aria-describedby="stock-alert-description"
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-dark-border bg-dark-surface shadow-2xl shadow-black/40"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="flex items-start gap-3 border-b border-dark-border p-5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-warning/10 text-warning">
-            <AlertTriangle className="h-5 w-5" aria-hidden />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <h2
-              id="stock-alert-title"
-              className="text-lg font-semibold text-dark-text"
-            >
-              Atenção ao stock
-            </h2>
-            <p
-              id="stock-alert-description"
-              className="mt-1 text-sm leading-5 text-dark-muted"
-            >
-              {products.length === 1
-                ? "Tens 1 produto que precisa de atenção."
-                : `Tens ${products.length} produtos que precisam de atenção.`}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={dismiss}
-            aria-label="Fechar aviso de stock"
-            className="rounded-lg p-2 text-dark-muted transition-colors hover:bg-white/5 hover:text-dark-text focus:outline-none focus:ring-2 focus:ring-brand"
+    <AnimatePresence>
+      {visible && products.length > 0 && (
+        <motion.div
+          key="stock-alert-overlay"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/35 p-4 backdrop-blur-[3px]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          onClick={dismiss}
+        >
+          <motion.section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="stock-alert-title"
+            aria-describedby="stock-alert-description"
+            initial={{ opacity: 0, y: 10, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.98 }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(event) => event.stopPropagation()}
+            className="relative w-full max-w-sm overflow-hidden rounded-[24px] border border-white/[0.12] bg-dark-surface/85 shadow-2xl shadow-black/25 backdrop-blur-2xl"
           >
-            <X className="h-4 w-4" aria-hidden />
-          </button>
-        </div>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.07] via-transparent to-brand/[0.08]"
+            />
 
-        <div className="space-y-3 p-5">
-          <div className="flex flex-wrap gap-2 text-xs font-medium">
-            {outOfStock > 0 && (
-              <span className="rounded-full bg-danger/10 px-3 py-1.5 text-danger">
-                {outOfStock} esgotado{outOfStock === 1 ? "" : "s"}
-              </span>
-            )}
-            {lowStock > 0 && (
-              <span className="rounded-full bg-warning/10 px-3 py-1.5 text-warning">
-                {lowStock} com stock baixo
-              </span>
-            )}
-          </div>
+            <div className="relative p-5 sm:p-6">
+              <div className="flex items-start gap-3.5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand/20 bg-brand/15 text-brand shadow-inner shadow-white/[0.04]">
+                  <Image src="/icons/triangle-warning.svg" alt="" aria-hidden width={20} height={20} className="object-contain" />
+                </div>
 
-          <ul className="max-h-64 space-y-2 overflow-y-auto">
-            {sortedProducts.slice(0, 6).map((product) => {
-              const isOut = product.stock_quantity === 0;
-
-              return (
-                <li
-                  key={product.id}
-                  className="flex items-center gap-3 rounded-xl border border-dark-border bg-white/[0.02] p-3"
-                >
-                  <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                      isOut
-                        ? "bg-danger/10 text-danger"
-                        : "bg-warning/10 text-warning"
-                    }`}
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <h2
+                    id="stock-alert-title"
+                    className="text-base font-semibold tracking-tight text-dark-text"
                   >
-                    <PackageX className="h-4 w-4" aria-hidden />
-                  </div>
+                    Stock baixo
+                  </h2>
 
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-dark-text">
-                      {product.name}
-                    </p>
-                    <p className="mt-0.5 text-xs text-dark-muted">
-                      {isOut
-                        ? "Sem unidades disponíveis"
-                        : `${product.stock_quantity} unidade${product.stock_quantity === 1 ? "" : "s"} disponível${product.stock_quantity === 1 ? "" : "e"}${product.stock_quantity <= product.low_stock_threshold ? " · Stock baixo" : ""}`}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                  <p
+                    id="stock-alert-description"
+                    className="mt-1.5 text-sm leading-5 text-dark-muted"
+                  >
+                    {products.length === 1
+                      ? "Tens um produto que precisa de reposição."
+                      : "Tens produtos que precisam de reposição."}
+                  </p>
+                </div>
 
-          {products.length > 6 && (
-            <p className="text-xs text-dark-muted">
-              E mais {products.length - 6} produto(s) a precisar de atenção.
-            </p>
-          )}
+                <button
+                  type="button"
+                  onClick={dismiss}
+                  aria-label="Fechar aviso de stock"
+                  className="rounded-full p-1.5 text-dark-muted transition-colors hover:bg-white/[0.08] hover:text-dark-text focus:outline-none focus:ring-2 focus:ring-brand"
+                >
+                  <X className="h-4 w-4" aria-hidden />
+                </button>
+              </div>
 
-          <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row">
-            <button
-              type="button"
-              onClick={dismiss}
-              className="rounded-xl border border-dark-border px-4 py-3 text-sm font-medium text-dark-muted transition-colors hover:bg-white/5 hover:text-dark-text sm:flex-1"
-            >
-              Fechar aviso
-            </button>
+              <div className="mt-5 flex gap-2">
+                <button
+                  type="button"
+                  onClick={dismiss}
+                  className="min-h-10 flex-1 rounded-xl border border-white/[0.10] bg-white/[0.035] px-3 py-2.5 text-sm font-medium text-dark-muted transition-colors hover:bg-white/[0.08] hover:text-dark-text focus:outline-none focus:ring-2 focus:ring-brand"
+                >
+                  Agora não
+                </button>
 
-            <Link
-              href="/dashboard/produtos"
-              onClick={dismiss}
-              className="flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand/90 sm:flex-1"
-            >
-              Ver produtos
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-          </div>
-        </div>
-      </section>
-    </div>
+                <Link
+                  href="/dashboard/produtos"
+                  onClick={dismiss}
+                  className="group flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-brand px-3 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-dark-surface"
+                >
+                  Ver stock
+                  <ArrowRight
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
+                </Link>
+              </div>
+            </div>
+          </motion.section>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

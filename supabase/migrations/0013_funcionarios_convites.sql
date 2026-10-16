@@ -18,13 +18,6 @@ CREATE TABLE public.employee_invites (
     CHECK (status IN ('pending', 'accepted', 'cancelled', 'expired')),
   expires_at timestamptz NOT NULL DEFAULT (now() + interval '7 days'),
   accepted_user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
-cd ~/Downloads/contacerta-fase1 || exit 1
-
-echo "===== PROCURAR A IMAGEM TRANSFERIR ====="
-find ~/Downloads -type f -iname 'transferir*' \
-  ! -path '*/node_modules/*' \
-  ! -path '*/.git/*' \
-  2>/dev/null | head -30
 
   created_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT employee_invites_email_normalized

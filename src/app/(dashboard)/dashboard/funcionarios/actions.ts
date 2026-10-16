@@ -119,10 +119,15 @@ export async function inviteEmployee(
     .single();
 
   if (insertError || !invite) {
+    const dbMessage = insertError?.message ?? "";
     return {
       error: insertError?.code === "23505"
         ? "Já existe um convite pendente para este email."
-        : "Não foi possível criar o convite. Tente novamente.",
+        : dbMessage.includes("team_limit_reached")
+          ? "O plano actual atingiu o limite de utilizadores e convites. Remova um convite pendente ou escolha outro plano."
+          : dbMessage.includes("subscription_required")
+            ? "A subscrição não permite convidar funcionários neste momento."
+            : "Não foi possível criar o convite. Tente novamente.",
     };
   }
 

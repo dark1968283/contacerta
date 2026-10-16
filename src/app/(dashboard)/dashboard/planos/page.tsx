@@ -12,9 +12,10 @@ export default async function PlanosPage({
   const { data } = await supabase
     .from("plans")
     .select(
-      "id,name,description,monthly_price,yearly_price,currency,limits,features"
+      "id,name,slug,description,monthly_price,yearly_price,currency,limits,features"
     )
     .eq("active", true)
+    .neq("slug", "basico")
     .order("display_order");
 
   const plans = (data ?? []).map((p) => ({

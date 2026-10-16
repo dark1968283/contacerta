@@ -91,7 +91,7 @@ export default async function MeuPlano() {
     supabase
       .from("subscriptions")
       .select(
-        "id,status,billing_cycle,current_period_end,plans(name,features,limits)",
+        "id,status,billing_cycle,current_period_end,plans(slug,name,features,limits)",
       )
       .eq("business_id", businessId)
       .order("created_at", { ascending: false })
@@ -107,12 +107,21 @@ export default async function MeuPlano() {
 
   const sub = subs?.[0];
   const plan = sub?.plans as unknown as {
+    slug: string;
     name: string;
     features: string[];
     limits: Record<string, unknown>;
   } | null;
 
-  const isActive = sub?.status === "active";
+  const isTrial = plan?.slug === "trial-18-dias";
+  const periodEnd = sub?.current_period_end
+    ? new Date(sub.current_period_end).getTime()
+    : 0;
+  const daysRemaining = periodEnd > 0
+    ? Math.max(0, Math.ceil((periodEnd - Date.now()) / 86400000))
+    : 0;
+  const isActive = sub?.status === "active" && periodEnd > Date.now();
+  const trialExpired = isTrial && sub?.status === "active" && !isActive;
   const features = plan?.features ?? [];
   const limits = Object.entries(plan?.limits ?? {});
 
@@ -151,7 +160,7 @@ export default async function MeuPlano() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-dark-muted">
                   <Crown size={15} className="text-brandGlow" />
-                  Plano actual
+                  {isTrial ? "Período experimental" : "Plano actual"}
                 </span>
                 <span
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium ${statusStyle(sub.status)}`}
@@ -167,8 +176,11 @@ export default async function MeuPlano() {
                     {plan?.name ?? "Plano activo"}
                   </h2>
                   <p className="mt-2 max-w-md text-sm leading-6 text-dark-muted">
-                    A sua assinatura está activa. Pode consultar os benefícios
-                    e acompanhar os pagamentos nesta página.
+                    {isTrial
+                      ? daysRemaining === 1
+                        ? "Tem mais 1 dia de teste gratuito. Escolha um plano pago antes do fim para continuar a utilizar as funcionalidades."
+                        : `Tem mais ${daysRemaining} dias de teste gratuito. Escolha um plano pago antes do fim para continuar a utilizar as funcionalidades.`
+                      : "A sua assinatura está activa. Pode consultar os benefícios e acompanhar os pagamentos nesta página."}
                   </p>
                 </div>
 
@@ -178,7 +190,7 @@ export default async function MeuPlano() {
                   </div>
                   <div>
                     <p className="text-xs text-dark-muted">
-                      Próxima renovação
+                      {isTrial ? "Fim do teste gratuito" : "Próxima renovação"}
                     </p>
                     <p className="mt-1 text-sm font-medium">
                       {formatDate(sub.current_period_end)}
@@ -197,7 +209,7 @@ export default async function MeuPlano() {
                       Ciclo de cobrança
                     </p>
                     <p className="mt-1 text-sm font-medium">
-                      {sub.billing_cycle === "monthly" ? "Mensal" : "Anual"}
+                      {isTrial ? "Teste gratuito de 18 dias" : sub.billing_cycle === "monthly" ? "Mensal" : "Anual"}
                     </p>
                   </div>
                 </div>
@@ -211,7 +223,7 @@ export default async function MeuPlano() {
                       Estado da assinatura
                     </p>
                     <p className="mt-1 text-sm font-medium text-brandGlow">
-                      Acesso activo
+                      {isTrial ? "Teste gratuito activo" : "Acesso activo"}
                     </p>
                   </div>
                 </div>
@@ -234,9 +246,11 @@ export default async function MeuPlano() {
                   <h2 className="text-lg font-semibold">
                     {sub?.status === "pending"
                       ? "Assinatura em processamento"
-                      : sub
-                        ? "A sua assinatura não está activa"
-                        : "Escolha o plano ideal para o seu negócio"}
+                      : trialExpired
+                        ? "O período experimental terminou"
+                        : sub
+                          ? "A sua assinatura não está activa"
+                          : "Escolha o plano ideal para o seu negócio"}
                   </h2>
                   {sub?.status && (
                     <span
@@ -250,7 +264,9 @@ export default async function MeuPlano() {
                 <p className="mt-2 max-w-xl text-sm leading-6 text-dark-muted">
                   {sub?.status === "pending"
                     ? "A assinatura ainda não está activa. Consulte os seus pagamentos para verificar o estado do pedido."
-                    : "Escolha um plano para consultar as opções disponíveis e solicitar a activação da sua assinatura."}
+                    : trialExpired
+                      ? "Os 18 dias de teste gratuito terminaram. Escolha um plano pago para solicitar a activação e voltar a registar operações."
+                      : "Escolha um plano para consultar as opções disponíveis e solicitar a activação da sua assinatura."}
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-3">

@@ -64,7 +64,11 @@ function formatDate(value: string | null) {
   });
 }
 
-export default async function PlatformAdmin() {
+export default async function PlatformAdmin({
+  searchParams,
+}: {
+  searchParams?: { erro?: string; resultado?: string };
+}) {
   const supabase = await requirePlatformAdmin();
 
   const [{ data: plans }, { data: subs }, { data: payments }, { data: businesses }] =
@@ -176,6 +180,24 @@ export default async function PlatformAdmin() {
             Painel administrativo
           </div>
         </header>
+
+        {searchParams?.erro && (
+          <div role="alert" className="rounded-xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-200">
+            {searchParams.erro === "pagamento_ultrapassado"
+              ? "Este pedido foi ultrapassado por um pedido mais recente. Não foi confirmado; verifique os pedidos pendentes."
+              : searchParams.erro === "pagamento_resolvido"
+                ? "Este pagamento já não está pendente. Actualize a página para consultar o estado actual."
+                : searchParams.erro === "pagamento_invalido"
+                  ? "O pagamento não corresponde a uma subscrição válida. Verifique os registos antes de continuar."
+                  : "Não foi possível actualizar o pagamento. Verifique o estado do pedido e tente novamente."}
+          </div>
+        )}
+
+        {searchParams?.resultado === "pagamento_atualizado" && (
+          <div role="status" className="rounded-xl border border-brandGlow/20 bg-brandGlow/10 px-4 py-3 text-sm text-brandGlow">
+            O estado do pagamento foi actualizado.
+          </div>
+        )}
 
         <section>
           <div className="mb-4 flex items-center justify-between gap-3">

@@ -23,12 +23,12 @@ export default async function EfectuarPagamentoPage({
 
   const { data: plan, error } = await supabase
     .from("plans")
-    .select("id,name,description,monthly_price,yearly_price,currency,features")
+    .select("id,name,slug,description,monthly_price,yearly_price,currency,features")
     .eq("id", searchParams.plan)
     .eq("active", true)
     .maybeSingle();
 
-  if (error || !plan) redirect("/dashboard/planos");
+  if (error || !plan || !["profissional", "empresarial"].includes(plan.slug)) redirect("/dashboard/planos");
 
   const price = cycle === "monthly" ? plan.monthly_price : plan.yearly_price;
   const features = Array.isArray(plan.features)
@@ -121,6 +121,40 @@ export default async function EfectuarPagamentoPage({
               </p>
             </div>
 
+                        <div className="mx-5 mt-5 rounded-2xl border border-brandGlow/25 bg-brandGlow/5 p-4 sm:mx-6 sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandGlow/10 text-brandGlow">
+                  <CreditCard size={20} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-dark-text">Pagamento por e-Mola</h3>
+                  <p className="mt-1 text-sm leading-5 text-dark-muted">
+                    Abra o menu e-Mola no seu telemóvel através do código USSD abaixo e escolha a opção de envio ou transferência de dinheiro.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-dark-border bg-dark-bg/60 p-3.5">
+                <p className="text-xs font-medium text-dark-muted">Código USSD</p>
+                <p className="mt-1 font-mono text-xl font-bold tracking-wide text-brandGlow">*898#</p>
+                <p className="mt-3 text-xs font-medium text-dark-muted">Número comercial do destinatário</p>
+                <p className="mt-1 select-all text-xl font-semibold tracking-wide text-dark-text">878 736 123</p>
+                <p className="mt-3 text-xs font-medium text-dark-muted">Valor a enviar</p>
+                <p className="mt-1 text-lg font-bold text-dark-text">{formatPrice(price, plan.currency)}</p>
+              </div>
+
+              <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-5 text-dark-muted">
+                <li>Marque <span className="font-mono font-semibold text-dark-text">*898#</span> no telemóvel com e-Mola.</li>
+                <li>Escolha a opção de envio ou transferência e introduza o número comercial indicado.</li>
+                <li>Introduza o valor do plano e confirme o nome do destinatário, o montante e a operação antes de inserir o PIN.</li>
+                <li>Guarde a mensagem de confirmação e indique a referência da transacção no formulário abaixo.</li>
+              </ol>
+
+              <p className="mt-4 text-xs leading-5 text-dark-muted">
+                Confirme sempre os dados no menu oficial do e-Mola. O pedido fica pendente até a equipa do ContaCerta verificar o recebimento.
+              </p>
+            </div>
+
             <form action={requestPlan} className="space-y-5 p-5 sm:p-6">
               <input type="hidden" name="plan_id" value={plan.id} />
               <input type="hidden" name="billing_cycle" value={cycle} />
@@ -133,16 +167,10 @@ export default async function EfectuarPagamentoPage({
                   id="payment_method"
                   name="payment_method"
                   required
-                  defaultValue=""
+                  defaultValue="emola"
                   className="w-full rounded-xl border border-dark-border bg-dark-bg/60 px-4 py-3 text-sm text-dark-text outline-none transition focus:border-brandGlow/50 focus:ring-2 focus:ring-brandGlow/15 [color-scheme:dark]"
                 >
-                  <option value="" disabled>Seleccione um método</option>
-                  <option value="mpesa">M-Pesa</option>
                   <option value="emola">e-Mola</option>
-                  <option value="mkesh">mKesh</option>
-                  <option value="bank_transfer">Transferência bancária</option>
-                  <option value="cash">Dinheiro</option>
-                  <option value="other">Outro</option>
                 </select>
               </div>
 
