@@ -299,7 +299,7 @@
   100% { transform: scale(1); }
 }
 @keyframes cc-success-draw {
-  from { stroke-dashoffset: 1; }
+  from { stroke-dashoffset: 108; }
   to { stroke-dashoffset: 0; }
 }
 .cc-success-circle {
@@ -307,9 +307,10 @@
   transform-origin: center;
   animation: cc-success-pop 0.6s cubic-bezier(0.7, 0, 0.3, 1) both;
 }
+/* Comprimento real do traço (≈107,6) em vez de pathLength, que o Safari do iPhone não respeita. */
 .cc-success-check {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  stroke-dasharray: 108;
+  stroke-dashoffset: 108;
   animation: cc-success-draw 0.733s cubic-bezier(0.7, 0, 0.3, 1) 0.467s forwards;
 }
 @media (prefers-reduced-motion: reduce) {

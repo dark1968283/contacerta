@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { clearOfflinePages } from "@/lib/offline-pages";
 import { useFormState } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
@@ -47,6 +48,12 @@ export default function LoginPage({
 }) {
   const [state, formAction] = useFormState(signIn, initialState);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Ao chegar ao login (por ex. depois de "Sair"), apaga as páginas do negócio
+  // que estavam guardadas no telemóvel para uso sem internet.
+  useEffect(() => {
+    clearOfflinePages();
+  }, []);
 
   return (
     <main className="min-h-dvh bg-dark-bg text-dark-text lg:grid lg:grid-cols-[0.92fr_1.08fr]">

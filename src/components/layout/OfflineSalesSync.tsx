@@ -12,6 +12,7 @@ import {
   updateQueuedSale,
   type QueuedSale,
 } from "@/lib/offline-sales";
+import { warmOfflinePages } from "@/lib/offline-pages";
 
 const formatMT = (v: number) => `${Math.round(v).toLocaleString("pt-MZ")} MT`;
 
@@ -65,14 +66,21 @@ export function OfflineSalesSync({ businessId }: { businessId: string }) {
       busy.current = false;
       setSyncing(false);
       refresh();
-      if (sent > 0) router.refresh();
+      if (sent > 0) {
+        router.refresh();
+        warmOfflinePages(true); // as páginas guardadas passam a ter os dados novos
+      }
     }
   }, [businessId, refresh, router]);
 
   useEffect(() => {
     const updateOnline = () => {
       setOnline(navigator.onLine);
-      if (navigator.onLine) void syncAll();
+      if (navigator.onLine) {
+        void syncAll();
+        // Com sessão iniciada e rede: prepara as páginas para abrirem sem internet.
+        warmOfflinePages();
+      }
     };
     refresh();
     updateOnline();
