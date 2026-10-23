@@ -43,7 +43,9 @@ export default async function ClientesPage({
   const count = customers?.length ?? 0;
   const subtitle = query
     ? `${count} resultado${count === 1 ? "" : "s"} para “${query}”`
-    : `${count} cliente${count === 1 ? "" : "s"} no total`;
+    : onlyDebtors
+      ? `${count} cliente${count === 1 ? " deve" : "s devem"} dinheiro`
+      : `${count} cliente${count === 1 ? "" : "s"} no total`;
 
   return (
     <CustomersShell>

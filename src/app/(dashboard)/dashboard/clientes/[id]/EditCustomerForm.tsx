@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormState } from "react-dom";
+import { SavedNotice } from "@/components/ui/SavedNotice";
 import { PhoneInput } from "@/components/ui/PhoneInput";
 import { Mail, MapPin, User } from "lucide-react";
 import { updateCustomer, type CustomerActionState } from "../actions";
@@ -76,6 +77,7 @@ export function EditCustomerForm({ customer }: { customer: Customer }) {
         </div>
 
         {state.error && <FormError>{state.error}</FormError>}
+        <SavedNotice state={state} />
 
         <SubmitButton>Guardar alterações</SubmitButton>
       </form>

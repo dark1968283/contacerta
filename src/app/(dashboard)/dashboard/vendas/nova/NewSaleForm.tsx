@@ -237,7 +237,16 @@ export function NewSaleForm({
       const v = Math.ceil(total / note) * note;
       if (v > total) values.add(v);
     }
-    return Array.from(values).sort((a, b) => a - b).slice(0, 3);
+    const sorted = Array.from(values).sort((a, b) => a - b);
+    // As duas sugestões mais próximas + a nota de 500/1000 seguinte (as mais usadas).
+    const picks = sorted.slice(0, 2);
+    const bigNote = sorted.find((v) => v > (picks[picks.length - 1] ?? 0) && (v % 500 === 0));
+    if (bigNote) picks.push(bigNote);
+    for (const v of sorted) {
+      if (picks.length >= 4) break;
+      if (!picks.includes(v)) picks.push(v);
+    }
+    return Array.from(new Set(picks)).sort((a, b) => a - b).slice(0, 4);
   }, [total]);
 
   const selectedCustomer = localCustomers.find((c) => c.id === customerId) ?? null;

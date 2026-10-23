@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormState } from "react-dom";
+import { SavedNotice } from "@/components/ui/SavedNotice";
 import { updateProduct, type ProductActionState } from "../actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Panel } from "@/components/dashboard/Panel";
@@ -108,6 +109,7 @@ export function EditProductForm({
         </div>
 
         {state.error && <FormError>{state.error}</FormError>}
+        <SavedNotice state={state} />
 
         <SubmitButton>Guardar alterações</SubmitButton>
       </form>

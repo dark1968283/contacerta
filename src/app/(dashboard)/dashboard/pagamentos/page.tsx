@@ -55,7 +55,7 @@ function planName(p: Payment) {
   return (p.plans as { name: string } | null)?.name ?? "Plano ContaCerta";
 }
 
-export default async function Pagamentos() {
+export default async function Pagamentos({ searchParams }: { searchParams: { criado?: string } }) {
   const { businessId } = await getBusinessContext();
   const supabase = createClient();
 
@@ -93,6 +93,12 @@ export default async function Pagamentos() {
             Ver planos <ArrowRight size={16} />
           </Link>
         </header>
+
+        {searchParams.criado && pending.some((p) => p.id === searchParams.criado) && (
+          <p role="status" className="rounded-2xl border border-brandGlow/25 bg-brandGlow/[0.08] px-5 py-4 text-sm font-medium text-brandGlow">
+            ✓ Pedido criado. Vamos confirmar o pagamento e activar o plano — pode acompanhar aqui.
+          </p>
+        )}
 
         {/* Estado geral — uma só frase */}
         <div
