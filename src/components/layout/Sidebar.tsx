@@ -9,11 +9,12 @@ import {
   CreditCard,
   LogOut,
   MoreHorizontal,
+  Plus,
   Settings,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { NotificationCountBadge } from "./NotificationCountBadge";
-import { SIDEBAR_ITEMS, PLATFORM_ITEM, isActivePath, type NavItem } from "./nav-items";
+import { SIDEBAR_GROUPS, PLATFORM_ITEM, NEW_SALE_HREF, isActivePath, type NavItem } from "./nav-items";
 
 function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
   const active = isActivePath(pathname, item.href);
@@ -70,10 +71,27 @@ export function Sidebar({
 
       <nav
         aria-label="Navegação principal"
-        className="flex-1 space-y-1 overflow-y-auto px-3 py-3"
+        className="flex-1 overflow-y-auto px-3 py-3"
       >
-        {SIDEBAR_ITEMS.map((item) => (
-          <SidebarLink key={item.href} item={item} pathname={pathname} />
+        <Link
+          href={NEW_SALE_HREF}
+          className="mb-4 flex items-center justify-center gap-2 rounded-xl bg-[#22C766] px-3 py-3 text-sm font-bold text-[#06120C] shadow-[0_6px_24px_rgba(34,199,102,0.25)] transition hover:bg-[#2BD672] active:scale-[0.98]"
+        >
+          <Plus className="h-4 w-4" strokeWidth={3} aria-hidden />
+          Nova venda
+        </Link>
+
+        {SIDEBAR_GROUPS.map((group, index) => (
+          <div key={group.title} className={index > 0 ? "pt-4" : undefined}>
+            <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-dark-faint">
+              {group.title}
+            </p>
+            <div className="space-y-1">
+              {group.items.map((item) => (
+                <SidebarLink key={item.href} item={item} pathname={pathname} />
+              ))}
+            </div>
+          </div>
         ))}
 
         {isPlatformAdmin && (

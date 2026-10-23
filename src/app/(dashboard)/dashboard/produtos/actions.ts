@@ -117,7 +117,7 @@ export async function adjustStock(
     return { error: "Tipo de movimento inválido." };
   }
   if (!quantityRaw || quantityRaw === 0) {
-    return { error: "Indique uma quantidade." };
+    return { error: type === "ajuste" && quantityRaw === 0 ? "O stock já está certo." : "Indique uma quantidade." };
   }
 
   // Para "ajuste" o utilizador escolhe direção (+/-) no formulário;
@@ -170,4 +170,38 @@ export async function createCategory(
   revalidatePath("/dashboard/produtos/categorias");
   revalidatePath("/dashboard/produtos/novo");
   return { error: null };
+}
+
+/** Entrada rápida de stock a partir da lista de produtos (botão "Repor"). */
+export async function quickRestock(
+  productId: string,
+  quantity: number
+): Promise<{ error: string | null; newStock?: number }> {
+  const amount = Math.floor(Number(quantity));
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { error: "Indique quantas unidades chegaram." };
+  }
+
+  const supabase = createClient();
+  const { error } = await supabase.rpc("adjust_stock", {
+    p_product_id: productId,
+    p_type: "entrada",
+    p_quantity: amount,
+    p_note: "Reposição rápida",
+  });
+
+  if (error) {
+    return {
+      error: error.message.includes("administrador")
+        ? "Só o administrador pode repor stock."
+        : "Não foi possível repor o stock. Tente novamente.",
+    };
+  }
+
+  const { data } = await supabase.from("products").select("stock_quantity").eq("id", productId).single();
+
+  revalidatePath(`/dashboard/produtos/${productId}`);
+  revalidatePath("/dashboard/produtos");
+  revalidatePath("/dashboard");
+  return { error: null, newStock: data?.stock_quantity };
 }

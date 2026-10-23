@@ -2,7 +2,7 @@
 
 import { useFormState } from "react-dom";
 import { useRef, useEffect, useState } from "react";
-import { PackagePlus, SlidersHorizontal } from "lucide-react";
+import { ClipboardCheck, PackagePlus } from "lucide-react";
 import { adjustStock, type ProductActionState } from "../actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Panel } from "@/components/dashboard/Panel";
@@ -10,67 +10,101 @@ import { FIELD_INPUT, FIELD_LABEL, FormError } from "../_components/ProductsUI";
 
 const initialState: ProductActionState = { error: null };
 
-export function StockAdjustmentForm({ productId }: { productId: string }) {
+type Mode = "entrada" | "contagem";
+
+/**
+ * Duas situações simples:
+ *  - "Chegou mercadoria": indica quantas unidades entraram.
+ *  - "Contei o stock": indica quantas tem agora; a app calcula a diferença
+ *    e regista um ajuste (+ ou −), sem o utilizador ter de fazer contas.
+ */
+export function StockAdjustmentForm({
+  productId,
+  currentStock,
+}: {
+  productId: string;
+  currentStock: number;
+}) {
   const action = adjustStock.bind(null, productId);
   const [state, formAction] = useFormState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
-  const [type, setType] = useState<"entrada" | "ajuste">("entrada");
+  const [mode, setMode] = useState<Mode>("entrada");
+  const [value, setValue] = useState("");
+  const [saved, setSaved] = useState(false);
+  const firstRender = useRef(true);
 
   useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
     if (!state.error) {
       formRef.current?.reset();
-      setType("entrada");
+      setValue("");
+      setMode("entrada");
+      setSaved(true);
+      const t = setTimeout(() => setSaved(false), 2500);
+      return () => clearTimeout(t);
     }
   }, [state]);
+
+  const typed = parseInt(value, 10);
+  const valid = !Number.isNaN(typed);
+  const delta = mode === "entrada" ? typed : typed - currentStock;
 
   return (
     <Panel as="div" className="p-4 sm:p-5">
       <form ref={formRef} action={formAction} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-2.5">
-          <button
-            type="button"
-            onClick={() => setType("entrada")}
-            aria-pressed={type === "entrada"}
-            className={`rounded-xl border p-3 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50 ${
-              type === "entrada"
-                ? "border-brandGlow/40 bg-brandGlow/10"
-                : "border-dark-border bg-white/[0.02] hover:border-dark-borderStrong"
-            }`}
-          >
-            <PackagePlus className={`h-5 w-5 ${type === "entrada" ? "text-brandGlow" : "text-dark-muted"}`} aria-hidden />
-            <span className="mt-2 block text-sm font-semibold text-dark-text">Entrada</span>
-            <span className="block text-xs text-dark-muted">Adicionar stock</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setType("ajuste")}
-            aria-pressed={type === "ajuste"}
-            className={`rounded-xl border p-3 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-warning/50 ${
-              type === "ajuste"
-                ? "border-warning/40 bg-warning/10"
-                : "border-dark-border bg-white/[0.02] hover:border-dark-borderStrong"
-            }`}
-          >
-            <SlidersHorizontal className={`h-5 w-5 ${type === "ajuste" ? "text-warning" : "text-dark-muted"}`} aria-hidden />
-            <span className="mt-2 block text-sm font-semibold text-dark-text">Correção</span>
-            <span className="block text-xs text-dark-muted">Corrigir stock existente</span>
-          </button>
+          <ModeButton
+            active={mode === "entrada"}
+            onClick={() => setMode("entrada")}
+            icon={<PackagePlus className="h-5 w-5" aria-hidden />}
+            title="Chegou mercadoria"
+            hint="Somar unidades"
+          />
+          <ModeButton
+            active={mode === "contagem"}
+            onClick={() => setMode("contagem")}
+            icon={<ClipboardCheck className="h-5 w-5" aria-hidden />}
+            title="Contei o stock"
+            hint="Corrigir o número"
+          />
         </div>
-        <input type="hidden" name="type" value={type} />
+
+        <input type="hidden" name="type" value={mode === "entrada" ? "entrada" : "ajuste"} />
+        <input type="hidden" name="quantity" value={valid ? String(delta) : ""} />
 
         <div>
-          <label htmlFor="quantity" className={FIELD_LABEL}>
-            {type === "entrada" ? "Quantidade recebida" : "Ajuste (use − para reduzir)"}
+          <label htmlFor="stock-value" className={FIELD_LABEL}>
+            {mode === "entrada" ? "Quantas unidades chegaram?" : "Quantas unidades tem agora?"}
           </label>
           <input
-            id="quantity"
-            name="quantity"
-            type="number"
+            id="stock-value"
+            type="text"
             inputMode="numeric"
             required
-            placeholder={type === "entrada" ? "10" : "-2"}
+            value={value}
+            onChange={(e) => setValue(e.target.value.replace(/\D/g, ""))}
+            placeholder={mode === "entrada" ? "10" : String(currentStock)}
             className={FIELD_INPUT}
           />
+          {valid && (
+            <p className="mt-2 text-sm text-dark-muted">
+              {mode === "entrada" ? (
+                <>
+                  Fica com <strong className="text-dark-text">{currentStock + typed}</strong> unidades.
+                </>
+              ) : delta === 0 ? (
+                "O stock já está certo, não é preciso mudar nada."
+              ) : (
+                <>
+                  Tinha {currentStock}, passa a ter <strong className="text-dark-text">{typed}</strong> (
+                  {delta > 0 ? `+${delta}` : delta}).
+                </>
+              )}
+            </p>
+          )}
         </div>
 
         <div>
@@ -81,15 +115,49 @@ export function StockAdjustmentForm({ productId }: { productId: string }) {
             id="note"
             name="note"
             type="text"
-            placeholder={type === "entrada" ? "Compra ao fornecedor X" : "Contagem física"}
+            placeholder={mode === "entrada" ? "Ex.: compra ao fornecedor" : "Ex.: contagem do fim do mês"}
             className={FIELD_INPUT}
           />
         </div>
 
         {state.error && <FormError>{state.error}</FormError>}
+        {saved && !state.error && (
+          <p role="status" className="rounded-xl bg-brandGlow/10 px-4 py-3 text-sm font-medium text-brandGlow">
+            ✓ Stock actualizado.
+          </p>
+        )}
 
-        <SubmitButton>Registar</SubmitButton>
+        <SubmitButton>Guardar</SubmitButton>
       </form>
     </Panel>
+  );
+}
+
+function ModeButton({
+  active,
+  onClick,
+  icon,
+  title,
+  hint,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  title: string;
+  hint: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`rounded-xl border p-3 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50 ${
+        active ? "border-brandGlow/40 bg-brandGlow/10" : "border-dark-border bg-white/[0.02] hover:border-dark-borderStrong"
+      }`}
+    >
+      <span className={active ? "text-brandGlow" : "text-dark-muted"}>{icon}</span>
+      <span className="mt-2 block text-sm font-semibold text-dark-text">{title}</span>
+      <span className="block text-xs text-dark-muted">{hint}</span>
+    </button>
   );
 }

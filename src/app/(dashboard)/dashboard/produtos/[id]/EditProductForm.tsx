@@ -76,7 +76,7 @@ export function EditProductForm({
           </div>
           <div>
             <label htmlFor="cost_price" className={FIELD_LABEL}>
-              Custo
+              Preço de compra
             </label>
             <input
               id="cost_price"
@@ -86,6 +86,7 @@ export function EditProductForm({
               min="0"
               step="0.01"
               defaultValue={product.cost_price ?? ""}
+              placeholder="Quanto pagou por unidade"
               className={FIELD_INPUT}
             />
           </div>
@@ -93,7 +94,7 @@ export function EditProductForm({
 
         <div>
           <label htmlFor="low_stock_threshold" className={FIELD_LABEL}>
-            Alerta de stock baixo
+            Avisar quando restarem
           </label>
           <input
             id="low_stock_threshold"

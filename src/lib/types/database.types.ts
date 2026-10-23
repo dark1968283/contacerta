@@ -467,6 +467,7 @@ export type Database = {
       }
       sales: {
         Row: {
+          client_ref: string | null
           business_id: string
           created_at: string
           created_by: string
@@ -477,6 +478,7 @@ export type Database = {
           total_amount: number
         }
         Insert: {
+          client_ref?: string | null
           business_id: string
           created_at?: string
           created_by: string
@@ -487,6 +489,7 @@ export type Database = {
           total_amount?: number
         }
         Update: {
+          client_ref?: string | null
           business_id?: string
           created_at?: string
           created_by?: string
@@ -924,6 +927,32 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "products"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_sale_idempotent: {
+        Args: {
+          p_business_id: string
+          p_customer_id: string
+          p_items: Json
+          p_payment_method: string
+          p_client_ref: string
+          p_sold_at?: string
+        }
+        Returns: {
+          business_id: string
+          created_at: string
+          created_by: string
+          customer_id: string | null
+          id: string
+          payment_method: string
+          status: string
+          total_amount: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "sales"
           isOneToOne: true
           isSetofReturn: false
         }

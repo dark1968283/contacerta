@@ -568,7 +568,7 @@ export default async function PlatformAdmin({
           <ShieldCheck size={18} className="mt-0.5 shrink-0 text-brandGlow" />
           <p className="text-xs leading-5 text-dark-muted">
             As operações administrativas continuam protegidas pela verificação
-            de acesso da plataforma. Confirma os dados do pedido antes de
+            de acesso da plataforma. Confirme os dados do pedido antes de
             aprovar um pagamento.
           </p>
         </footer>

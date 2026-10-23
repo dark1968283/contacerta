@@ -1,12 +1,12 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  CalendarDays,
+  CheckCircle2,
   Clock3,
-  CreditCard,
   ReceiptText,
+  RotateCcw,
   ShieldCheck,
-  Wallet,
+  XCircle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
@@ -17,6 +17,7 @@ function formatDate(date: string) {
     day: "2-digit",
     month: "long",
     year: "numeric",
+    timeZone: "Africa/Maputo",
   });
 }
 
@@ -27,8 +28,31 @@ function methodLabel(method: string) {
     mkesh: "mKesh",
     bank_transfer: "Transferência bancária",
   };
-
   return methods[method.toLowerCase()] ?? method;
+}
+
+type Payment = {
+  id: string;
+  amount: number;
+  billing_cycle: string;
+  payment_method: string;
+  status: string;
+  reference: string;
+  notes: string | null;
+  created_at: string;
+  plans: unknown;
+};
+
+const STATUS: Record<string, { label: string; className: string }> = {
+  pending: { label: "A aguardar", className: "border-amber-400/20 bg-amber-400/10 text-amber-300" },
+  confirmed: { label: "Confirmado", className: "border-brandGlow/20 bg-brandGlow/10 text-brandGlow" },
+  rejected: { label: "Rejeitado", className: "border-danger/25 bg-danger/10 text-danger" },
+  cancelled: { label: "Cancelado", className: "border-white/10 bg-white/[0.05] text-dark-muted" },
+  refunded: { label: "Reembolsado", className: "border-white/10 bg-white/[0.05] text-dark-muted" },
+};
+
+function planName(p: Payment) {
+  return (p.plans as { name: string } | null)?.name ?? "Plano ContaCerta";
 }
 
 export default async function Pagamentos() {
@@ -37,238 +61,163 @@ export default async function Pagamentos() {
 
   const { data } = await supabase
     .from("subscription_payments")
-    .select(
-      "id,amount,currency,billing_cycle,payment_method,status,reference,created_at,plans(name)",
-    )
+    .select("id,amount,billing_cycle,payment_method,status,reference,notes,created_at,plans(name)")
     .eq("business_id", businessId)
-    .eq("status", "pending")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(30);
 
-  const payments = data ?? [];
+  const payments = (data ?? []) as Payment[];
+  const pending = payments.filter((p) => p.status === "pending");
+  const latest = payments[0];
+  const latestIsRejected = latest?.status === "rejected";
+  const history = payments.filter((p) => p.status !== "pending" && !(latestIsRejected && p.id === latest?.id));
+
+  const state = pending.length
+    ? { title: "A aguardar confirmação", text: "A assinatura é activada assim que o pagamento for confirmado.", tone: "amber" as const }
+    : latestIsRejected
+      ? { title: "O último pagamento foi rejeitado", text: "Veja o motivo abaixo e tente de novo.", tone: "danger" as const }
+      : { title: "Tudo em dia", text: "Não tem pagamentos por resolver.", tone: "green" as const };
 
   return (
     <div className="-mx-4 -mt-5 -mb-6 min-h-[calc(100dvh-5rem)] bg-dark-bg px-4 pb-16 pt-6 text-dark-text shadow-[0_0_0_100vmax_theme(colors.dark.bg)] [clip-path:inset(-6rem_-100vmax_-100vmax_-100vmax)] sm:-mx-6 sm:px-6">
-      <div className="mx-auto max-w-5xl space-y-7">
-        <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="mx-auto max-w-3xl space-y-6">
+        <header className="flex items-start justify-between gap-4">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-brandGlow">
-              <Wallet size={15} />
-              ContaCerta
-            </div>
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Pagamentos
-            </h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-dark-muted">
-              Acompanhe os pedidos de pagamento da sua assinatura e consulte
-              os respectivos detalhes.
-            </p>
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Pagamentos</h1>
+            <p className="mt-1 text-sm text-dark-muted">Os pagamentos da sua assinatura ContaCerta.</p>
           </div>
-
           <Link
             href="/dashboard/planos"
-            className="inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-xl border border-dark-border bg-dark-surface px-4 py-2.5 text-sm font-medium transition hover:border-brandGlow/40 hover:bg-dark-elevated sm:self-auto"
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-dark-border bg-dark-surface px-4 py-2.5 text-sm font-medium transition hover:border-brandGlow/40"
           >
-            Ver planos
-            <ArrowRight size={16} />
+            Ver planos <ArrowRight size={16} />
           </Link>
         </header>
 
-        <section className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-dark-border bg-dark-surface p-5">
-            <div className="flex items-start justify-between gap-3">
+        {/* Estado geral — uma só frase */}
+        <div
+          className={`flex items-center gap-4 rounded-2xl border p-5 ${
+            state.tone === "danger"
+              ? "border-danger/25 bg-danger/[0.06]"
+              : state.tone === "amber"
+                ? "border-amber-400/20 bg-amber-400/[0.05]"
+                : "border-brandGlow/20 bg-brandGlow/[0.05]"
+          }`}
+        >
+          <span
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+              state.tone === "danger"
+                ? "bg-danger/15 text-danger"
+                : state.tone === "amber"
+                  ? "bg-amber-400/15 text-amber-300"
+                  : "bg-brandGlow/15 text-brandGlow"
+            }`}
+          >
+            {state.tone === "danger" ? <XCircle size={24} /> : state.tone === "amber" ? <Clock3 size={24} /> : <CheckCircle2 size={24} />}
+          </span>
+          <div>
+            <p className="text-lg font-semibold">{state.title}</p>
+            <p className="text-sm text-dark-muted">{state.text}</p>
+          </div>
+        </div>
+
+        {/* Último pagamento rejeitado: motivo + tentar de novo */}
+        {latestIsRejected && latest && !pending.length && (
+          <article className="overflow-hidden rounded-2xl border border-danger/25 bg-dark-surface">
+            <div className="flex items-start justify-between gap-3 p-5">
               <div>
+                <p className="text-xs text-dark-muted">{formatDate(latest.created_at)}</p>
+                <h2 className="mt-1 text-lg font-semibold">{planName(latest)}</h2>
                 <p className="text-sm text-dark-muted">
-                  Pedidos por confirmar
-                </p>
-                <p className="mt-3 text-3xl font-semibold tabular-nums">
-                  {payments.length.toString().padStart(2, "0")}
-                </p>
-                <p className="mt-2 text-xs text-dark-faint">
-                  Pedidos pendentes da sua conta
+                  {methodLabel(latest.payment_method)} · Ref. <span className="font-mono">{latest.reference || "—"}</span>
                 </p>
               </div>
-              <div className="rounded-xl border border-amber-400/15 bg-amber-400/10 p-3 text-amber-300">
-                <Clock3 size={21} />
-              </div>
+              <p className="shrink-0 text-xl font-semibold tabular-nums">{formatMT(latest.amount)}</p>
             </div>
-          </div>
-
-          <div className="rounded-2xl border border-dark-border bg-dark-surface p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm text-dark-muted">Estado dos pedidos</p>
-                <p className="mt-3 text-lg font-semibold">
-                  {payments.length > 0
-                    ? "A aguardar confirmação"
-                    : "Tudo em dia"}
-                </p>
-                <p className="mt-2 text-xs text-dark-faint">
-                  {payments.length > 0
-                    ? "A ativação depende da confirmação do pagamento."
-                    : "Não tem pedidos de pagamento pendentes."}
-                </p>
-              </div>
-              <div className="rounded-xl border border-brandGlow/15 bg-brandGlow/10 p-3 text-brandGlow">
-                <ShieldCheck size={21} />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold">Os seus pedidos</h2>
-              <p className="mt-1 text-sm text-dark-muted">
-                Detalhes dos pagamentos que aguardam confirmação.
+            <div className="border-t border-danger/15 bg-danger/[0.05] px-5 py-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-danger">Motivo</p>
+              <p className="mt-1 text-sm leading-6 text-dark-text">
+                {latest.notes?.trim() ||
+                  "Não foi possível confirmar este pagamento. Verifique a referência e o valor enviados."}
               </p>
             </div>
-            <span className="rounded-lg border border-dark-border bg-dark-surface px-3 py-1.5 text-xs text-dark-muted">
-              {payments.length} {payments.length === 1 ? "pedido" : "pedidos"}
-            </span>
-          </div>
-
-          {payments.length > 0 ? (
-            <div className="space-y-4">
-              {payments.map((payment) => {
-                const plan = payment.plans as unknown as {
-                  name: string;
-                } | null;
-
-                return (
-                  <article
-                    key={payment.id}
-                    className="overflow-hidden rounded-2xl border border-dark-border bg-dark-surface"
-                  >
-                    <div className="flex flex-col gap-4 border-b border-dark-border p-5 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="flex items-start gap-3">
-                        <div className="rounded-xl border border-brandGlow/15 bg-brandGlow/10 p-3 text-brandGlow">
-                          <ReceiptText size={21} />
-                        </div>
-                        <div>
-                          <p className="text-xs text-dark-muted">
-                            Assinatura
-                          </p>
-                          <h3 className="mt-1 text-lg font-semibold">
-                            {plan?.name ?? "Plano ContaCerta"}
-                          </h3>
-                          <p className="mt-1 text-sm text-dark-muted">
-                            Ciclo{" "}
-                            {payment.billing_cycle === "monthly"
-                              ? "mensal"
-                              : "anual"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="sm:text-right">
-                        <p className="text-xs text-dark-muted">
-                          Valor do pedido
-                        </p>
-                        <p className="mt-1 text-2xl font-semibold tracking-tight text-brandGlow">
-                          {formatMT(payment.amount)}
-                        </p>
-                        <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-xs font-medium text-amber-300">
-                          <Clock3 size={12} />
-                          Pendente
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-4 p-5 sm:grid-cols-2">
-                      <div className="flex items-start gap-3">
-                        <div className="rounded-lg bg-dark-elevated p-2 text-dark-muted">
-                          <CreditCard size={17} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs text-dark-muted">
-                            Método de pagamento
-                          </p>
-                          <p className="mt-1 break-words text-sm font-medium">
-                            {methodLabel(payment.payment_method)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <div className="rounded-lg bg-dark-elevated p-2 text-dark-muted">
-                          <CalendarDays size={17} />
-                        </div>
-                        <div>
-                          <p className="text-xs text-dark-muted">
-                            Data do pedido
-                          </p>
-                          <p className="mt-1 text-sm font-medium">
-                            {formatDate(payment.created_at)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="sm:col-span-2">
-                        <p className="text-xs text-dark-muted">
-                          Referência do pedido
-                        </p>
-                        <div className="mt-2 flex min-h-11 items-center rounded-xl border border-dark-border bg-dark-bg px-3 py-2">
-                          <span className="break-all font-mono text-sm text-dark-text">
-                            {payment.reference || "Referência não disponível"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="border-t border-amber-400/10 bg-amber-400/[0.04] p-5">
-                      <div className="flex items-start gap-3">
-                        <Clock3
-                          size={19}
-                          className="mt-0.5 shrink-0 text-amber-300"
-                        />
-                        <div>
-                          <p className="text-sm font-medium text-amber-200">
-                            Aguardando confirmação
-                          </p>
-                          <p className="mt-1 text-sm leading-6 text-dark-muted">
-                            O seu pedido foi registado. A assinatura permanece
-                            pendente até à confirmação do pagamento pela
-                            plataforma.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-dark-border bg-dark-surface/60 px-5 py-12 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-dark-border bg-dark-elevated text-dark-muted">
-                <ReceiptText size={25} />
-              </div>
-              <h3 className="mt-4 text-lg font-semibold">
-                Sem pagamentos pendentes
-              </h3>
-              <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-dark-muted">
-                Quando criar um pedido de pagamento para a sua assinatura,
-                poderá acompanhar aqui o valor, o método e o estado.
-              </p>
+            <div className="p-4">
               <Link
                 href="/dashboard/planos"
-                className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brandGlow px-5 py-3 text-sm font-semibold text-dark-bg transition hover:brightness-110"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brandGlow px-5 py-3.5 text-sm font-bold text-dark-bg transition hover:brightness-110"
               >
-                Explorar planos
-                <ArrowRight size={16} />
+                <RotateCcw size={16} /> Tentar de novo
               </Link>
             </div>
+          </article>
+        )}
+
+        {/* Pendentes */}
+        {pending.map((payment) => (
+          <article key={payment.id} className="overflow-hidden rounded-2xl border border-amber-400/20 bg-dark-surface">
+            <div className="flex items-start justify-between gap-3 p-5">
+              <div>
+                <p className="text-xs text-dark-muted">{formatDate(payment.created_at)}</p>
+                <h2 className="mt-1 text-lg font-semibold">{planName(payment)}</h2>
+                <p className="text-sm text-dark-muted">
+                  {methodLabel(payment.payment_method)} · Ciclo {payment.billing_cycle === "monthly" ? "mensal" : "anual"}
+                </p>
+              </div>
+              <p className="shrink-0 text-xl font-semibold tabular-nums text-brandGlow">{formatMT(payment.amount)}</p>
+            </div>
+            <div className="border-t border-dark-border px-5 py-4">
+              <p className="text-xs text-dark-muted">Referência</p>
+              <p className="mt-1 break-all font-mono text-sm">{payment.reference || "—"}</p>
+            </div>
+          </article>
+        ))}
+
+        {/* Histórico */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-dark-faint">Histórico</h2>
+          {history.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-dark-border px-5 py-10 text-center">
+              <ReceiptText size={24} className="mx-auto text-dark-muted" />
+              <p className="mt-3 font-medium">Ainda sem pagamentos.</p>
+              <Link
+                href="/dashboard/planos"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brandGlow px-5 py-3 text-sm font-semibold text-dark-bg"
+              >
+                Explorar planos <ArrowRight size={16} />
+              </Link>
+            </div>
+          ) : (
+            <ul className="divide-y divide-dark-border overflow-hidden rounded-2xl border border-dark-border bg-dark-surface">
+              {history.map((p) => {
+                const st = STATUS[p.status] ?? STATUS.cancelled!;
+                return (
+                  <li key={p.id} className="flex items-center justify-between gap-3 px-4 py-3.5">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{planName(p)}</p>
+                      <p className="text-xs text-dark-muted">
+                        {formatDate(p.created_at)} · {methodLabel(p.payment_method)}
+                      </p>
+                      {p.status === "rejected" && p.notes && (
+                        <p className="mt-0.5 truncate text-xs text-danger">Motivo: {p.notes}</p>
+                      )}
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm font-semibold tabular-nums">{formatMT(p.amount)}</p>
+                      <span className={`mt-1 inline-block rounded-full border px-2 py-0.5 text-[11px] font-medium ${st.className}`}>
+                        {st.label}
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </section>
 
-        <div className="flex items-start gap-3 rounded-xl border border-dark-border bg-dark-surface/60 p-4">
-          <ShieldCheck size={18} className="mt-0.5 shrink-0 text-brandGlow" />
-          <p className="text-xs leading-5 text-dark-muted">
-            Por segurança, o estado apresentado corresponde ao registo do
-            pagamento na plataforma. Não considere um pedido pendente como
-            pagamento confirmado.
-          </p>
-        </div>
+        <p className="flex items-start gap-2 text-xs leading-5 text-dark-muted">
+          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-brandGlow" />
+          Um pagamento só conta depois de aparecer como “Confirmado”.
+        </p>
       </div>
     </div>
   );

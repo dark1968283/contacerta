@@ -195,7 +195,7 @@ export function FinanceWallet({
             {/* Informação principal */}
             <div className="min-w-0">
               <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/60 sm:text-[11px]">
-                Lucro bruto · {periodLabel}
+                Lucro · {periodLabel}
               </p>
               <div className="mt-1 flex min-w-0 items-center gap-2">
                 <p className="min-w-0 truncate text-[clamp(1.25rem,5.5vw,2.5rem)] font-semibold leading-tight tracking-[-0.045em] tabular-nums sm:text-[clamp(1.8rem,3vw,2.5rem)]">
@@ -210,8 +210,8 @@ export function FinanceWallet({
               </div>
               <p className="mt-1 truncate text-[9px] text-white/50 sm:text-[11px]">
                 {hasProfitData
-                  ? "Baseado nos custos registados"
-                  : "Registe os custos dos produtos vendidos"}
+                  ? "Vendas menos o custo dos produtos"
+                  : "Indique o preço de compra para ver o lucro"}
               </p>
             </div>
 
@@ -224,19 +224,6 @@ export function FinanceWallet({
                 <p className="mt-0.5 text-[10px] font-semibold tracking-[0.12em] text-white/75 sm:text-xs">
                   MZN
                 </p>
-              </div>
-              <div
-                className="flex items-center justify-end"
-                role="img"
-                aria-label="Logótipo Mastercard decorativo"
-                title="Mastercard"
-              >
-                <img
-                  src="/mastercard-logo.svg"
-                  alt=""
-                  aria-hidden="true"
-                  className="h-7 w-auto max-w-[76px] object-contain opacity-95 sm:h-8"
-                />
               </div>
             </div>
           </div>
@@ -252,9 +239,6 @@ export function FinanceWallet({
           />
         </motion.article>
 
-        <p className="mt-2 text-[10px] text-dark-muted lg:text-left">
-          Cartão financeiro ContaCerta
-        </p>
       </div>
 
       {/* Indicadores: abaixo no telemóvel, coluna vertical no desktop */}
@@ -285,9 +269,6 @@ export function FinanceWallet({
         ))}
       </div>
 
-      <p className="text-[11px] leading-relaxed text-dark-muted lg:col-span-2">
-        Os valores acompanham o período seleccionado. “A receber” representa as dívidas ainda em aberto.
-      </p>
     </section>
   );
 }

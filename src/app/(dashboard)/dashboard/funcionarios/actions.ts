@@ -161,7 +161,7 @@ export async function inviteEmployee(
 
     return {
       error:
-        "Não foi possível enviar o convite. Confirma a configuração de email do Supabase Auth e tenta novamente.",
+        "Não foi possível enviar o convite. Confirme a configuração de email do Supabase Auth e tente novamente.",
     };
   }
 

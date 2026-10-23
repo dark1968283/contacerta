@@ -112,7 +112,7 @@ export default async function ProdutoDetalhePage({
           <div className="space-y-6">
             <section>
               <SectionTitle icon={PackagePlus}>Registar movimento de stock</SectionTitle>
-              <StockAdjustmentForm productId={product.id} />
+              <StockAdjustmentForm productId={product.id} currentStock={product.stock_quantity} />
             </section>
 
             <section>

@@ -8,6 +8,7 @@ import { FinanceWallet } from "@/components/dashboard/FinanceWallet";
 import { Panel } from "@/components/dashboard/Panel";
 import { RecentActivity, type ActivityItem } from "@/components/dashboard/RecentActivity";
 import { SalesChart, type ChartPoint } from "@/components/dashboard/SalesChart";
+import { FirstSteps } from "@/components/dashboard/FirstSteps";
 import { LowStockAlert } from "./LowStockAlert";
 import {
   Wallet,
@@ -56,7 +57,15 @@ export default async function DashboardPage({
   const period: Period = rawPeriod in periods ? (rawPeriod as Period) : "hoje";
   const start = periodStart(period, now);
 
-  const [{ data: profile }, { data: sales }, { data: debts }, { data: debtPayments }, { data: activeProducts }] =
+  const [
+    { data: profile },
+    { data: sales },
+    { data: debts },
+    { data: debtPayments },
+    { data: activeProducts },
+    { count: allTimeSalesCount },
+    { count: customersCount },
+  ] =
     await Promise.all([
       supabase.from("users").select("name").eq("id", userId).single(),
       supabase
@@ -81,6 +90,9 @@ export default async function DashboardPage({
         .select("id,name,stock_quantity,low_stock_threshold")
         .eq("business_id", businessId)
         .eq("is_active", true),
+      // Contagens simples para o guia "Primeiros passos".
+      supabase.from("sales").select("id", { count: "exact", head: true }).eq("business_id", businessId),
+      supabase.from("customers").select("id", { count: "exact", head: true }).eq("business_id", businessId),
     ]);
 
   const saleIds = sales?.map((s) => s.id) ?? [];
@@ -139,6 +151,12 @@ export default async function DashboardPage({
     itemsWithCost += 1;
   });
   const hasProfitData = itemsWithCost > 0;
+
+  // Produtos vendidos no período SEM preço de compra: o lucro não os conta,
+  // por isso avisamos o utilizador e damos um atalho para os completar.
+  const missingCostProducts = (soldProducts ?? [])
+    .filter((p) => p.cost_price === null || p.cost_price === undefined)
+    .map((p) => ({ id: p.id, name: p.name }));
 
   const ranking = new Map<string, { name: string; quantity: number }>();
   items?.forEach((item) => {
@@ -240,7 +258,7 @@ export default async function DashboardPage({
                 className="group flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2.5 text-sm font-medium text-white shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 hover:shadow-brand/30 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-brandGlow/40 focus:ring-offset-2 focus:ring-offset-dark-bg sm:px-4 sm:py-3"
               >
                 <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" aria-hidden />
-                Nova Venda
+                Nova venda
               </Link>
             </div>
           </div>
@@ -263,6 +281,12 @@ export default async function DashboardPage({
           </nav>
         </header>
 
+        <FirstSteps
+          hasProducts={(activeProducts?.length ?? 0) > 0}
+          hasSales={(allTimeSalesCount ?? 0) > 0}
+          hasCustomers={(customersCount ?? 0) > 0}
+        />
+
         {/* Cartão financeiro — apresentação visual; mantém os cálculos originais. */}
         <FinanceWallet
           profit={formatMT(grossProfit)}
@@ -272,6 +296,31 @@ export default async function DashboardPage({
           periodLabel={periods[period]}
           hasProfitData={hasProfitData}
         />
+
+        {missingCostProducts.length > 0 && (
+          <Link
+            href={
+              missingCostProducts.length === 1
+                ? `/dashboard/produtos/${missingCostProducts[0]!.id}`
+                : "/dashboard/produtos"
+            }
+            className="-mt-2 flex items-center gap-3 rounded-2xl border border-warning/25 bg-warning/[0.07] px-4 py-3 transition hover:bg-warning/[0.11] sm:-mt-4"
+          >
+            <AlertTriangle className="h-5 w-5 shrink-0 text-warning" aria-hidden />
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-dark-text">
+                {hasProfitData ? "O lucro está incompleto" : "Falta o preço de compra"}
+              </span>
+              <span className="block text-xs text-dark-muted">
+                {missingCostProducts.map((p) => p.name).join(", ")}{" "}
+                {missingCostProducts.length === 1 ? "não tem" : "não têm"} preço de compra.
+              </span>
+            </span>
+            <span className="flex shrink-0 items-center gap-0.5 text-sm font-semibold text-warning">
+              Completar <ArrowUpRight className="h-4 w-4" aria-hidden />
+            </span>
+          </Link>
+        )}
 
         {/* Gráfico + atividade recente. */}
         <div className="grid gap-4 lg:grid-cols-5">
@@ -283,7 +332,7 @@ export default async function DashboardPage({
               isEmpty={chart.every((p) => p.value === 0) && !hasSalesInPeriod}
               footer={
                 <dl className="grid grid-cols-3 gap-3">
-                  <MiniStat label="Ticket médio" value={avgTicket !== null ? formatMT(avgTicket) : "—"} />
+                  <MiniStat label="Média por venda" value={avgTicket !== null ? formatMT(avgTicket) : "—"} />
                   <MiniStat label="Nº de vendas" value={String(sales?.length ?? 0)} />
                   <MiniStat label="Produtos vendidos" value={String(distinctProductsSold)} />
                 </dl>
@@ -298,7 +347,7 @@ export default async function DashboardPage({
         {/* Operação: atenção necessária + rankings. */}
         <div className="grid gap-4 lg:grid-cols-2">
           <Panel className="p-5 sm:p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-dark-faint">Atenção necessária</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-dark-faint">Precisa de atenção</h2>
             <div className="mt-3 divide-y divide-dark-border">
               <AttentionRow
                 icon={<AlertTriangle className={`h-4 w-4 ${outstanding > 0 ? "text-danger" : "text-white/20"}`} aria-hidden />}
@@ -332,7 +381,7 @@ export default async function DashboardPage({
           </Panel>
 
           <Panel className="p-5 sm:p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-dark-faint">Rankings</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-dark-faint">Destaques</h2>
 
             <div className="mt-3">
               <p className="mb-1 text-sm font-medium text-dark-text">Produtos mais vendidos</p>
@@ -349,7 +398,7 @@ export default async function DashboardPage({
                   ))}
                 </ol>
               ) : (
-                <p className="text-sm text-dark-faint">Ainda não existem produtos vendidos neste período.</p>
+                <p className="text-sm text-dark-faint">Ainda sem vendas neste período.</p>
               )}
             </div>
 

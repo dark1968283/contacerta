@@ -3,6 +3,7 @@ import { ChevronRight, Package, Plus, Search, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { Panel } from "@/components/dashboard/Panel";
+import { QuickRestock } from "./_components/QuickRestock";
 import { PRIMARY_LINK, ProductsHeader, ProductsShell, StockStatus, stockState } from "./_components/ProductsUI";
 
 function formatMT(value: number) {
@@ -104,13 +105,11 @@ export default async function ProdutosPage({
       <ul className="grid gap-3 xl:grid-cols-2">
         {products?.map((product) => (
           <li key={product.id} className="min-w-0">
+            <Panel as="div" className={`flex items-center gap-2 p-3.5 sm:p-4 ${!product.is_active ? "opacity-60" : ""}`}>
             <Link
               href={`/dashboard/produtos/${product.id}`}
-              className={`group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50 ${
-                !product.is_active ? "opacity-60" : ""
-              }`}
+              className="group block min-w-0 flex-1 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50"
             >
-              <Panel as="div" className="p-3.5 transition-transform duration-200 group-hover:-translate-y-0.5 sm:p-4">
                 <div className="flex items-center gap-3.5">
                   <span
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
@@ -132,10 +131,12 @@ export default async function ProdutosPage({
                     <p className="font-semibold tabular-nums text-dark-text">{formatMT(product.selling_price)}</p>
                     <StockStatus quantity={product.stock_quantity} threshold={product.low_stock_threshold} />
                   </div>
-                  <ChevronRight className="hidden h-4 w-4 shrink-0 text-dark-faint transition-transform group-hover:translate-x-0.5 sm:block" aria-hidden />
                 </div>
-              </Panel>
             </Link>
+            {role === "admin" && product.is_active && (
+              <QuickRestock productId={product.id} productName={product.name} />
+            )}
+            </Panel>
           </li>
         ))}
       </ul>

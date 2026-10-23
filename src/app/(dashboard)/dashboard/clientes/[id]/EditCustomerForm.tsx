@@ -1,11 +1,12 @@
 "use client";
 
 import { useFormState } from "react-dom";
-import { Mail, MapPin, Phone, User } from "lucide-react";
+import { PhoneInput } from "@/components/ui/PhoneInput";
+import { Mail, MapPin, User } from "lucide-react";
 import { updateCustomer, type CustomerActionState } from "../actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Panel } from "@/components/dashboard/Panel";
-import { FIELD_INPUT_ICON, FIELD_LABEL, FieldIcon, FormError } from "../_components/CustomersUI";
+import { FIELD_INPUT, FIELD_INPUT_ICON, FIELD_LABEL, FieldIcon, FormError } from "../_components/CustomersUI";
 import type { Database } from "@/lib/types/database.types";
 
 const initialState: CustomerActionState = { error: null };
@@ -40,16 +41,7 @@ export function EditCustomerForm({ customer }: { customer: Customer }) {
             <label htmlFor="phone" className={FIELD_LABEL}>
               Telefone
             </label>
-            <FieldIcon icon={Phone}>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                inputMode="tel"
-                defaultValue={customer.phone ?? ""}
-                className={FIELD_INPUT_ICON}
-              />
-            </FieldIcon>
+            <PhoneInput id="phone" defaultValue={customer.phone ?? ""} className={FIELD_INPUT} />
           </div>
 
           <div className="min-w-0">

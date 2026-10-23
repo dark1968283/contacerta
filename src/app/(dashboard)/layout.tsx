@@ -3,6 +3,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { signOut } from "../(auth)/actions";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { createClient } from "@/lib/supabase/server";
+import { loadNotices } from "@/lib/notifications";
 
 export default async function DashboardLayout({
   children,
@@ -16,6 +17,7 @@ export default async function DashboardLayout({
     { data: isPlatformAdmin },
     { data: { user } },
     { data: activeSubscriptions },
+    notices,
   ] = await Promise.all([
     supabase.rpc("is_platform_admin"),
     supabase.auth.getUser(),
@@ -26,7 +28,10 @@ export default async function DashboardLayout({
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(1),
+    loadNotices(),
   ]);
+
+  const noticeIds = [...notices.stock, ...notices.subscription, ...notices.payments].map((n) => n.id);
 
   const userLabel =
     (typeof user?.user_metadata?.full_name === "string"
@@ -57,6 +62,8 @@ export default async function DashboardLayout({
       userLabel={userLabel}
       planName={planName}
       avatarUrl={avatarUrl}
+      noticeIds={noticeIds}
+      businessId={businessId}
       actions={
         <form action={signOut}>
           <button

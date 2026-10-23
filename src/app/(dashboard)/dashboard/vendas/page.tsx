@@ -62,6 +62,7 @@ export default async function VendasPage() {
           const Icon = credit ? Clock3 : Wallet;
           return (
             <li key={sale.id}>
+              <Link href={`/dashboard/vendas/${sale.id}`} className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50">
               <Panel className="p-3.5 transition-transform duration-200 hover:-translate-y-0.5 sm:p-4">
                 <div className="flex items-center gap-3.5">
                   <span
@@ -88,6 +89,7 @@ export default async function VendasPage() {
                   </div>
                 </div>
               </Panel>
+              </Link>
             </li>
           );
         })}

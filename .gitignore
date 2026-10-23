@@ -10,3 +10,6 @@ supabase/.temp
 
 .vercel
 .env*
+
+# Cópias de segurança locais
+backups/

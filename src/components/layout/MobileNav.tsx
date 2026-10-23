@@ -9,14 +9,16 @@ import {
   Settings,
   X,
   ChevronRight,
-  LogOut,
+  Plus,
 } from "lucide-react";
-import { NotificationCountBadge } from "./NotificationCountBadge";
 import {
-  MOBILE_ITEMS,
+  MOBILE_LEFT_ITEMS,
+  MOBILE_RIGHT_ITEMS,
   MORE_GROUP_HREFS,
-  SIDEBAR_ITEMS,
+  MORE_ITEMS,
+  NEW_SALE_HREF,
   isActivePath,
+  type NavItem,
 } from "./nav-items";
 
 type MobileNavProps = {
@@ -24,14 +26,7 @@ type MobileNavProps = {
   avatarUrl?: string;
 };
 
-const EXTRA_ITEMS = [
-  { href: "/dashboard/notificacoes", label: "Notificações", Icon: SIDEBAR_ITEMS.find((item) => item.href === "/dashboard/notificacoes")!.Icon },
-  { href: "/dashboard/clientes", label: "Clientes", Icon: SIDEBAR_ITEMS.find((item) => item.href === "/dashboard/clientes")!.Icon },
-  { href: "/dashboard/funcionarios", label: "Funcionários", Icon: SIDEBAR_ITEMS.find((item) => item.href === "/dashboard/funcionarios")!.Icon },
-  { href: "/dashboard/planos", label: "Planos", Icon: SIDEBAR_ITEMS.find((item) => item.href === "/dashboard/planos")!.Icon },
-  { href: "/dashboard/meu-plano", label: "Meu plano", Icon: SIDEBAR_ITEMS.find((item) => item.href === "/dashboard/meu-plano")!.Icon },
-  { href: "/dashboard/pagamentos", label: "Pagamentos", Icon: SIDEBAR_ITEMS.find((item) => item.href === "/dashboard/pagamentos")!.Icon },
-];
+
 
 export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
   const pathname = usePathname();
@@ -119,7 +114,7 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
                   Navegação
                 </p>
 
-                {EXTRA_ITEMS.map((item) => {
+                {MORE_ITEMS.map((item) => {
                   const active = isActivePath(pathname, item.href);
                   return (
                     <Link
@@ -135,7 +130,6 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
                     >
                       <item.Icon className="h-[18px] w-[18px] shrink-0" aria-hidden />
                       <span className="flex-1">{item.label}</span>
-                      {item.href === "/dashboard/notificacoes" && <NotificationCountBadge />}
                       <ChevronRight className="h-4 w-4 opacity-50" aria-hidden />
                     </Link>
                   );
@@ -171,63 +165,90 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
         className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden"
       >
         <div className="flex items-center gap-1 rounded-full border border-dark-border bg-dark-surface/95 p-1.5 shadow-2xl shadow-black/40 backdrop-blur">
-          {MOBILE_ITEMS.map((item) => {
+          {MOBILE_LEFT_ITEMS.map((item) => (
+            <NavTab key={item.href} item={item} active={isActivePath(pathname, item.href)} />
+          ))}
+
+          <Link
+            href={NEW_SALE_HREF}
+            aria-label="Vender: registar nova venda"
+            aria-current={isActivePath(pathname, NEW_SALE_HREF) ? "page" : undefined}
+            className={`mx-1 flex h-14 min-w-[64px] flex-col items-center justify-center gap-0.5 rounded-full px-4 text-[11px] font-bold text-[#06120C] shadow-[0_6px_24px_rgba(34,199,102,0.45)] outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-white ${
+              isActivePath(pathname, "/dashboard/vendas") ? "bg-[#4BE08A]" : "bg-[#22C766]"
+            }`}
+          >
+            <Plus className="h-6 w-6" strokeWidth={3} aria-hidden />
+            Vender
+          </Link>
+
+          {MOBILE_RIGHT_ITEMS.map((item) => {
             const isMore = item.href === "/dashboard/mais";
-            const active = isMore
-              ? moreActive || open
-              : isActivePath(pathname, item.href);
-
-            const classes = `relative flex min-w-[54px] flex-col items-center gap-0.5 rounded-full px-3.5 py-2 text-[10px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-brandGlow ${
-              active ? "text-dark-text" : "text-dark-muted"
-            }`;
-
-            const contents = (
-              <>
-                {active && (
-                  <motion.span
-                    layoutId="mobile-nav-active"
-                    className="absolute inset-0 rounded-full bg-white/10"
-                    transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                  />
-                )}
-                <span className="relative">
-                  <item.Icon className={`h-5 w-5 ${active ? "text-brandGlow" : "text-dark-muted"}`} aria-hidden />
-                  {isMore && <span className="absolute -right-2 -top-1"><NotificationCountBadge /></span>}
-                </span>
-                <span className="relative">{item.label}</span>
-              </>
-            );
-
-            if (isMore) {
-              return (
-                <button
-                  key={item.href}
-                  type="button"
-                  className={classes}
-                  aria-label={open ? "Fechar Mais" : "Abrir Mais"}
-                  aria-expanded={open}
-                  aria-controls="mobile-more-drawer"
-                  onClick={() => setOpen((value) => !value)}
-                >
-                  {contents}
-                </button>
-              );
+            if (!isMore) {
+              return <NavTab key={item.href} item={item} active={isActivePath(pathname, item.href)} />;
             }
-
             return (
-              <Link
+              <NavTab
                 key={item.href}
-                href={item.href}
-                aria-label={item.label}
-                aria-current={active ? "page" : undefined}
-                className={classes}
-              >
-                {contents}
-              </Link>
+                item={item}
+                active={moreActive || open}
+                onClick={() => setOpen((value) => !value)}
+                ariaExpanded={open}
+              />
             );
           })}
         </div>
       </nav>
     </>
+  );
+}
+
+function NavTab({
+  item,
+  active,
+  onClick,
+  ariaExpanded,
+}: {
+  item: NavItem;
+  active: boolean;
+  onClick?: () => void;
+  ariaExpanded?: boolean;
+}) {
+  const classes = `relative flex min-w-[54px] flex-col items-center gap-0.5 rounded-full px-3 py-2 text-[11px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-brandGlow ${
+    active ? "text-dark-text" : "text-dark-muted"
+  }`;
+
+  const contents = (
+    <>
+      {active && (
+        <motion.span
+          layoutId="mobile-nav-active"
+          className="absolute inset-0 rounded-full bg-white/10"
+          transition={{ type: "spring", stiffness: 420, damping: 32 }}
+        />
+      )}
+      <item.Icon className={`relative h-5 w-5 ${active ? "text-brandGlow" : "text-dark-muted"}`} aria-hidden />
+      <span className="relative">{item.label}</span>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={classes}
+        aria-label={ariaExpanded ? "Fechar Mais" : "Abrir Mais"}
+        aria-expanded={ariaExpanded}
+        aria-controls="mobile-more-drawer"
+        onClick={onClick}
+      >
+        {contents}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={item.href} aria-label={item.label} aria-current={active ? "page" : undefined} className={classes}>
+      {contents}
+    </Link>
   );
 }

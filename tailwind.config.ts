@@ -38,8 +38,8 @@ const config: Config = {
           border: "rgba(255,255,255,0.08)",
           borderStrong: "rgba(255,255,255,0.14)",
           text: "#F5F6F4",
-          muted: "rgba(245,246,244,0.55)",
-          faint: "rgba(245,246,244,0.35)",
+          muted: "rgba(245,246,244,0.70)",
+          faint: "rgba(245,246,244,0.50)",
         },
 
         brandGlow: "#22C766",

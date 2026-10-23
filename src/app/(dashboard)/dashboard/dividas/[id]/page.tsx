@@ -179,7 +179,9 @@ export default async function DebtDetailPage({
         </section>
 
         {remaining > 0 && (
-          <PaymentForm debtId={debt.id} remaining={remaining} />
+          <div id="receber" className="scroll-mt-24">
+            <PaymentForm debtId={debt.id} remaining={remaining} />
+          </div>
         )}
 
         {remaining > 0 && (

@@ -214,7 +214,7 @@ export default async function FuncionariosPage() {
             <div className="overflow-hidden rounded-2xl border border-dark-border bg-dark-surface">
               {inviteReadError ? (
                 <p className="p-5 text-sm text-dark-muted">
-                  Não foi possível carregar os convites. Confirma a configuração
+                  Não foi possível carregar os convites. Confirme a configuração
                   da chave de serviço no servidor.
                 </p>
               ) : invites.length === 0 ? (

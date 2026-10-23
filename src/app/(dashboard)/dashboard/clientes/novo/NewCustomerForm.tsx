@@ -1,11 +1,12 @@
 "use client";
 
 import { useFormState } from "react-dom";
-import { Mail, MapPin, Phone, User, UserPlus } from "lucide-react";
+import { PhoneInput } from "@/components/ui/PhoneInput";
+import { Mail, MapPin, User, UserPlus } from "lucide-react";
 import { createCustomer, type CustomerActionState } from "../actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Panel } from "@/components/dashboard/Panel";
-import { BlockTitle, FIELD_INPUT_ICON, FIELD_LABEL, FieldIcon, FormError } from "../_components/CustomersUI";
+import { BlockTitle, FIELD_INPUT, FIELD_INPUT_ICON, FIELD_LABEL, FieldIcon, FormError } from "../_components/CustomersUI";
 
 const initialState: CustomerActionState = { error: null };
 
@@ -38,16 +39,7 @@ export function NewCustomerForm() {
             <label htmlFor="phone" className={FIELD_LABEL}>
               Telefone (opcional)
             </label>
-            <FieldIcon icon={Phone}>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                inputMode="tel"
-                className={FIELD_INPUT_ICON}
-                placeholder="84 123 4567"
-              />
-            </FieldIcon>
+            <PhoneInput id="phone" className={FIELD_INPUT} />
           </div>
         </div>
       </Panel>

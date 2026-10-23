@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
+import { checkMzPhone } from "@/lib/phone";
 
 export type CustomerActionState = { error: string | null };
 
@@ -15,7 +16,11 @@ export async function createCustomer(
   const supabase = createClient();
 
   const name = String(formData.get("name") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim() || null;
+  const phoneCheck = checkMzPhone(String(formData.get("phone") ?? ""));
+  if (!phoneCheck.ok) {
+    return { error: `Telefone inválido: ${phoneCheck.reason}` };
+  }
+  const phone = phoneCheck.formatted || null;
   const email = String(formData.get("email") ?? "").trim() || null;
   const address = String(formData.get("address") ?? "").trim() || null;
 
@@ -47,7 +52,11 @@ export async function updateCustomer(
   const supabase = createClient();
 
   const name = String(formData.get("name") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim() || null;
+  const phoneCheck = checkMzPhone(String(formData.get("phone") ?? ""));
+  if (!phoneCheck.ok) {
+    return { error: `Telefone inválido: ${phoneCheck.reason}` };
+  }
+  const phone = phoneCheck.formatted || null;
   const email = String(formData.get("email") ?? "").trim() || null;
   const address = String(formData.get("address") ?? "").trim() || null;
 

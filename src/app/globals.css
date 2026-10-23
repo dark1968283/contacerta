@@ -286,3 +286,33 @@
     transition: none !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Animação "venda concluída" — recriação fiel da animação Lottie
+   "Exam Passed Checkmark" (ExamCert, LottieFiles, Lottie Simple License),
+   com os mesmos keyframes do ficheiro public/animations/venda-sucesso.json:
+   círculo 0 → 110% → 100% (frames 0–18 a 30fps) e visto desenhado (frames 14–36).
+   ───────────────────────────────────────────────────────────────────── */
+@keyframes cc-success-pop {
+  0% { transform: scale(0); }
+  66.67% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes cc-success-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+.cc-success-circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cc-success-pop 0.6s cubic-bezier(0.7, 0, 0.3, 1) both;
+}
+.cc-success-check {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cc-success-draw 0.733s cubic-bezier(0.7, 0, 0.3, 1) 0.467s forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cc-success-circle { animation: none; }
+  .cc-success-check { animation: none; stroke-dashoffset: 0; }
+}
