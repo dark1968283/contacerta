@@ -606,3 +606,12 @@ html .cc-sheet[class] {
 .cc-theme-menu { animation: cc-menu-in 140ms ease-out; }
 @keyframes cc-menu-in { from { opacity: 0; transform: scale(0.95) translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .cc-theme-menu { animation: none; } }
+
+/* Gráfico de vendas: barras sobem, a curva desenha-se, as etiquetas aparecem. */
+.cc-bar { transform-origin: bottom; animation: cc-bar-grow 650ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes cc-bar-grow { from { transform: translateX(-50%) scaleY(0); } to { transform: translateX(-50%) scaleY(1); } }
+.cc-trend { stroke-dasharray: 1; stroke-dashoffset: 1; animation: cc-trend-draw 1100ms 250ms ease-out forwards; }
+@keyframes cc-trend-draw { to { stroke-dashoffset: 0; } }
+.cc-fade-in { animation: cc-fade 400ms 900ms ease-out both; }
+@keyframes cc-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cc-bar, .cc-trend, .cc-fade-in { animation: none; stroke-dashoffset: 0; } }

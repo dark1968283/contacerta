@@ -46,6 +46,21 @@ function periodStart(period: Period, now: Date): Date {
   return todayStart;
 }
 
+/**
+ * Janela anterior equivalente, para comparar de forma justa:
+ * Hoje → ontem até à mesma hora; 7/30 dias → os 7/30 dias antes;
+ * Este mês → o mês passado, nos mesmos dias.
+ */
+function previousWindow(period: Period, start: Date, now: Date): { from: Date; to: Date; text: string } {
+  const DAY = 24 * 60 * 60 * 1000;
+  const elapsed = now.getTime() - start.getTime();
+  if (period === "hoje") return { from: new Date(start.getTime() - DAY), to: new Date(now.getTime() - DAY), text: "que ontem a esta hora" };
+  if (period === "7-dias") return { from: new Date(start.getTime() - 7 * DAY), to: start, text: "que a semana anterior" };
+  if (period === "30-dias") return { from: new Date(start.getTime() - 30 * DAY), to: start, text: "que os 30 dias anteriores" };
+  const prevMonthStart = periodStart("mes", new Date(start.getTime() - DAY));
+  return { from: prevMonthStart, to: new Date(prevMonthStart.getTime() + elapsed), text: "que o mês passado" };
+}
+
 export default async function DashboardPage({
   searchParams,
 }: {
@@ -58,6 +73,7 @@ export default async function DashboardPage({
   const rawPeriod = searchParams.periodo ?? "hoje";
   const period: Period = rawPeriod in periods ? (rawPeriod as Period) : "hoje";
   const start = periodStart(period, now);
+  const prev = previousWindow(period, start, now);
 
   const [
     { data: profile },
@@ -67,6 +83,7 @@ export default async function DashboardPage({
     { data: activeProducts },
     { count: allTimeSalesCount },
     { count: customersCount },
+    { data: prevSales },
   ] =
     await Promise.all([
       supabase.from("users").select("name").eq("id", userId).single(),
@@ -95,6 +112,13 @@ export default async function DashboardPage({
       // Contagens simples para o guia "Primeiros passos".
       supabase.from("sales").select("id", { count: "exact", head: true }).eq("business_id", businessId),
       supabase.from("customers").select("id", { count: "exact", head: true }).eq("business_id", businessId),
+      // Só os valores do período anterior, para a comparação do gráfico.
+      supabase
+        .from("sales")
+        .select("total_amount")
+        .eq("business_id", businessId)
+        .gte("created_at", prev.from.toISOString())
+        .lt("created_at", prev.to.toISOString()),
     ]);
 
   const saleIds = sales?.map((s) => s.id) ?? [];
@@ -181,6 +205,12 @@ export default async function DashboardPage({
   const chart = fillBuckets(buildEmptyBuckets(period, now), sales ?? [], period);
   const chartMax = Math.max(...chart.map((p) => p.value), 1);
   const hasSalesInPeriod = (sales?.length ?? 0) > 0;
+  const prevTotal = prevSales?.reduce((sum, s) => sum + s.total_amount, 0) ?? 0;
+  // Sem vendas no período anterior não há percentagem que faça sentido.
+  const comparison =
+    prevTotal > 0 && (hasSalesInPeriod || total > 0)
+      ? { percent: Math.round(((total - prevTotal) / prevTotal) * 100), text: prev.text }
+      : null;
 
   const todayKey = zonedDayKey(now, BUSINESS_TIMEZONE);
 
@@ -326,6 +356,9 @@ export default async function DashboardPage({
               points={chartPoints}
               max={chartMax}
               periodLabel={periods[period]}
+              totalLabel={formatMT(total)}
+              comparison={comparison}
+              bestWord={period === "hoje" ? "Melhor hora" : "Melhor dia"}
               isEmpty={chart.every((p) => p.value === 0) && !hasSalesInPeriod}
               footer={
                 <dl className="grid grid-cols-3 gap-3">
