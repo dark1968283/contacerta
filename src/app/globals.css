@@ -397,11 +397,68 @@ svg.lucide {
 }
 
 /* ═════════════════════════════════════════════════════════════════════
-   MODO CLARO — identidade própria: névoa verde + vidro líquido.
-   (O modo escuro não é afectado por nada abaixo.)
+   VIDRO LÍQUIDO — claro e escuro (estilo iOS 26).
+   Claro: névoa verde + vidro branco.  Escuro: névoa verde subtil + vidro fumado.
+   As cores do vidro vêm das variáveis --g-* / --lens-* de cada tema.
    ═════════════════════════════════════════════════════════════════════ */
 
-/* Fundo: névoa verde da marca, fixa enquanto a página desliza. */
+html[data-theme="light"] {
+  --g-base: rgb(255 255 255 / 0.56);
+  --g-top: rgb(255 255 255 / 0.62);
+  --g-bottom: rgb(255 255 255 / 0.28);
+  --g-border: rgb(255 255 255 / 0.78);
+  --g-inset-top: rgb(255 255 255 / 0.95);
+  --g-inset-bottom: rgb(255 255 255 / 0.25);
+  --g-shadow: 0 1px 2px rgb(16 60 40 / 0.05), 0 12px 32px -14px rgb(16 60 40 / 0.22);
+  --g-rim-1: rgb(255 255 255 / 0.55);
+  --g-rim-2: rgb(255 255 255 / 0.35);
+  --g-input: rgb(255 255 255 / 0.78);
+  --g-input-border: rgb(16 60 40 / 0.12);
+  --g-item: rgb(255 255 255 / 0.32);
+  --g-item-hover: rgb(255 255 255 / 0.6);
+  --g-item-border: rgb(255 255 255 / 0.55);
+  --g-item-active: rgb(255 255 255 / 0.92);
+  --g-item-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8), 0 2px 10px -6px rgb(16 60 40 / 0.18);
+  --g-item-active-shadow: inset 0 1px 0 #fff, 0 8px 20px -10px rgb(22 108 78 / 0.45);
+  --lg-border: rgb(255 255 255 / 0.55);
+  --lens-milk: rgb(255 255 255 / 0.5);
+  --lens-frost: rgb(255 255 255 / 0.62);
+  --lens-item: rgb(255 255 255 / 0.3);
+  --lens-item-active: rgb(255 255 255 / 0.88);
+  --lens-drop: rgb(255 255 255 / 0.35);
+  --drop-border: rgb(255 255 255 / 0.7);
+  --sidebar-divider: rgb(255 255 255 / 0.45);
+}
+
+html[data-theme="dark"] {
+  --g-base: rgb(18 28 25 / 0.62);
+  --g-top: rgb(32 46 41 / 0.66);
+  --g-bottom: rgb(13 21 19 / 0.56);
+  --g-border: rgb(255 255 255 / 0.09);
+  --g-inset-top: rgb(255 255 255 / 0.10);
+  --g-inset-bottom: rgb(255 255 255 / 0.03);
+  --g-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 18px 40px -16px rgb(0 0 0 / 0.65);
+  --g-rim-1: rgb(255 255 255 / 0.12);
+  --g-rim-2: rgb(255 255 255 / 0.04);
+  --g-input: rgb(6 12 10 / 0.55);
+  --g-input-border: rgb(255 255 255 / 0.10);
+  --g-item: rgb(255 255 255 / 0.025);
+  --g-item-hover: rgb(255 255 255 / 0.06);
+  --g-item-border: rgb(255 255 255 / 0.06);
+  --g-item-active: rgb(255 255 255 / 0.10);
+  --g-item-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  --g-item-active-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 8px 22px -12px rgb(0 0 0 / 0.8);
+  --lg-border: rgb(255 255 255 / 0.12);
+  --lens-milk: rgb(14 22 20 / 0.55);
+  --lens-frost: rgb(14 22 20 / 0.72);
+  --lens-item: rgb(8 14 12 / 0.55);
+  --lens-item-active: rgb(255 255 255 / 0.07);
+  --lens-drop: rgb(255 255 255 / 0.10);
+  --drop-border: rgb(255 255 255 / 0.16);
+  --sidebar-divider: rgb(255 255 255 / 0.06);
+}
+
+/* Fundo com névoa verde, fixo enquanto a página desliza. */
 html[data-theme="light"] body {
   background-color: #EAF1EC;
   background-image:
@@ -414,112 +471,115 @@ html[data-theme="light"] body {
     linear-gradient(180deg, #F4F8F5 0%, #E6EEE9 100%);
   background-attachment: fixed;
 }
+html[data-theme="dark"] body {
+  background-color: #0A100E;
+  background-image:
+    radial-gradient(44rem 30rem at 50% -6%, rgb(34 199 102 / 0.16), transparent 64%),
+    radial-gradient(30rem 26rem at 4% 18%, rgb(22 108 78 / 0.32), transparent 66%),
+    radial-gradient(32rem 26rem at 100% 34%, rgb(34 199 102 / 0.10), transparent 64%),
+    radial-gradient(36rem 28rem at 22% 72%, rgb(22 108 78 / 0.22), transparent 66%),
+    radial-gradient(40rem 30rem at 86% 98%, rgb(22 108 78 / 0.28), transparent 64%),
+    linear-gradient(180deg, #0C1311 0%, #080D0C 100%);
+  background-attachment: fixed;
+}
 
-/* As páginas pintam um fundo escuro "infinito" (sombra de 100vmax); no claro, deixa ver a névoa. */
-html[data-theme="light"] [class*="100vmax"] {
+/* As páginas pintam um fundo "infinito" (sombra de 100vmax); deixa ver a névoa. */
+html [class*="100vmax"] {
   background-color: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
 }
 
-/* Vidro líquido: cartões, painéis, barras e menus. */
-html[data-theme="light"] .cc-glass,
-html[data-theme="light"] [class^="bg-dark-surface"],
-html[data-theme="light"] [class*=" bg-dark-surface"],
-html[data-theme="light"] [class^="bg-dark-elevated"],
-html[data-theme="light"] [class*=" bg-dark-elevated"] {
-  background-color: rgb(255 255 255 / 0.56) !important;
-  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.62), rgb(255 255 255 / 0.28)) !important;
+/* Vidro: cartões, painéis, barras e menus. */
+html .cc-glass,
+html [class^="bg-dark-surface"],
+html [class*=" bg-dark-surface"],
+html [class^="bg-dark-elevated"],
+html [class*=" bg-dark-elevated"] {
+  background-color: var(--g-base) !important;
+  background-image: linear-gradient(180deg, var(--g-top), var(--g-bottom)) !important;
   -webkit-backdrop-filter: blur(18px) saturate(170%);
   backdrop-filter: blur(18px) saturate(170%);
-  border-color: rgb(255 255 255 / 0.78) !important;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.95),
-    inset 0 -1px 0 rgb(255 255 255 / 0.25),
-    0 1px 2px rgb(16 60 40 / 0.05),
-    0 12px 32px -14px rgb(16 60 40 / 0.22) !important;
+  border-color: var(--g-border) !important;
+  box-shadow: inset 0 1px 0 var(--g-inset-top), inset 0 -1px 0 var(--g-inset-bottom), var(--g-shadow) !important;
+}
+/* O cartão financeiro e os ecrãs de entrada mantêm o seu próprio visual. */
+html .force-dark [class^="bg-dark-surface"],
+html .force-dark [class*=" bg-dark-surface"] {
+  background-color: rgb(16 24 22) !important;
+  background-image: none !important;
 }
 
-/* Campos de texto dentro do vidro: brancos e nítidos. */
-html[data-theme="light"] [class^="bg-dark-bg"]:not([class*="100vmax"]),
-html[data-theme="light"] [class*=" bg-dark-bg"]:not([class*="100vmax"]) {
-  background-color: rgb(255 255 255 / 0.78) !important;
-  border-color: rgb(16 60 40 / 0.12) !important;
+/* Campos de texto dentro do vidro. */
+html [class^="bg-dark-bg"]:not([class*="100vmax"]):not(.force-dark):not(main),
+html [class*=" bg-dark-bg"]:not([class*="100vmax"]):not(.force-dark):not(main) {
+  background-color: var(--g-input) !important;
+  border-color: var(--g-input-border) !important;
 }
 
-/* Barra lateral: painel de vidro, e cada item é uma pastilha de vidro própria. */
-html[data-theme="light"] .cc-nav-item {
+/* Barra lateral: cada item é uma pastilha de vidro própria. */
+html .cc-nav-item {
+  position: relative;
   margin-bottom: 6px;
-  border: 1px solid rgb(255 255 255 / 0.55);
-  background-color: rgb(255 255 255 / 0.32);
+  border: 1px solid var(--g-item-border);
+  background-color: var(--g-item);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8), 0 2px 10px -6px rgb(16 60 40 / 0.18);
+  box-shadow: var(--g-item-shadow);
 }
-html[data-theme="light"] .cc-nav-item:hover {
-  background-color: rgb(255 255 255 / 0.6);
+html .cc-nav-item:hover {
+  background-color: var(--g-item-hover);
 }
-html[data-theme="light"] .cc-nav-item-active {
-  background-color: rgb(255 255 255 / 0.92) !important;
-  border-color: rgb(255 255 255 / 1);
-  box-shadow: inset 0 1px 0 #fff, 0 8px 20px -10px rgb(22 108 78 / 0.45);
+html .cc-nav-item-active {
+  background-color: var(--g-item-active) !important;
+  box-shadow: var(--g-item-active-shadow);
 }
 
 /* Telemóveis mais modestos: desfoque mais leve para manter a app fluida. */
 @media (max-width: 767px) {
-  html[data-theme="light"] .cc-glass,
-  html[data-theme="light"] [class^="bg-dark-surface"],
-  html[data-theme="light"] [class*=" bg-dark-surface"],
-  html[data-theme="light"] [class^="bg-dark-elevated"],
-  html[data-theme="light"] [class*=" bg-dark-elevated"] {
+  html .cc-glass,
+  html [class^="bg-dark-surface"],
+  html [class*=" bg-dark-surface"],
+  html [class^="bg-dark-elevated"],
+  html [class*=" bg-dark-elevated"] {
     -webkit-backdrop-filter: blur(12px) saturate(160%);
     backdrop-filter: blur(12px) saturate(160%);
   }
 }
 
-/* ─────────────────────────────────────────────────────────────────────
-   Vidro líquido com refracção (componente <LightGlass>, só no claro).
-   O elemento deixa de pintar o seu próprio fundo/desfoque: quem o faz
-   é a "lente" do componente, que refracta o que está por trás.
-   ───────────────────────────────────────────────────────────────────── */
-html[data-theme="light"] [data-liquid-glass] {
+/* Vidro com refracção (<LightGlass>): quem pinta é a lente, não o elemento. */
+html [data-liquid-glass] {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-  border-color: rgb(255 255 255 / 0.55) !important;
+  border-color: var(--lg-border) !important;
 }
-/* O "leite" do vidro vai na própria lente (pinta por cima do que ela refracta),
-   para o texto da barra ler bem mesmo quando passa algo escuro por baixo. */
-html[data-theme="light"] [data-liquid-glass] > .lg-lens {
-  background-color: rgb(255 255 255 / 0.5);
+html [data-liquid-glass] > .lg-lens {
+  background-color: var(--lens-milk);
 }
-/* Onde o browser não refracta (Safari/iPhone, Firefox): mais branco. */
-html[data-theme="light"] [data-liquid-glass="frost"] > .lg-lens {
-  background-color: rgb(255 255 255 / 0.58);
+html [data-liquid-glass="frost"] > .lg-lens {
+  background-color: var(--lens-frost);
 }
 
-/* Brilho de borda (luz a entrar pelo canto superior esquerdo e a sair pelo inferior direito),
-   inspirado no componente "liquid-glass": dá volume ao vidro sem pesar na performance. */
-html[data-theme="light"] .cc-glass::after,
-html[data-theme="light"] .cc-nav-item::after {
+/* Brilho de borda: luz a entrar pelo canto superior esquerdo. */
+html .cc-glass,
+html .cc-nav-item {
+  position: relative;
+}
+html .cc-glass::after,
+html .cc-nav-item::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  box-shadow:
-    inset 1.5px 1.5px 1px 0 rgb(255 255 255 / 0.55),
-    inset -1px -1px 1px 0.5px rgb(255 255 255 / 0.35);
-}
-html[data-theme="light"] .cc-nav-item,
-html[data-theme="light"] .cc-glass {
-  position: relative;
+  box-shadow: inset 1.5px 1.5px 1px 0 var(--g-rim-1), inset -1px -1px 1px 0.5px var(--g-rim-2);
 }
 
-/* Barra lateral (modo claro): painel de vidro flutuante, como no macOS/iPadOS 26. */
+/* Barra lateral: painel de vidro flutuante (macOS/iPadOS 26). */
 @media (min-width: 768px) {
-  html[data-theme="light"] .cc-sidebar {
+  html .cc-sidebar {
     top: 12px !important;
     bottom: 12px !important;
     left: 12px !important;
@@ -527,26 +587,22 @@ html[data-theme="light"] .cc-glass {
     border-radius: 26px;
     border-right-width: 1px;
   }
-  html[data-theme="light"] .cc-sidebar > nav,
-  html[data-theme="light"] .cc-sidebar > div {
-    border-color: rgb(255 255 255 / 0.45) !important;
+  html .cc-sidebar > nav,
+  html .cc-sidebar > div {
+    border-color: var(--sidebar-divider) !important;
   }
 }
-/* Itens da barra lateral em vidro: o destaque do activo vai na lente. */
-html[data-theme="light"] .cc-nav-item[data-liquid-glass] > .lg-lens {
-  background-color: rgb(255 255 255 / 0.30);
-}
-html[data-theme="light"] .cc-nav-item-active[data-liquid-glass] > .lg-lens {
-  background-color: rgb(255 255 255 / 0.88);
-}
-html[data-theme="light"] .cc-nav-item[data-liquid-glass] {
-  background-color: transparent !important;
-}
 
-/* Gota de vidro da barra de baixo: no claro é vidro com refracção (lente com pouco "leite"). */
-html[data-theme="light"] .cc-tab-droplet[data-liquid-glass] > .lg-lens {
-  background-color: rgb(255 255 255 / 0.35);
+/* Itens e gota com refracção: o destaque vai na lente. */
+html .cc-nav-item[data-liquid-glass] > .lg-lens {
+  background-color: var(--lens-item);
 }
-html[data-theme="light"] .cc-tab-droplet[data-liquid-glass] {
-  border: 1px solid rgb(255 255 255 / 0.7) !important;
+html .cc-nav-item-active[data-liquid-glass] > .lg-lens {
+  background-color: var(--lens-item-active);
+}
+html .cc-tab-droplet[data-liquid-glass] > .lg-lens {
+  background-color: var(--lens-drop);
+}
+html .cc-tab-droplet[data-liquid-glass] {
+  border: 1px solid var(--drop-border) !important;
 }

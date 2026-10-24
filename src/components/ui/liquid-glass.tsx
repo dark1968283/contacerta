@@ -1324,14 +1324,14 @@ export const LiquidGlass = React.forwardRef<HTMLDivElement, LiquidGlassProps>(
 LiquidGlass.displayName = "LiquidGlass";
 
 /**
- * Aplica o vidro líquido ao único elemento filho — mas só no tema claro.
- * No tema escuro devolve o filho sem alterações (a identidade escura fica igual).
+ * Aplica o vidro líquido ao único elemento filho, nos dois temas:
+ * no claro com calibração clara (vidro branco), no escuro com calibração
+ * escura (vidro fumado). A cor do "leite" de cada tema vem do CSS (--lens-*).
  */
 export function LightGlass({ children, ...options }: LiquidGlassOptions & { children: React.ReactElement }) {
   const { resolved } = useTheme();
-  if (resolved !== "light") return children;
   return (
-    <LiquidGlass asChild {...options}>
+    <LiquidGlass asChild appearance={resolved} {...options}>
       {children}
     </LiquidGlass>
   );
