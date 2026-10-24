@@ -498,8 +498,6 @@ html [class^="bg-dark-elevated"],
 html [class*=" bg-dark-elevated"] {
   background-color: var(--g-base) !important;
   background-image: linear-gradient(180deg, var(--g-top), var(--g-bottom)) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  backdrop-filter: blur(18px) saturate(170%);
   border-color: var(--g-border) !important;
   box-shadow: inset 0 1px 0 var(--g-inset-top), inset 0 -1px 0 var(--g-inset-bottom), var(--g-shadow) !important;
 }
@@ -523,9 +521,8 @@ html .cc-nav-item {
   margin-bottom: 6px;
   border: 1px solid var(--g-item-border);
   background-color: var(--g-item);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
   box-shadow: var(--g-item-shadow);
+  transition: background-color 120ms ease;
 }
 html .cc-nav-item:hover {
   background-color: var(--g-item-hover);
@@ -535,17 +532,6 @@ html .cc-nav-item-active {
   box-shadow: var(--g-item-active-shadow);
 }
 
-/* Telemóveis mais modestos: desfoque mais leve para manter a app fluida. */
-@media (max-width: 767px) {
-  html .cc-glass,
-  html [class^="bg-dark-surface"],
-  html [class*=" bg-dark-surface"],
-  html [class^="bg-dark-elevated"],
-  html [class*=" bg-dark-elevated"] {
-    -webkit-backdrop-filter: blur(12px) saturate(160%);
-    backdrop-filter: blur(12px) saturate(160%);
-  }
-}
 
 /* Vidro com refracção (<LightGlass>): quem pinta é a lente, não o elemento. */
 html [data-liquid-glass] {
@@ -593,13 +579,7 @@ html .cc-nav-item::after {
   }
 }
 
-/* Itens e gota com refracção: o destaque vai na lente. */
-html .cc-nav-item[data-liquid-glass] > .lg-lens {
-  background-color: var(--lens-item);
-}
-html .cc-nav-item-active[data-liquid-glass] > .lg-lens {
-  background-color: var(--lens-item-active);
-}
+/* Gota com refracção: o destaque vai na lente. */
 html .cc-tab-droplet[data-liquid-glass] > .lg-lens {
   background-color: var(--lens-drop);
 }

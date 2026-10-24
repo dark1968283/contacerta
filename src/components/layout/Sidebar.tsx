@@ -21,7 +21,6 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
   const active = isActivePath(pathname, item.href);
 
   return (
-    <LightGlass material="clear" refraction={7} dispersion={0.25} interactive>
     <Link
       prefetch={false}
       href={item.href}
@@ -39,7 +38,6 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
       <span className="min-w-0 flex-1">{item.label}</span>
       {item.href === "/dashboard/notificacoes" && <NotificationCountBadge />}
     </Link>
-    </LightGlass>
   );
 }
 

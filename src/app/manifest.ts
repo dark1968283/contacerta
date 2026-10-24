@@ -16,7 +16,8 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait",
     // Mesmas cores já usadas em tailwind.config.ts (brand / paper) e no
     // viewport.themeColor do layout — não introduz nenhuma cor nova.
-    background_color: "#FAFAF7",
+    // Ecrã de arranque escuro, igual ao tema por defeito (evita um "clarão" branco ao abrir).
+    background_color: "#0B1110",
     theme_color: "#166C4E",
     lang: "pt",
     categories: ["business", "finance", "productivity"],

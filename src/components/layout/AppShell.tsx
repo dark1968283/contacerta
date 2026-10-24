@@ -58,7 +58,7 @@ export function AppShell({
         </div>
       </div>
 
-      <MobileNav userLabel={userLabel} avatarUrl={avatarUrl} />
+      <MobileNav userLabel={userLabel} avatarUrl={avatarUrl} isPlatformAdmin={isPlatformAdmin} />
     </div>
   );
 }

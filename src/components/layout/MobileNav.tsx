@@ -21,6 +21,7 @@ import {
   MORE_GROUP_HREFS,
   MORE_ITEMS,
   NEW_SALE_HREF,
+  PLATFORM_ITEM,
   isActivePath,
   type NavItem,
 } from "./nav-items";
@@ -28,6 +29,7 @@ import {
 type MobileNavProps = {
   userLabel: string;
   avatarUrl?: string;
+  isPlatformAdmin?: boolean;
 };
 
 
@@ -37,7 +39,7 @@ const MORE_HREF = "/dashboard/mais";
 
 type Box = { x: number; y: number; w: number; h: number };
 
-export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
+export function MobileNav({ userLabel, avatarUrl, isPlatformAdmin = false }: MobileNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -214,7 +216,7 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
                   Navegação
                 </p>
 
-                {MORE_ITEMS.map((item) => {
+                {[...MORE_ITEMS, ...(isPlatformAdmin ? [PLATFORM_ITEM] : [])].map((item) => {
                   const active = isActivePath(pathname, item.href);
                   return (
                     <Link
