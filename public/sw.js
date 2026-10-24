@@ -14,7 +14,7 @@
 //  - Ao terminar sessão (abrir /login), apaga todas as páginas guardadas,
 //    para os dados do negócio não ficarem no telemóvel.
 
-const VERSION = "v2";
+const VERSION = "v3";
 const STATIC_CACHE = `contacerta-static-${VERSION}`;
 const PAGES_CACHE = `contacerta-pages-${VERSION}`;
 const ASSETS_CACHE = `contacerta-assets-${VERSION}`;
@@ -263,4 +263,51 @@ self.addEventListener("message", (event) => {
   const type = event.data && event.data.type;
   if (type === "WARM_OFFLINE") event.waitUntil(warmUp());
   if (type === "CLEAR_OFFLINE") event.waitUntil(clearPages());
+});
+
+// ── Avisos no telemóvel (push) ─────────────────────────────────────────
+// O servidor só envia um "toque" vazio; o texto vem de /api/push/mensagem,
+// pedido aqui com a sessão de quem está no telemóvel.
+self.addEventListener("push", (event) => {
+  event.waitUntil(
+    (async () => {
+      let msg = {
+        title: "ContaCerta",
+        body: "Abra a app para ver o resumo do seu negócio.",
+        url: "/dashboard",
+        tag: "contacerta-diario",
+      };
+      try {
+        const res = await fetch("/api/push/mensagem", { credentials: "include", cache: "no-store" });
+        if (res.ok) msg = Object.assign(msg, await res.json());
+      } catch {
+        /* sem rede: mostra a mensagem genérica */
+      }
+      await self.registration.showNotification(msg.title, {
+        body: msg.body,
+        tag: msg.tag,
+        icon: "/icons/icon-192.png",
+        badge: "/icons/icon-192.png",
+        data: { url: msg.url },
+      });
+    })(),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/dashboard";
+  event.waitUntil(
+    (async () => {
+      const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of all) {
+        if ("focus" in client) {
+          await client.focus();
+          if ("navigate" in client) await client.navigate(url);
+          return;
+        }
+      }
+      await self.clients.openWindow(url);
+    })(),
+  );
 });

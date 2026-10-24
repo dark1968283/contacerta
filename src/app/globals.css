@@ -586,3 +586,12 @@ html .cc-tab-droplet[data-liquid-glass] > .lg-lens {
 html .cc-tab-droplet[data-liquid-glass] {
   border: 1px solid var(--drop-border) !important;
 }
+
+/* ── Impressão / Guardar PDF (relatórios, recibos e faturas) ─────────── */
+@media print {
+  @page { size: A4; margin: 14mm; }
+  html, body { background: #fff !important; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* A animação de abertura nunca vai para o papel. */
+  body > [role="img"][aria-label="ContaCerta"] { display: none !important; }
+}

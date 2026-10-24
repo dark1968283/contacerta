@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, FileText, LogOut, Settings, ShieldCheck, Smartphone } from "lucide-react";
+import { BarChart3, Bell, ChevronRight, FileText, LogOut, Settings, ShieldCheck, Smartphone } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { signOut } from "../../../(auth)/actions";
@@ -148,6 +148,9 @@ export default async function MaisPage() {
           <div className="space-y-6">
             <Group title="Negócio">
               <RowLink href="/dashboard/vendas" label="Histórico de vendas" hint="Todas as vendas e recibos" Icon={IconSales} />
+              {isAdmin && (
+                <RowLink href="/dashboard/relatorios" label="Relatórios" hint="Lucro do mês, mais vendidos, Excel e PDF" Icon={asNav(BarChart3)} />
+              )}
               <RowLink href="/dashboard/clientes" label="Clientes" hint="Contactos e quem lhe deve" Icon={IconCustomers} />
               {isAdmin && (
                 <RowLink href="/dashboard/produtos/categorias" label="Categorias de produtos" hint="Organizar o catálogo" Icon={IconProducts} />
@@ -163,6 +166,7 @@ export default async function MaisPage() {
 
             <Group title="App">
               <RowLink href="/descarregar" label="Descarregar a app" hint="Android e iPhone, funciona sem internet" Icon={asNav(Smartphone)} />
+              <RowLink href="/dashboard/configuracoes#avisos" label="Avisos no telemóvel" hint="Resumo diário às 8h, stock e dívidas" Icon={asNav(Bell)} />
               <RowLink href="/termos-de-servico" label="Termos de serviço" Icon={asNav(FileText)} />
               <RowLink href="/politica-de-privacidade" label="Política de privacidade" Icon={asNav(FileText)} />
             </Group>

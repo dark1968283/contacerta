@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, CreditCard, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requestPlan } from "../planos/actions";
+import { paysuiteConfigured } from "@/lib/paysuite";
+import { PaysuiteBox } from "./PaysuiteBox";
 
 type Cycle = "monthly" | "yearly";
 
@@ -14,7 +16,7 @@ function formatPrice(amount: number, currency: string) {
 export default async function EfectuarPagamentoPage({
   searchParams,
 }: {
-  searchParams: { plan?: string; ciclo?: string };
+  searchParams: { plan?: string; ciclo?: string; erro?: string };
 }) {
   if (!searchParams.plan) redirect("/dashboard/planos");
 
@@ -113,9 +115,11 @@ export default async function EfectuarPagamentoPage({
             </Link>
           </section>
 
+          <div className="space-y-5">
+          {paysuiteConfigured() && <PaysuiteBox planId={plan.id} cycle={cycle} error={searchParams.erro} />}
           <section className="overflow-hidden rounded-2xl border border-dark-border bg-dark-surface">
             <div className="border-b border-dark-border p-5 sm:p-6">
-              <h2 className="font-semibold text-dark-text">Dados do pagamento</h2>
+              <h2 className="font-semibold text-dark-text">{paysuiteConfigured() ? "Ou pague manualmente" : "Dados do pagamento"}</h2>
               <p className="mt-1 text-sm text-dark-muted">
                 Se já efectuou o pagamento, indique a referência da transacção.
               </p>
@@ -215,6 +219,7 @@ export default async function EfectuarPagamentoPage({
               </button>
             </form>
           </section>
+          </div>
         </div>
       </div>
     </div>

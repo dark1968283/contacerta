@@ -8,6 +8,7 @@ import { BUSINESS_TIMEZONE } from "@/lib/timezone";
 import { buildReceiptText, whatsappLink } from "@/lib/receipt";
 import { Panel } from "@/components/dashboard/Panel";
 import { SalesShell } from "../_components/SalesShell";
+import { InvoiceActions } from "./InvoiceActions";
 
 export default async function VendaDetalhePage({ params }: { params: { id: string } }) {
   const { businessName } = await getBusinessContext();
@@ -21,11 +22,19 @@ export default async function VendaDetalhePage({ params }: { params: { id: strin
 
   if (!sale) notFound();
 
-  const [{ data: items }, { data: debt }, { data: seller }] = await Promise.all([
+  const [{ data: items }, { data: debt }, { data: seller }, invoiceResult] = await Promise.all([
     supabase.from("sale_items").select("product_id, quantity, unit_price, products(name)").eq("sale_id", sale.id),
     supabase.from("debts").select("id, status, total_amount, amount_paid").eq("sale_id", sale.id).maybeSingle(),
     supabase.from("users").select("name").eq("id", sale.created_by).maybeSingle(),
+    // Tabela da migração 0021 (ainda fora dos tipos gerados). Se não existir, fica sem fatura.
+    (supabase as unknown as { from: (t: string) => any })
+      .from("invoices")
+      .select("series, year, number")
+      .eq("sale_id", sale.id)
+      .maybeSingle() as Promise<{ data: { series: string; year: number; number: number } | null }>,
   ]);
+  const invoice = invoiceResult?.data ?? null;
+  const invoiceNumber = invoice ? `${invoice.series} ${invoice.year}/${invoice.number}` : null;
 
   const customer = sale.customers as unknown as { name: string; phone: string | null } | null;
   const credit = sale.payment_method === "credito";
@@ -149,6 +158,8 @@ export default async function VendaDetalhePage({ params }: { params: { id: strin
             <ArrowUpRight className="h-4 w-4 shrink-0 text-dark-muted" aria-hidden />
           </Link>
         )}
+
+        <InvoiceActions saleId={sale.id} invoiceNumber={invoiceNumber} />
 
         <a
           href={whatsappLink(receipt, customer?.phone)}

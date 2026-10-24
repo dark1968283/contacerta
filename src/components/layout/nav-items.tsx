@@ -1,4 +1,4 @@
-import { ShieldCheck } from "lucide-react";
+import { BarChart3, ShieldCheck } from "lucide-react";
 import {
   IconBell,
   IconCustomers,
@@ -17,6 +17,7 @@ export type NavItem = { href: string; label: string; Icon: NavIcon };
 
 /** Ícone do Lucide adaptado ao formato dos ícones de navegação (sem versão preenchida). */
 const ShieldIcon: NavIcon = ({ className }) => <ShieldCheck className={className} aria-hidden />;
+const ReportsIcon: NavIcon = ({ className }) => <BarChart3 className={className} aria-hidden />;
 
 export const DASHBOARD_HREF = "/dashboard";
 export const NEW_SALE_HREF = "/dashboard/vendas/nova";
@@ -42,6 +43,7 @@ export const SIDEBAR_GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: "Gestão",
     items: [
+      { href: "/dashboard/relatorios", label: "Relatórios", Icon: ReportsIcon },
       { href: "/dashboard/funcionarios", label: "Funcionários", Icon: IconTeam },
       { href: "/dashboard/meu-plano", label: "Meu plano", Icon: IconPlan },
       { href: "/dashboard/pagamentos", label: "Pagamentos", Icon: IconPayments },
@@ -79,6 +81,7 @@ export const MOBILE_ITEMS: NavItem[] = [...MOBILE_LEFT_ITEMS, ...MOBILE_RIGHT_IT
 /** Itens do menu "Mais" no telemóvel. */
 export const MORE_ITEMS: NavItem[] = [
   { href: "/dashboard/vendas", label: "Histórico de vendas", Icon: IconSales },
+  { href: "/dashboard/relatorios", label: "Relatórios", Icon: ReportsIcon },
   { href: "/dashboard/clientes", label: "Clientes", Icon: IconCustomers },
   { href: "/dashboard/funcionarios", label: "Funcionários", Icon: IconTeam },
   { href: "/dashboard/meu-plano", label: "Meu plano", Icon: IconPlan },
@@ -89,6 +92,7 @@ export const MORE_ITEMS: NavItem[] = [
 /** Rotas que destacam o botão "Mais" no telemóvel. */
 export const MORE_GROUP_HREFS = [
   "/dashboard/mais",
+  "/dashboard/relatorios",
   "/dashboard/clientes",
   "/dashboard/funcionarios",
   "/dashboard/planos",

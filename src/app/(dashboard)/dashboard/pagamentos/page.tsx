@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { checkPaysuiteReturn } from "../planos/paysuite-actions";
 import {
   ArrowRight,
   CheckCircle2,
@@ -55,9 +56,16 @@ function planName(p: Payment) {
   return (p.plans as { name: string } | null)?.name ?? "Plano ContaCerta";
 }
 
-export default async function Pagamentos({ searchParams }: { searchParams: { criado?: string } }) {
+export default async function Pagamentos({
+  searchParams,
+}: {
+  searchParams: { criado?: string; paysuite?: string; pago?: string };
+}) {
   const { businessId } = await getBusinessContext();
   const supabase = createClient();
+  // Ao voltar da PaySuite, confirma logo (sem esperar pelo webhook).
+  const paysuiteStatus = searchParams.paysuite ? await checkPaysuiteReturn(searchParams.paysuite) : null;
+  const justPaid = paysuiteStatus === "confirmed" || searchParams.pago === "1";
 
   const { data } = await supabase
     .from("subscription_payments")
@@ -93,6 +101,17 @@ export default async function Pagamentos({ searchParams }: { searchParams: { cri
             Ver planos <ArrowRight size={16} />
           </Link>
         </header>
+
+        {justPaid && (
+          <p role="status" className="rounded-2xl border border-brandGlow/25 bg-brandGlow/[0.08] px-5 py-4 text-sm font-medium text-brandGlow">
+            ✓ Pagamento recebido. O seu plano já está activo. Obrigado!
+          </p>
+        )}
+        {paysuiteStatus === "pending" && (
+          <p role="status" className="rounded-2xl border border-warning/25 bg-warning/[0.08] px-5 py-4 text-sm font-medium text-dark-text">
+            Ainda não recebemos a confirmação da PaySuite. Se já pagou, o plano activa-se sozinho em poucos minutos.
+          </p>
+        )}
 
         {searchParams.criado && pending.some((p) => p.id === searchParams.criado) && (
           <p role="status" className="rounded-2xl border border-brandGlow/25 bg-brandGlow/[0.08] px-5 py-4 text-sm font-medium text-brandGlow">

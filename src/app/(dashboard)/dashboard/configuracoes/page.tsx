@@ -2,10 +2,19 @@ import { createClient } from "@/lib/supabase/server";
 import { ProfileSettingsForm } from "./ProfileSettingsForm";
 import { InstallAppCard } from "@/components/pwa/InstallAppCard";
 import { ThemeChooser } from "@/components/theme/ThemeToggle";
+import { getBusinessContext } from "@/lib/supabase/business";
+import { BusinessDetailsForm } from "./BusinessDetailsForm";
+import { PushToggle } from "@/components/pwa/PushToggle";
 
 export default async function ConfiguracoesPage() {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { businessId, role } = await getBusinessContext();
+  const [{ data: { user } }, { data: business }] = await Promise.all([
+    supabase.auth.getUser(),
+    // "*" para não falhar antes da migração 0021 (colunas nuit/phone/address).
+    supabase.from("businesses").select("*").eq("id", businessId).maybeSingle(),
+  ]);
+  const biz = (business ?? {}) as { nuit?: string | null; phone?: string | null; address?: string | null };
 
   const initialName =
     (typeof user?.user_metadata?.full_name === "string"
@@ -44,6 +53,17 @@ export default async function ConfiguracoesPage() {
           <ThemeChooser />
         </div>
       </section>
+
+      <div id="avisos" className="mt-6 scroll-mt-24">
+        <PushToggle />
+      </div>
+
+      {role === "admin" && (
+        <BusinessDetailsForm
+          businessId={businessId}
+          initial={{ nuit: biz.nuit ?? "", phone: biz.phone ?? "", address: biz.address ?? "" }}
+        />
+      )}
 
       <div className="mt-6">
         <InstallAppCard />

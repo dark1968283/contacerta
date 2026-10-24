@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { grossProfitOf } from "@/lib/profit";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { formatMT } from "@/lib/format";
@@ -106,9 +107,9 @@ export default async function DashboardPage({
 
   const [{ data: items }, { data: customers }] = await Promise.all([
     saleIds.length
-      ? supabase.from("sale_items").select("sale_id,product_id,quantity,unit_price").in("sale_id", saleIds)
+      ? supabase.from("sale_items").select("sale_id,product_id,quantity,unit_price,cost_price").in("sale_id", saleIds)
       : Promise.resolve({
-          data: [] as { sale_id: string; product_id: string; quantity: number; unit_price: number }[],
+          data: [] as { sale_id: string; product_id: string; quantity: number; unit_price: number; cost_price: number | null }[],
         }),
     customerIds.length
       ? supabase.from("customers").select("id,name").eq("business_id", businessId).in("id", customerIds)
@@ -140,23 +141,16 @@ export default async function DashboardPage({
   const productNames = new Map((soldProducts ?? []).map((p) => [p.id, p.name]));
   const productCosts = new Map((soldProducts ?? []).map((p) => [p.id, p.cost_price]));
 
-  // Lucro bruto: soma apenas os itens cujo produto tem custo registado.
-  // Se nenhum item tiver custo, não há dados para calcular lucro — não
-  // inventamos custo 0, que inflacionaria o valor.
-  let grossProfit = 0;
-  let itemsWithCost = 0;
-  items?.forEach((item) => {
-    const cost = productCosts.get(item.product_id);
-    if (cost === undefined || cost === null) return;
-    grossProfit += item.quantity * item.unit_price - item.quantity * cost;
-    itemsWithCost += 1;
-  });
-  const hasProfitData = itemsWithCost > 0;
+  // Lucro bruto com o custo guardado em cada venda (ver src/lib/profit.ts).
+  // Itens sem custo nenhum ficam fora da conta — nunca inventamos custo 0.
+  const profitResult = grossProfitOf(items ?? [], productCosts);
+  const grossProfit = profitResult.profit;
+  const hasProfitData = profitResult.hasData;
 
   // Produtos vendidos no período SEM preço de compra: o lucro não os conta,
   // por isso avisamos o utilizador e damos um atalho para os completar.
   const missingCostProducts = (soldProducts ?? [])
-    .filter((p) => p.cost_price === null || p.cost_price === undefined)
+    .filter((p) => profitResult.missingProductIds.has(p.id))
     .map((p) => ({ id: p.id, name: p.name }));
 
   const ranking = new Map<string, { name: string; quantity: number }>();

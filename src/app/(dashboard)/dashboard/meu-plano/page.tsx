@@ -123,7 +123,9 @@ export default async function MeuPlano() {
   const isActive = sub?.status === "active" && periodEnd > Date.now();
   const trialExpired = isTrial && sub?.status === "active" && !isActive;
   const features = plan?.features ?? [];
-  const limits = Object.entries(plan?.limits ?? {});
+  // "Armazenamento" não é um limite real na app (não há ficheiros a guardar),
+  // por isso não o mostramos ao cliente.
+  const limits = Object.entries(plan?.limits ?? {}).filter(([key]) => key !== "storage_mb");
 
   return (
     <div className="-mx-4 -mt-5 -mb-6 min-h-[calc(100dvh-5rem)] bg-dark-bg px-4 pb-16 pt-6 text-dark-text shadow-[0_0_0_100vmax_theme(colors.dark.bg)] [clip-path:inset(-6rem_-100vmax_-100vmax_-100vmax)] sm:-mx-6 sm:px-6">
