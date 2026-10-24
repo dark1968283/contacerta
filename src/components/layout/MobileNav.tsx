@@ -217,7 +217,10 @@ export function MobileNav({ userLabel, avatarUrl, isPlatformAdmin = false }: Mob
                 </p>
 
                 {[...MORE_ITEMS, ...(isPlatformAdmin ? [PLATFORM_ITEM] : [])].map((item) => {
-                  const active = isActivePath(pathname, item.href);
+                  // "Despesas" não fica activo quando se está em "Gastei dinheiro" (/despesas/nova).
+                  const active =
+                    isActivePath(pathname, item.href) &&
+                    !MORE_ITEMS.some((o) => o.href !== item.href && o.href.startsWith(`${item.href}/`) && isActivePath(pathname, o.href));
                   return (
                     <Link
                       prefetch={false}

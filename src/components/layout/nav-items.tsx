@@ -1,4 +1,4 @@
-import { BarChart3, ShieldCheck } from "lucide-react";
+import { Banknote, BarChart3, Coins, ShieldCheck, Wallet } from "lucide-react";
 import {
   IconBell,
   IconCustomers,
@@ -18,6 +18,9 @@ export type NavItem = { href: string; label: string; Icon: NavIcon };
 /** Ícone do Lucide adaptado ao formato dos ícones de navegação (sem versão preenchida). */
 const ShieldIcon: NavIcon = ({ className }) => <ShieldCheck className={className} aria-hidden />;
 const ReportsIcon: NavIcon = ({ className }) => <BarChart3 className={className} aria-hidden />;
+const SpendIcon: NavIcon = ({ className }) => <Banknote className={className} aria-hidden />;
+const ExpensesIcon: NavIcon = ({ className }) => <Wallet className={className} aria-hidden />;
+const CashIcon: NavIcon = ({ className }) => <Coins className={className} aria-hidden />;
 
 export const DASHBOARD_HREF = "/dashboard";
 export const NEW_SALE_HREF = "/dashboard/vendas/nova";
@@ -38,6 +41,8 @@ export const SIDEBAR_GROUPS: { title: string; items: NavItem[] }[] = [
       { href: "/dashboard/produtos", label: "Produtos", Icon: IconProducts },
       { href: "/dashboard/dividas", label: "Dívidas", Icon: IconDebts },
       { href: "/dashboard/clientes", label: "Clientes", Icon: IconCustomers },
+      { href: "/dashboard/despesas", label: "Despesas", Icon: ExpensesIcon },
+      { href: "/dashboard/caixa", label: "Contar a caixa", Icon: CashIcon },
     ],
   },
   {
@@ -81,6 +86,9 @@ export const MOBILE_ITEMS: NavItem[] = [...MOBILE_LEFT_ITEMS, ...MOBILE_RIGHT_IT
 /** Itens do menu "Mais" no celular. */
 export const MORE_ITEMS: NavItem[] = [
   { href: "/dashboard/vendas", label: "Histórico de vendas", Icon: IconSales },
+  { href: "/dashboard/despesas/nova", label: "Gastei dinheiro", Icon: SpendIcon },
+  { href: "/dashboard/despesas", label: "Despesas", Icon: ExpensesIcon },
+  { href: "/dashboard/caixa", label: "Contar a caixa", Icon: CashIcon },
   { href: "/dashboard/relatorios", label: "Relatórios", Icon: ReportsIcon },
   { href: "/dashboard/clientes", label: "Clientes", Icon: IconCustomers },
   { href: "/dashboard/funcionarios", label: "Funcionários", Icon: IconTeam },
@@ -93,6 +101,8 @@ export const MORE_ITEMS: NavItem[] = [
 export const MORE_GROUP_HREFS = [
   "/dashboard/mais",
   "/dashboard/relatorios",
+  "/dashboard/despesas",
+  "/dashboard/caixa",
   "/dashboard/clientes",
   "/dashboard/funcionarios",
   "/dashboard/planos",
