@@ -31,7 +31,10 @@ export default async function DashboardLayout({
     loadNotices(),
   ]);
 
-  const noticeIds = [...notices.stock, ...notices.subscription, ...notices.payments].map((n) => n.id);
+  // O sino conta só os alertas urgentes e de atenção (não os informativos).
+  const noticeIds = [...notices.stock, ...notices.debts, ...notices.subscription, ...notices.payments]
+    .filter((n) => n.tone !== "info")
+    .map((n) => n.id);
 
   const userLabel =
     (typeof user?.user_metadata?.full_name === "string"

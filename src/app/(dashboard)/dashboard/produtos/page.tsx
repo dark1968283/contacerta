@@ -102,6 +102,7 @@ export default async function ProdutosPage({
             <Panel as="div" className={`p-3.5 sm:p-4 ${!product.is_active ? "opacity-60" : ""}`}>
             <div className="flex items-center gap-2">
             <Link
+              prefetch={false}
               href={`/dashboard/produtos/${product.id}`}
               className="group block min-w-0 flex-1 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50"
             >

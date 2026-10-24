@@ -75,6 +75,7 @@ export default async function DividasPage({
         <header className="space-y-4">
           {searchParams.customer && (
             <Link
+              prefetch={false}
               href={`/dashboard/clientes/${searchParams.customer}`}
               className="inline-flex items-center gap-1.5 text-sm font-medium text-dark-muted transition-colors hover:text-dark-text"
             >
@@ -145,6 +146,7 @@ export default async function DividasPage({
                   <li key={debt.id} className="min-w-0">
                     <Panel className="p-4 sm:p-5">
                       <Link
+                        prefetch={false}
                         href={`/dashboard/dividas/${debt.id}`}
                         className="group flex items-start gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50"
                       >
@@ -175,6 +177,7 @@ export default async function DividasPage({
 
                       <div className="mt-4 grid grid-cols-2 gap-2 border-t border-dark-border pt-4">
                         <Link
+                          prefetch={false}
                           href={`/dashboard/dividas/${debt.id}#receber`}
                           className="flex items-center justify-center gap-2 rounded-xl bg-brandGlow py-3 text-sm font-bold text-onglow transition active:scale-[0.98]"
                         >
@@ -193,6 +196,7 @@ export default async function DividasPage({
                           </a>
                         ) : (
                           <Link
+                            prefetch={false}
                             href={`/dashboard/clientes/${debt.customer_id}`}
                             className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-white/[0.14] py-3 text-xs font-medium text-dark-muted transition hover:text-dark-text"
                           >
@@ -222,6 +226,7 @@ export default async function DividasPage({
               {paid.map((debt) => (
                 <li key={debt.id}>
                   <Link
+                    prefetch={false}
                     href={`/dashboard/dividas/${debt.id}`}
                     className="flex items-center justify-between gap-3 px-4 py-3 text-sm transition hover:bg-white/[0.03]"
                   >

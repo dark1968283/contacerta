@@ -2,261 +2,286 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import {
-  AlertTriangle,
-  ArrowRight,
-  Bell,
-  CalendarClock,
-  CheckCircle2,
-  CreditCard,
-  Package,
-  Trash2,
-  Wallet,
-  X,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2, Eye, EyeOff, Info, MessageCircle, X } from "lucide-react";
+import { IconDebts, IconPlan, IconProducts, type NavIcon } from "@/components/icons/NavIcons";
+import { LightGlass } from "@/components/ui/liquid-glass";
+import { QuickRestock } from "../produtos/_components/QuickRestock";
+
+export type NoticeKind = "stock" | "debt" | "account" | "info";
 
 export type NoticeItem = {
   id: string;
+  kind?: NoticeKind;
   title: string;
   description: string;
   href: string;
   action: string;
   tone: "warning" | "danger" | "info";
+  /** Acção secundária (ex.: lembrar por WhatsApp). */
+  secondary?: { label: string; href: string; external?: boolean };
+  /** Para o botão "Repor" nos alertas de stock. */
+  productId?: string;
+  productName?: string;
 };
 
 type Props = {
   stock: NoticeItem[];
+  debts: NoticeItem[];
   subscription: NoticeItem[];
   payments: NoticeItem[];
+  info: NoticeItem[];
   hasError: boolean;
+  isAdmin: boolean;
 };
 
 const STORAGE_KEY = "contacerta-dismissed-notifications";
 const COUNT_KEY = "contacerta-unread-notifications";
 const EVENT_NAME = "contacerta-notifications-updated";
 
+const TONE_ORDER = { danger: 0, warning: 1, info: 2 } as const;
+
+const KIND_ICON: Record<NoticeKind, NavIcon> = {
+  stock: IconProducts,
+  debt: IconDebts,
+  account: IconPlan,
+  info: ({ className }) => <Info className={className} aria-hidden />,
+};
+
+type Filter = "all" | "stock" | "debt" | "account";
+const FILTERS: { key: Filter; label: string }[] = [
+  { key: "all", label: "Todos" },
+  { key: "stock", label: "Stock" },
+  { key: "debt", label: "Dívidas" },
+  { key: "account", label: "Conta" },
+];
+
 function readDismissed(): string[] {
   try {
-    const value = localStorage.getItem(STORAGE_KEY);
-    const parsed: unknown = value ? JSON.parse(value) : [];
-    return Array.isArray(parsed)
-      ? parsed.filter((id): id is string => typeof id === "string")
-      : [];
+    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
   } catch {
     return [];
   }
 }
 
+function saveDismissed(list: string[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  } catch {
+    /* sem armazenamento: esconde só nesta visita */
+  }
+}
+
 function NoticeCard({
   item,
-  dismiss,
+  hidden,
+  onToggle,
+  isAdmin,
 }: {
   item: NoticeItem;
-  dismiss: (id: string) => void;
+  hidden: boolean;
+  onToggle: (id: string) => void;
+  isAdmin: boolean;
 }) {
-  const tone = {
-    warning: "bg-warning/10 text-warning",
-    danger: "bg-danger/10 text-danger",
-    info: "bg-white/[0.05] text-dark-text",
-  }[item.tone];
+  const kind = item.kind ?? "info";
+  const Icon = KIND_ICON[kind];
+  const toneText = { danger: "text-danger", warning: "text-warning", info: "text-dark-muted" }[item.tone];
+  const toneBar = { danger: "bg-danger", warning: "bg-warning", info: "bg-white/20" }[item.tone];
 
   return (
-    <article className="flex items-start gap-2 rounded-xl border border-dark-border bg-white/[0.02] p-3 sm:items-center sm:gap-3 sm:p-4">
-      <div className={`mt-0.5 flex shrink-0 items-center sm:mt-0 ${tone}`}>
-        <AlertTriangle size={16} aria-hidden="true" />
-      </div>
+    <li>
+      <article
+        className={`cc-glass relative overflow-hidden rounded-2xl border border-dark-border bg-dark-surface p-4 ${
+          hidden ? "opacity-60" : ""
+        }`}
+      >
+        <div className="flex items-start gap-3">
+          <span className={`mt-0.5 shrink-0 ${toneText}`}>
+            <Icon className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[15px] font-semibold leading-snug text-dark-text">{item.title}</p>
+              <button
+                type="button"
+                onClick={() => onToggle(item.id)}
+                aria-label={hidden ? `Mostrar de novo: ${item.title}` : `Esconder: ${item.title}`}
+                title={hidden ? "Mostrar de novo" : "Esconder"}
+                className="-mr-1.5 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-dark-muted transition hover:bg-white/[0.06] hover:text-dark-text"
+              >
+                {hidden ? <Eye className="h-4 w-4" aria-hidden /> : <X className="h-4 w-4" aria-hidden />}
+              </button>
+            </div>
+            <p className="mt-0.5 text-sm text-dark-muted">{item.description}</p>
 
-      <div className="min-w-0 flex-1">
-        <p className="text-[13px] font-medium leading-5 text-dark-text sm:text-sm">
-          {item.title}
-        </p>
-        <p className="mt-0.5 text-xs leading-5 text-dark-muted sm:mt-1 sm:text-sm">
-          {item.description}
-        </p>
-        <Link
-          href={item.href}
-          onClick={() => dismiss(item.id)}
-          className="mt-2 inline-flex min-h-8 items-center gap-1.5 rounded-lg border border-dark-border px-2.5 py-1.5 text-xs font-medium text-dark-text transition hover:border-brandGlow/30 hover:bg-brandGlow/5 sm:mt-2.5"
-        >
-          {item.action}
-          <ArrowRight size={13} aria-hidden="true" />
-        </Link>
-      </div>
-
-      <div className="flex shrink-0 items-center gap-0.5">
-        <button
-          type="button"
-          onClick={() => dismiss(item.id)}
-          title="Marcar como vista"
-          aria-label={`Marcar como vista: ${item.title}`}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-dark-muted transition hover:bg-white/[0.06] hover:text-dark-text"
-        >
-          <X size={15} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          onClick={() => dismiss(item.id)}
-          title="Apagar aviso"
-          aria-label={`Apagar aviso: ${item.title}`}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-dark-muted transition hover:bg-danger/10 hover:text-danger"
-        >
-          <Trash2 size={15} aria-hidden="true" />
-        </button>
-      </div>
-    </article>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Link
+                href={item.href}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-xl bg-white/[0.06] px-3 py-2 text-sm font-semibold text-dark-text transition hover:bg-white/[0.1]"
+              >
+                {item.action}
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+              {item.secondary && (
+                <a
+                  href={item.secondary.href}
+                  target={item.secondary.external ? "_blank" : undefined}
+                  rel={item.secondary.external ? "noopener noreferrer" : undefined}
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-xl bg-[#25D366]/[0.12] px-3 py-2 text-sm font-semibold text-dark-text transition hover:bg-[#25D366]/[0.2]"
+                >
+                  <MessageCircle className="h-4 w-4 text-[#25D366]" aria-hidden />
+                  {item.secondary.label}
+                </a>
+              )}
+              {kind === "stock" && isAdmin && item.productId && (
+                <QuickRestock productId={item.productId} productName={item.productName ?? item.title} />
+              )}
+            </div>
+          </div>
+        </div>
+        <span aria-hidden className={`absolute inset-y-3 left-0 w-[3px] rounded-r-full ${toneBar}`} />
+      </article>
+    </li>
   );
 }
 
-export default function NotificationCenter({
-  stock,
-  subscription,
-  payments,
-  hasError,
-}: Props) {
+export default function NotificationCenter({ stock, debts, subscription, payments, info, hasError, isAdmin }: Props) {
   const all = useMemo(
-    () => [...stock, ...subscription, ...payments],
-    [stock, subscription, payments],
+    () =>
+      [...stock, ...debts, ...subscription, ...payments, ...info].sort(
+        (a, b) => TONE_ORDER[a.tone] - TONE_ORDER[b.tone],
+      ),
+    [stock, debts, subscription, payments, info],
   );
   const [dismissed, setDismissed] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [showHidden, setShowHidden] = useState(false);
 
   useEffect(() => {
-    setDismissed(readDismissed());
+    // Limpa ids de avisos que já não existem (o armazenamento não cresce para sempre).
+    const current = new Set(all.map((n) => n.id));
+    const kept = readDismissed().filter((id) => current.has(id));
+    saveDismissed(kept);
+    setDismissed(kept);
     setReady(true);
-  }, []);
+  }, [all]);
 
-  const visible = useMemo(
-    () => all.filter((item) => !dismissed.includes(item.id)),
-    [all, dismissed],
-  );
-  const visibleStock = visible.filter((item) => item.id.startsWith("stock:"));
-  const visibleSubscription = visible.filter((item) => item.id.startsWith("subscription:"));
-  const visiblePayments = visible.filter((item) => item.id.startsWith("payment:"));
+  const visible = all.filter((n) => !dismissed.includes(n.id));
+  const hidden = all.filter((n) => dismissed.includes(n.id));
+  const countable = visible.filter((n) => n.tone !== "info");
 
   useEffect(() => {
     if (!ready) return;
     try {
-      localStorage.setItem(COUNT_KEY, String(visible.length));
-      window.dispatchEvent(
-        new CustomEvent(EVENT_NAME, { detail: visible.length }),
-      );
+      localStorage.setItem(COUNT_KEY, String(countable.length));
+      window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: countable.length }));
     } catch {
-      // A página continua funcional se o armazenamento estiver indisponível.
+      /* ignora */
     }
-  }, [ready, visible.length]);
+  }, [ready, countable.length]);
 
-  function dismiss(id: string) {
+  function toggle(id: string) {
     setDismissed((current) => {
-      if (current.includes(id)) return current;
-      const next = [...current, id];
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        // A remoção da interface não depende do armazenamento.
-      }
+      const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
+      saveDismissed(next);
       return next;
     });
   }
 
-  function section(
-    title: string,
-    description: string,
-    items: NoticeItem[],
-    Icon: typeof Bell,
-    empty: string,
-  ) {
-    return (
-      <section className="space-y-3 rounded-2xl border border-dark-border bg-dark-surface p-3 sm:space-y-4 sm:p-6">
-        <div className="flex items-start gap-2.5 sm:gap-3">
-          <div className="flex shrink-0 items-center text-brandGlow">
-            <Icon size={18} aria-hidden="true" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-semibold text-dark-text sm:text-base">{title}</h2>
-            <p className="mt-0.5 text-xs leading-5 text-dark-muted sm:mt-1 sm:text-sm">{description}</p>
-          </div>
-          <span className="rounded-full border border-dark-border bg-white/[0.04] px-2 py-0.5 text-xs tabular-nums text-dark-muted">
-            {items.length}
-          </span>
-        </div>
-
-        {items.length === 0 ? (
-          <p className="rounded-xl border border-dark-border px-3 py-2.5 text-xs leading-5 text-dark-muted sm:px-4 sm:py-3 sm:text-sm">
-            {empty}
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {items.map((item) => (
-              <NoticeCard key={item.id} item={item} dismiss={dismiss} />
-            ))}
-          </div>
-        )}
-      </section>
-    );
+  function hideAll() {
+    const next = Array.from(new Set([...dismissed, ...visible.map((n) => n.id)]));
+    saveDismissed(next);
+    setDismissed(next);
   }
 
+  const matches = (n: NoticeItem) => filter === "all" || (n.kind ?? "info") === filter || (filter === "account" && n.kind === "info");
+  const list = (showHidden ? hidden : visible).filter(matches);
+  const urgent = visible.filter((n) => n.tone === "danger").length;
+  const attention = visible.filter((n) => n.tone === "warning").length;
+  const countFor = (key: Filter) => visible.filter((n) => key === "all" || (n.kind ?? "info") === key || (key === "account" && n.kind === "info")).length;
+
   return (
-    <div className="-mx-4 -mt-5 -mb-6 min-h-[calc(100dvh-5rem)] bg-dark-bg px-3 pb-16 pt-5 text-dark-text shadow-[0_0_0_100vmax_theme(colors.dark.bg)] [clip-path:inset(-6rem_-100vmax_-100vmax_-100vmax)] sm:-mx-6 sm:px-6 sm:pt-6">
-      <div className="mx-auto max-w-5xl space-y-4 sm:space-y-7">
-        <header className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-dark-muted sm:mb-3 sm:text-xs sm:tracking-[0.18em]">
-              <Bell size={14} />
-              Centro de alertas
-            </div>
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Notificações</h1>
-            <p className="mt-1.5 max-w-xl text-xs leading-5 text-dark-muted sm:mt-2 sm:text-sm sm:leading-6">
-              Avisos importantes sobre o stock, a assinatura e os pagamentos do seu negócio.
+    <div className="-mx-4 -mt-5 -mb-6 min-h-[calc(100dvh-5rem)] bg-dark-bg px-4 pb-16 pt-6 text-dark-text shadow-[0_0_0_100vmax_theme(colors.dark.bg)] [clip-path:inset(-6rem_-100vmax_-100vmax_-100vmax)] sm:-mx-6 sm:px-6">
+      <div className="mx-auto max-w-3xl space-y-5">
+        <header className="flex items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Alertas</h1>
+            <p className="mt-1 text-sm text-dark-muted">
+              {!ready
+                ? "A verificar…"
+                : visible.length === 0
+                  ? "Está tudo em dia."
+                  : [urgent && `${urgent} urgente${urgent === 1 ? "" : "s"}`, attention && `${attention} de atenção`, visible.length - urgent - attention > 0 && `${visible.length - urgent - attention} informativo${visible.length - urgent - attention === 1 ? "" : "s"}`]
+                      .filter(Boolean)
+                      .join(" · ")}
             </p>
           </div>
-          <div className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-dark-border bg-dark-surface px-2.5 py-2 text-xs text-dark-muted sm:gap-2 sm:px-3.5 sm:py-2.5 sm:text-sm">
-            <Bell size={15} className="text-brandGlow" aria-hidden="true" />
-            <span>{visible.length} por ler</span>
-          </div>
+          {ready && !showHidden && visible.length > 1 && (
+            <button
+              type="button"
+              onClick={hideAll}
+              className="shrink-0 rounded-xl px-3 py-2 text-sm font-medium text-dark-muted transition hover:bg-white/[0.06] hover:text-dark-text"
+            >
+              Esconder todos
+            </button>
+          )}
         </header>
 
         {hasError && (
-          <div className="rounded-xl border border-danger/20 bg-danger/[0.06] p-3 text-xs leading-5 text-danger sm:p-4 sm:text-sm sm:leading-6">
-            Não foi possível carregar algumas notificações. Actualize a página ou tente novamente.
-          </div>
-        )}
-
-        {ready && visible.length === 0 && (
-          <div className="rounded-2xl border border-dark-border bg-dark-surface p-6 text-center sm:p-12">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-brandGlow/20 bg-brandGlow/10 text-brandGlow sm:h-14 sm:w-14">
-              <CheckCircle2 size={25} aria-hidden="true" />
-            </div>
-            <h2 className="mt-3 text-base font-semibold sm:mt-4 sm:text-lg">Está tudo em ordem</h2>
-            <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-dark-muted sm:text-sm sm:leading-6">
-              Não existem avisos por ler. Os novos avisos aparecerão aqui quando forem necessários.
-            </p>
-            {dismissed.length > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  setDismissed([]);
-                  try {
-                    localStorage.removeItem(STORAGE_KEY);
-                  } catch {}
-                }}
-                className="mt-4 rounded-lg border border-dark-border px-3 py-2 text-xs font-medium text-dark-text hover:bg-white/5"
-              >
-                Restaurar avisos dispensados
-              </button>
-            )}
-          </div>
-        )}
-
-        {section("Stock", "Produtos esgotados ou com poucas unidades.", visibleStock, Package, "Não existem avisos de stock por ler.")}
-        {section("Subscrição", "Estado do plano e fim do período contratado.", visibleSubscription, Wallet, "Não existem avisos de subscrição por ler.")}
-        {section("Pagamentos", "Pedidos pendentes ou pagamentos rejeitados.", visiblePayments, CreditCard, "Não existem avisos de pagamentos por ler.")}
-
-        <div className="flex items-start gap-2.5 rounded-2xl border border-dark-border bg-dark-surface/60 p-3 sm:gap-3 sm:p-4">
-          <CalendarClock size={17} className="mt-0.5 shrink-0 text-dark-muted" aria-hidden="true" />
-          <p className="text-xs leading-5 text-dark-muted sm:text-sm sm:leading-6">
-            Os avisos dispensados ficam ocultos neste navegador. Esta acção não apaga os registos originais do negócio.
+          <p role="alert" className="rounded-xl border border-danger/25 bg-danger/[0.08] p-3 text-sm text-danger">
+            Alguns alertas não puderam ser carregados. Verifique a internet e actualize a página.
           </p>
-        </div>
+        )}
+
+        <LightGlass material="clear" refraction={10} dispersion={0.3}>
+          <nav aria-label="Filtrar alertas" className="inline-flex max-w-full gap-1 rounded-full border border-dark-border bg-white/[0.03] p-1">
+            {FILTERS.map(({ key, label }) => {
+              const n = countFor(key);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setFilter(key)}
+                  aria-pressed={filter === key}
+                  className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                    filter === key ? "bg-brand text-onbrand" : "text-dark-muted hover:text-dark-text"
+                  }`}
+                >
+                  {label}
+                  {ready && n > 0 && <span className="ml-1 tabular-nums opacity-80">{n}</span>}
+                </button>
+              );
+            })}
+          </nav>
+        </LightGlass>
+
+        {ready && list.length === 0 ? (
+          <div className="cc-glass rounded-2xl border border-dark-border bg-dark-surface px-6 py-12 text-center">
+            <CheckCircle2 className="mx-auto h-9 w-9 text-brandGlow" aria-hidden />
+            <p className="mt-3 font-semibold">{showHidden ? "Não há alertas escondidos." : "Nada a tratar aqui."}</p>
+            <p className="mt-1 text-sm text-dark-muted">
+              {showHidden ? "Os alertas que esconder aparecem aqui." : "Avisamos quando houver stock a acabar ou dívidas por receber."}
+            </p>
+          </div>
+        ) : (
+          <ul className="space-y-3">
+            {list.map((item) => (
+              <NoticeCard key={item.id} item={item} hidden={showHidden} onToggle={toggle} isAdmin={isAdmin} />
+            ))}
+          </ul>
+        )}
+
+        {ready && (hidden.length > 0 || showHidden) && (
+          <button
+            type="button"
+            onClick={() => setShowHidden((v) => !v)}
+            className="mx-auto flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-dark-muted transition hover:bg-white/[0.06] hover:text-dark-text"
+          >
+            {showHidden ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
+            {showHidden ? "Voltar aos alertas" : `Mostrar escondidos (${hidden.length})`}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { MobileNav } from "./MobileNav";
 import { OfflineSalesSync } from "./OfflineSalesSync";
+import { RoutePrefetcher } from "./RoutePrefetcher";
 
 type AppShellProps = {
   businessName: string;
@@ -52,6 +53,7 @@ export function AppShell({
         <div className="mx-auto min-h-dvh max-w-app pb-28 md:max-w-2xl md:pb-10 lg:max-w-5xl">
           <TopBar businessName={businessName} noticeIds={noticeIds}>{actions}</TopBar>
           <OfflineSalesSync businessId={businessId} />
+          <RoutePrefetcher />
           <main className="px-4 pb-6 pt-5 sm:px-6">{children}</main>
         </div>
       </div>
