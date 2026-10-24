@@ -176,6 +176,7 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
             >
               <div className="flex items-center gap-3 border-b border-dark-border p-4">
                 <Link
+                  prefetch={false}
                   href="/dashboard/configuracoes"
                   onClick={() => setOpen(false)}
                   className="flex min-w-0 flex-1 items-center gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow"
@@ -217,6 +218,7 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
                   const active = isActivePath(pathname, item.href);
                   return (
                     <Link
+                      prefetch={false}
                       key={item.href}
                       href={item.href}
                       onClick={() => setOpen(false)}
@@ -235,6 +237,7 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
                 })}
 
                 <Link
+                  prefetch={false}
                   href="/dashboard/configuracoes"
                   onClick={() => setOpen(false)}
                   className={`mb-1 flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
@@ -313,6 +316,7 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
           ))}
 
           <Link
+            prefetch={false}
             href={NEW_SALE_HREF}
             aria-label="Vender: registar nova venda"
             aria-current={isActivePath(pathname, NEW_SALE_HREF) ? "page" : undefined}
@@ -386,6 +390,7 @@ function NavTab({
 
   return (
     <Link
+      prefetch={false}
       href={item.href}
       data-tab={item.href}
       draggable={false}

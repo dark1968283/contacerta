@@ -29,6 +29,7 @@ export function TopBar({ businessName, noticeIds, children }: TopBarProps) {
         <div className="flex shrink-0 items-center gap-1">
           <ThemeToggleButton />
           <Link
+            prefetch={false}
             href={NOTIFICATIONS_HREF}
             aria-label="Notificações"
             className="relative flex h-10 w-10 items-center justify-center rounded-xl text-dark-muted transition hover:bg-white/5 hover:text-dark-text"

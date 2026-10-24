@@ -23,6 +23,7 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
   return (
     <LightGlass material="clear" refraction={7} dispersion={0.25} interactive>
     <Link
+      prefetch={false}
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={`cc-nav-item flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${active ? "cc-nav-item-active" : ""} ${
@@ -78,6 +79,7 @@ export function Sidebar({
         className="flex-1 overflow-y-auto px-3 py-3"
       >
         <Link
+          prefetch={false}
           href={NEW_SALE_HREF}
           className="mb-4 flex items-center justify-center gap-2 rounded-xl bg-brandGlow px-3 py-3 text-sm font-bold text-onglow shadow-[0_6px_24px_rgba(34,199,102,0.25)] transition hover:bg-brandGlow active:scale-[0.98]"
         >
@@ -127,6 +129,7 @@ export function Sidebar({
             </div>
 
             <Link
+              prefetch={false}
               href="/dashboard/meu-plano"
               onClick={() => setAccountMenuOpen(false)}
               className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-dark-muted transition-colors hover:bg-white/5 hover:text-dark-text"
@@ -136,6 +139,7 @@ export function Sidebar({
             </Link>
 
             <Link
+              prefetch={false}
               href="/dashboard/configuracoes"
               onClick={() => setAccountMenuOpen(false)}
               className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-dark-muted transition-colors hover:bg-white/5 hover:text-dark-text"
@@ -145,6 +149,7 @@ export function Sidebar({
             </Link>
 
             <Link
+              prefetch={false}
               href="/dashboard/mais"
               onClick={() => setAccountMenuOpen(false)}
               className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-dark-muted transition-colors hover:bg-white/5 hover:text-dark-text"
