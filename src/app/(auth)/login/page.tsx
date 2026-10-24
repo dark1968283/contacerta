@@ -342,6 +342,15 @@ export default function LoginPage({
             </Link>
           </p>
 
+          <p className="mt-3 text-center text-sm text-white/50">
+            <Link
+              href="/descarregar"
+              className="font-semibold text-[#71D99A] transition hover:text-[#A1F0BC]"
+            >
+              Descarregar a app para o telemóvel
+            </Link>
+          </p>
+
           <p className="mt-8 text-center text-[11px] text-white/25 lg:hidden">
             O seu negócio. Sob controlo.
           </p>

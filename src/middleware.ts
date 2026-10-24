@@ -58,6 +58,6 @@ export const config = {
   // Ficheiros estáticos (ícones, imagens, animações, service worker, manifesto,
   // .well-known) não precisam de verificar a sessão: evita viagens ao Supabase.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|manifest.json|manifest.webmanifest|sw.js|icons/|images/|animations/|\\.well-known/|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|txt|xml|woff2?)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|manifest.webmanifest|sw.js|icons/|images/|animations/|screenshots/|download/|\\.well-known/|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|txt|xml|woff2?)$).*)",
   ],
 };

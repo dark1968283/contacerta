@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "site.contacertamz.app",
+        "sha256_cert_fingerprints": ["EE:4C:67:67:77:CB:42:BF:93:6A:48:49:EE:1E:B5:78:A9:34:5B:16:D9:20:18:2A:39:0A:36:F9:17:B5:DA:34"]
+      }
+    }]

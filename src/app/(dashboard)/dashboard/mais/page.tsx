@@ -162,7 +162,7 @@ export default async function MaisPage() {
             </Group>
 
             <Group title="App">
-              <RowLink href="/dashboard/configuracoes" label="Instalar no telemóvel" hint="Abrir como uma app, mesmo sem internet" Icon={asNav(Smartphone)} />
+              <RowLink href="/descarregar" label="Descarregar a app" hint="Android e iPhone, funciona sem internet" Icon={asNav(Smartphone)} />
               <RowLink href="/termos-de-servico" label="Termos de serviço" Icon={asNav(FileText)} />
               <RowLink href="/politica-de-privacidade" label="Política de privacidade" Icon={asNav(FileText)} />
             </Group>
