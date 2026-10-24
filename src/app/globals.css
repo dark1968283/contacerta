@@ -542,3 +542,11 @@ html[data-theme="light"] .cc-nav-item-active[data-liquid-glass] > .lg-lens {
 html[data-theme="light"] .cc-nav-item[data-liquid-glass] {
   background-color: transparent !important;
 }
+
+/* Gota de vidro da barra de baixo: no claro é vidro com refracção (lente com pouco "leite"). */
+html[data-theme="light"] .cc-tab-droplet[data-liquid-glass] > .lg-lens {
+  background-color: rgb(255 255 255 / 0.35);
+}
+html[data-theme="light"] .cc-tab-droplet[data-liquid-glass] {
+  border: 1px solid rgb(255 255 255 / 0.7) !important;
+}

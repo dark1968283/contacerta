@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   UserRound,
@@ -32,10 +32,105 @@ type MobileNavProps = {
 
 
 
+const TAB_ITEMS = [...MOBILE_LEFT_ITEMS, ...MOBILE_RIGHT_ITEMS];
+const MORE_HREF = "/dashboard/mais";
+
+type Box = { x: number; y: number; w: number; h: number };
+
 export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const moreActive = MORE_GROUP_HREFS.some((href) => isActivePath(pathname, href));
+
+  /* ── Gota de vidro (estilo iOS 26): marca o separador activo e pode ser
+     arrastada com o dedo de um separador para outro. ───────────────────── */
+  const barRef = useRef<HTMLDivElement>(null);
+  const [rest, setRest] = useState<Box | null>(null);
+  const [dragX, setDragX] = useState<number | null>(null);
+  const [hoverHref, setHoverHref] = useState<string | null>(null);
+  const drag = useRef({ active: false, moved: false, startX: 0, pointerId: -1, href: null as string | null });
+  const suppressClick = useRef(false);
+
+  const activeHref = open
+    ? MORE_HREF
+    : (TAB_ITEMS.find((i) => (i.href === MORE_HREF ? moreActive : isActivePath(pathname, i.href)))?.href ?? null);
+
+  const boxOf = useCallback((el: HTMLElement): Box => {
+    const b = barRef.current!.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    return { x: r.left - b.left, y: r.top - b.top, w: r.width, h: r.height };
+  }, []);
+
+  const tabEls = () => [...(barRef.current?.querySelectorAll<HTMLElement>("[data-tab]") ?? [])];
+
+  const nearest = (clientX: number) => {
+    let best: HTMLElement | null = null;
+    let dist = Infinity;
+    for (const el of tabEls()) {
+      const r = el.getBoundingClientRect();
+      const d = Math.abs(r.left + r.width / 2 - clientX);
+      if (d < dist) {
+        dist = d;
+        best = el;
+      }
+    }
+    return best;
+  };
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = tabEls().find((t) => t.dataset.tab === activeHref);
+      setRest(el && barRef.current ? boxOf(el) : null);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [activeHref, boxOf]);
+
+  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    const tab = (e.target as HTMLElement).closest<HTMLElement>("[data-tab]");
+    if (!tab || e.button !== 0) return;
+    drag.current = { active: true, moved: false, startX: e.clientX, pointerId: e.pointerId, href: tab.dataset.tab ?? null };
+  }
+
+  function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    const d = drag.current;
+    if (!d.active || e.pointerId !== d.pointerId || !barRef.current || !rest) return;
+    if (!d.moved) {
+      if (Math.abs(e.clientX - d.startX) < 8) return;
+      d.moved = true;
+      barRef.current.setPointerCapture(e.pointerId);
+    }
+    const b = barRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(b.width - rest.w, e.clientX - b.left - rest.w / 2));
+    setDragX(x);
+    const over = nearest(e.clientX)?.dataset.tab ?? null;
+    if (over && over !== hoverHref) {
+      setHoverHref(over);
+      try {
+        navigator.vibrate?.(6);
+      } catch {
+        /* sem vibração */
+      }
+    }
+  }
+
+  function finishDrag(e: React.PointerEvent<HTMLDivElement>, cancelled = false) {
+    const d = drag.current;
+    if (!d.active || e.pointerId !== d.pointerId) return;
+    d.active = false;
+    if (d.moved && !cancelled) {
+      suppressClick.current = true;
+      const target = nearest(e.clientX)?.dataset.tab;
+      if (target === MORE_HREF) setOpen(true);
+      else if (target && target !== activeHref) router.push(target);
+    }
+    setDragX(null);
+    setHoverHref(null);
+  }
+
+  const visualActive = (href: string) => (dragX !== null ? hoverHref === href : activeHref === href);
 
   useEffect(() => {
     setOpen(false);
@@ -181,9 +276,40 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
         className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden"
       >
         <LightGlass material="clear" refraction={26} dispersion={0.35}>
-        <div className="flex items-center gap-1 rounded-full border border-dark-border bg-dark-surface/95 p-1.5 shadow-2xl shadow-black/40 backdrop-blur">
+        <div
+          ref={barRef}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={(e) => finishDrag(e)}
+          onPointerCancel={(e) => finishDrag(e, true)}
+          onClickCapture={(e) => {
+            if (suppressClick.current) {
+              suppressClick.current = false;
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }}
+          className="relative flex touch-none select-none items-center gap-1 rounded-full border border-dark-border bg-dark-surface/95 p-1.5 shadow-2xl shadow-black/40 backdrop-blur"
+        >
+          {rest && (
+            <LightGlass material="clear" refraction={12} dispersion={0.45}>
+              <motion.span
+                aria-hidden
+                className="cc-tab-droplet pointer-events-none absolute left-0 top-0 rounded-full bg-white/10"
+                style={{ width: rest.w, height: rest.h }}
+                initial={false}
+                animate={{ x: dragX ?? rest.x, y: rest.y, scale: dragX !== null ? 1.16 : 1 }}
+                transition={
+                  dragX !== null
+                    ? { x: { type: "spring", stiffness: 900, damping: 50 }, scale: { type: "spring", stiffness: 500, damping: 22 } }
+                    : { type: "spring", stiffness: 420, damping: 30 }
+                }
+              />
+            </LightGlass>
+          )}
+
           {MOBILE_LEFT_ITEMS.map((item) => (
-            <NavTab key={item.href} item={item} active={isActivePath(pathname, item.href)} />
+            <NavTab key={item.href} item={item} active={visualActive(item.href)} />
           ))}
 
           <Link
@@ -201,13 +327,13 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
           {MOBILE_RIGHT_ITEMS.map((item) => {
             const isMore = item.href === "/dashboard/mais";
             if (!isMore) {
-              return <NavTab key={item.href} item={item} active={isActivePath(pathname, item.href)} />;
+              return <NavTab key={item.href} item={item} active={visualActive(item.href)} />;
             }
             return (
               <NavTab
                 key={item.href}
                 item={item}
-                active={moreActive || open}
+                active={visualActive(item.href)}
                 onClick={() => setOpen((value) => !value)}
                 ariaExpanded={open}
               />
@@ -231,19 +357,12 @@ function NavTab({
   onClick?: () => void;
   ariaExpanded?: boolean;
 }) {
-  const classes = `relative flex min-w-[54px] flex-col items-center gap-0.5 rounded-full px-3 py-2 text-[11px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-brandGlow ${
+  const classes = `relative z-10 flex min-w-[54px] flex-col items-center gap-0.5 rounded-full px-3 py-2 text-[11px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brandGlow ${
     active ? "text-dark-text" : "text-dark-muted"
   }`;
 
   const contents = (
     <>
-      {active && (
-        <motion.span
-          layoutId="mobile-nav-active"
-          className="absolute inset-0 rounded-full bg-white/10"
-          transition={{ type: "spring", stiffness: 420, damping: 32 }}
-        />
-      )}
       <item.Icon filled={active} className={`relative h-6 w-6 ${active ? "text-brandGlow" : "text-dark-muted"}`} />
       <span className="relative">{item.label}</span>
     </>
@@ -253,6 +372,7 @@ function NavTab({
     return (
       <button
         type="button"
+        data-tab={item.href}
         className={classes}
         aria-label={ariaExpanded ? "Fechar Mais" : "Abrir Mais"}
         aria-expanded={ariaExpanded}
@@ -265,7 +385,14 @@ function NavTab({
   }
 
   return (
-    <Link href={item.href} aria-label={item.label} aria-current={active ? "page" : undefined} className={classes}>
+    <Link
+      href={item.href}
+      data-tab={item.href}
+      draggable={false}
+      aria-label={item.label}
+      aria-current={active ? "page" : undefined}
+      className={classes}
+    >
       {contents}
     </Link>
   );
