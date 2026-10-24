@@ -155,7 +155,7 @@ export type OfflineSalePayload = {
 
 export type SyncResult = { ok: true; saleId: string | null } | { ok: false; error: string; retry: boolean };
 
-/** Envia para o servidor uma venda que ficou guardada no telemóvel sem internet. */
+/** Envia para o servidor uma venda que ficou guardada no celular sem internet. */
 export async function syncOfflineSale(payload: OfflineSalePayload): Promise<SyncResult> {
   const { businessId } = await getBusinessContext();
 

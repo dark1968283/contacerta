@@ -1,6 +1,7 @@
 import { Zap } from "lucide-react";
 import { startPaysuitePayment } from "../planos/paysuite-actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
+import { MethodLogo } from "@/components/payments/MethodLogo";
 
 /**
  * Pagamento automático: o cliente paga na página da PaySuite e o plano
@@ -16,7 +17,7 @@ export function PaysuiteBox({ planId, cycle, error }: { planId: string; cycle: s
         <div className="min-w-0">
           <h2 className="font-semibold text-dark-text">Pagar agora · activação imediata</h2>
           <p className="mt-1 text-sm leading-5 text-dark-muted">
-            Escolha M-Pesa ou e-Mola, confirme no telemóvel com o seu PIN e o plano fica activo na hora.
+            Escolha M-Pesa ou e-Mola, confirme no celular com o seu PIN e o plano fica activo na hora.
           </p>
         </div>
       </div>
@@ -31,7 +32,8 @@ export function PaysuiteBox({ planId, cycle, error }: { planId: string; cycle: s
             <input type="hidden" name="plan_id" value={planId} />
             <input type="hidden" name="billing_cycle" value={cycle} />
             <input type="hidden" name="method" value={method} />
-            <SubmitButton className="flex h-14 w-full items-center justify-center rounded-2xl bg-brand text-base font-bold text-onbrand transition hover:bg-brand/90 disabled:opacity-60">
+            <SubmitButton className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-brand text-base font-bold text-onbrand transition hover:bg-brand/90 disabled:opacity-60">
+              <MethodLogo method={method} size={30} className="bg-white" />
               {method === "mpesa" ? "M-Pesa" : "e-Mola"}
             </SubmitButton>
           </form>

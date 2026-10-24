@@ -241,7 +241,7 @@ export function FinanceWallet({
 
       </div>
 
-      {/* Indicadores: abaixo no telemóvel, coluna vertical no desktop */}
+      {/* Indicadores: abaixo no celular, coluna vertical no desktop */}
       <div className="grid min-w-0 grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-2xl border border-white/[0.08] bg-dark-surface lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
         {metrics.map((metric) => (
           <div

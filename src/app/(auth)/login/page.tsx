@@ -50,7 +50,7 @@ export default function LoginPage({
   const [showPassword, setShowPassword] = useState(false);
 
   // Ao chegar ao login (por ex. depois de "Sair"), apaga as páginas do negócio
-  // que estavam guardadas no telemóvel para uso sem internet.
+  // que estavam guardadas no celular para uso sem internet.
   useEffect(() => {
     clearOfflinePages();
   }, []);
@@ -347,7 +347,7 @@ export default function LoginPage({
               href="/descarregar"
               className="font-semibold text-[#71D99A] transition hover:text-[#A1F0BC]"
             >
-              Descarregar a app para o telemóvel
+              Descarregar a app para o celular
             </Link>
           </p>
 

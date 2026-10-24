@@ -36,15 +36,15 @@ function formatPrice(amount: number, currency: string) {
 const LIMIT_ROWS: { key: string; label: string }[] = [
   { key: "products", label: "Produtos" },
   { key: "sales_per_month", label: "Vendas por mês" },
-  { key: "invoices_per_month", label: "Faturas por mês" },
+  { key: "invoices_per_month", label: "Facturas por mês" },
   { key: "clients", label: "Clientes" },
-  { key: "users", label: "Pessoas na conta" },
+  { key: "users", label: "Quem pode usar" },
 ];
 
 function limitText(key: string, raw: unknown) {
   const n = raw === undefined || raw === null ? -1 : Number(raw);
-  if (!Number.isFinite(n) || n < 0) return "Ilimitado";
-  if (key === "users") return n <= 1 ? "Só você" : `Você + ${n - 1}`;
+  if (!Number.isFinite(n) || n < 0) return "Sem limite";
+  if (key === "users") return n <= 1 ? "Só você" : `Você + ${n - 1} funcionários`;
   return `Até ${n.toLocaleString("pt-MZ")}`;
 }
 
@@ -217,33 +217,15 @@ export function PlanPicker({
                 </div>
 
                 <div className="pt-5">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-dark-muted">
-                    Limites
-                  </p>
-                  <dl className="divide-y divide-dark-border/70 rounded-xl border border-dark-border/80 bg-dark-bg/40">
-                    {LIMIT_ROWS.map(({ key, label }) => {
-                      const value = limitText(key, plan.limits[key]);
-                      const unlimited = value === "Ilimitado";
-                      return (
-                        <div key={key} className="flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm">
-                          <dt className="text-dark-muted">{label}</dt>
-                          <dd className={`font-semibold tabular-nums ${unlimited ? "text-brandGlow" : "text-dark-text"}`}>{value}</dd>
-                        </div>
-                      );
-                    })}
-                  </dl>
-                </div>
-
-                <div className="flex-1 py-5">
                   <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-dark-muted">
-                    O que está incluído
+                    Vantagens
                   </p>
 
                   {plan.features.length > 0 ? (
                     <ul className="space-y-3.5">
                       {plan.features.map((feature) => (
-                        <li key={feature} className="flex items-start gap-2.5 text-sm text-dark-text/80">
-                          <Check size={16} className="mt-0.5 shrink-0 text-brandGlow" />
+                        <li key={feature} className="flex items-start gap-2.5 text-[15px] font-medium text-dark-text">
+                          <Check size={18} className="mt-0.5 shrink-0 text-brandGlow" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -253,6 +235,24 @@ export function PlanPicker({
                       Consulte os detalhes deste plano.
                     </p>
                   )}
+                </div>
+
+                <div className="flex-1 py-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-dark-muted">
+                    Limites
+                  </p>
+                  <dl className="divide-y divide-dark-border/70 rounded-xl border border-dark-border/80 bg-dark-bg/40">
+                    {LIMIT_ROWS.map(({ key, label }) => {
+                      const value = limitText(key, plan.limits[key]);
+                      const unlimited = value === "Sem limite";
+                      return (
+                        <div key={key} className="flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm">
+                          <dt className="text-dark-muted">{label}</dt>
+                          <dd className={`font-semibold tabular-nums ${unlimited ? "text-brandGlow" : "text-dark-text"}`}>{value}</dd>
+                        </div>
+                      );
+                    })}
+                  </dl>
                 </div>
 
                 {plan.slug === "gratis" ? (

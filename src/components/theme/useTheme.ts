@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { THEME_EVENT, applyThemePref, readThemePref, resolveTheme, type ThemePref } from "@/lib/theme";
 
-/** Preferência de tema actual + forma de a mudar. Mantém "automático" sincronizado com o telemóvel. */
+/** Preferência de tema actual + forma de a mudar. Mantém "automático" sincronizado com o celular. */
 export function useTheme() {
   const [pref, setPref] = useState<ThemePref>("dark");
   const [resolved, setResolved] = useState<"light" | "dark">("dark");

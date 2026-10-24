@@ -14,6 +14,7 @@ import { PaymentForm } from "./PaymentForm";
 import { DebtReminder } from "./DebtReminder";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { Panel } from "@/components/dashboard/Panel";
+import { MethodLogo } from "@/components/payments/MethodLogo";
 
 const statusLabel: Record<string, string> = {
   pendente: "Pendente",
@@ -230,9 +231,7 @@ export default async function DebtDetailPage({
                 className="flex items-center justify-between gap-3 p-4"
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandGlow/10 text-brandGlow">
-                    <CheckCircle2 className="h-5 w-5" aria-hidden />
-                  </span>
+                  <MethodLogo method={payment.payment_method} size={40} className="rounded-xl" />
                   <div className="min-w-0">
                     <p className="truncate font-medium text-dark-text">
                       {methodLabel[payment.payment_method] ??

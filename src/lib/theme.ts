@@ -1,4 +1,4 @@
-/** Tema da app: claro, escuro ou automático (segue o telemóvel). */
+/** Tema da app: claro, escuro ou automático (segue o celular). */
 export type ThemePref = "light" | "dark" | "system";
 
 export const THEME_KEY = "contacerta-theme";

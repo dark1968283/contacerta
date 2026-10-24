@@ -166,7 +166,7 @@ export default async function MaisPage() {
 
             <Group title="App">
               <RowLink href="/descarregar" label="Descarregar a app" hint="Android e iPhone, funciona sem internet" Icon={asNav(Smartphone)} />
-              <RowLink href="/dashboard/configuracoes#avisos" label="Avisos no telemóvel" hint="Resumo diário às 8h, stock e dívidas" Icon={asNav(Bell)} />
+              <RowLink href="/dashboard/configuracoes#avisos" label="Avisos no celular" hint="Resumo diário às 8h, stock e dívidas" Icon={asNav(Bell)} />
               <RowLink href="/termos-de-servico" label="Termos de serviço" Icon={asNav(FileText)} />
               <RowLink href="/politica-de-privacidade" label="Política de privacidade" Icon={asNav(FileText)} />
             </Group>

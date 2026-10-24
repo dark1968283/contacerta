@@ -157,7 +157,7 @@ export function MobileNav({ userLabel, avatarUrl, isPlatformAdmin = false }: Mob
             <motion.button
               type="button"
               aria-label="Fechar menu Mais"
-              className="fixed inset-0 z-[60] bg-black/45 backdrop-blur-[2px] md:hidden"
+              className="fixed inset-0 z-[60] bg-black/55 backdrop-blur-md md:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

@@ -78,7 +78,7 @@ export const MOBILE_RIGHT_ITEMS: NavItem[] = [
 /** Mantido para compatibilidade com código antigo. */
 export const MOBILE_ITEMS: NavItem[] = [...MOBILE_LEFT_ITEMS, ...MOBILE_RIGHT_ITEMS];
 
-/** Itens do menu "Mais" no telemóvel. */
+/** Itens do menu "Mais" no celular. */
 export const MORE_ITEMS: NavItem[] = [
   { href: "/dashboard/vendas", label: "Histórico de vendas", Icon: IconSales },
   { href: "/dashboard/relatorios", label: "Relatórios", Icon: ReportsIcon },
@@ -89,7 +89,7 @@ export const MORE_ITEMS: NavItem[] = [
   { href: "/dashboard/pagamentos", label: "Pagamentos", Icon: IconPayments },
 ];
 
-/** Rotas que destacam o botão "Mais" no telemóvel. */
+/** Rotas que destacam o botão "Mais" no celular. */
 export const MORE_GROUP_HREFS = [
   "/dashboard/mais",
   "/dashboard/relatorios",

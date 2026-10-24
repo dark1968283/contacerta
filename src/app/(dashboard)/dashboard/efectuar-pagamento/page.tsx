@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requestPlan } from "../planos/actions";
 import { paysuiteConfigured } from "@/lib/paysuite";
 import { PaysuiteBox } from "./PaysuiteBox";
+import { MethodLogo } from "@/components/payments/MethodLogo";
 
 type Cycle = "monthly" | "yearly";
 
@@ -127,13 +128,11 @@ export default async function EfectuarPagamentoPage({
 
                         <div className="mx-5 mt-5 rounded-2xl border border-brandGlow/25 bg-brandGlow/5 p-4 sm:mx-6 sm:p-5">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brandGlow/10 text-brandGlow">
-                  <CreditCard size={20} />
-                </div>
+                <MethodLogo method="emola" size={44} className="rounded-xl" />
                 <div className="min-w-0 flex-1">
                   <h3 className="font-semibold text-dark-text">Pagamento por e-Mola</h3>
                   <p className="mt-1 text-sm leading-5 text-dark-muted">
-                    Abra o menu e-Mola no seu telemóvel através do código USSD abaixo e escolha a opção de envio ou transferência de dinheiro.
+                    Abra o menu e-Mola no seu celular através do código USSD abaixo e escolha a opção de envio ou transferência de dinheiro.
                   </p>
                 </div>
               </div>
@@ -148,7 +147,7 @@ export default async function EfectuarPagamentoPage({
               </div>
 
               <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-5 text-dark-muted">
-                <li>Marque <span className="font-mono font-semibold text-dark-text">*898#</span> no telemóvel com e-Mola.</li>
+                <li>Marque <span className="font-mono font-semibold text-dark-text">*898#</span> no celular com e-Mola.</li>
                 <li>Escolha a opção de envio ou transferência e introduza o número comercial indicado.</li>
                 <li>Introduza o valor do plano e confirme o nome do destinatário, o montante e a operação antes de inserir o PIN.</li>
                 <li>Guarde a mensagem de confirmação e indique a referência da transacção no formulário abaixo.</li>

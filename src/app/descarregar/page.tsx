@@ -6,7 +6,7 @@ import { DownloadOptions } from "./DownloadOptions";
 export const metadata: Metadata = {
   title: "Descarregar a app | ContaCerta",
   description:
-    "Instale o ContaCerta no telemóvel: app para Android ou atalho no ecrã principal do iPhone.",
+    "Instale o ContaCerta no celular: app para Android ou atalho no ecrã principal do iPhone.",
   alternates: { canonical: "https://contacertamz.site/descarregar" },
 };
 

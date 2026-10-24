@@ -9,6 +9,7 @@ import {
 import { requirePlatformAdmin } from "@/lib/supabase/platform";
 import { formatMT } from "@/lib/format";
 import { decidePayment, savePlan } from "./actions";
+import { MethodChip } from "@/components/payments/MethodLogo";
 
 const paymentLabels: Record<string, string> = {
   pending: "Pendente",
@@ -227,7 +228,7 @@ export default async function PlatformAdmin({
                         <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl bg-white/[0.03] p-3 text-sm sm:grid-cols-4">
                           <div>
                             <dt className="text-xs text-dark-faint">Método</dt>
-                            <dd className="font-medium">{methodLabels[payment.payment_method] ?? payment.payment_method}</dd>
+                            <dd className="font-medium"><MethodChip method={payment.payment_method} label={methodLabels[payment.payment_method] ?? payment.payment_method} /></dd>
                           </div>
                           <div>
                             <dt className="text-xs text-dark-faint">Data</dt>

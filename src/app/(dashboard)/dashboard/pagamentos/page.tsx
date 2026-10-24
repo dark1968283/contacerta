@@ -12,6 +12,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { formatMT } from "@/lib/format";
+import { MethodChip } from "@/components/payments/MethodLogo";
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString("pt-MZ", {
@@ -154,7 +155,7 @@ export default async function Pagamentos({
                 <p className="text-xs text-dark-muted">{formatDate(latest.created_at)}</p>
                 <h2 className="mt-1 text-lg font-semibold">{planName(latest)}</h2>
                 <p className="text-sm text-dark-muted">
-                  {methodLabel(latest.payment_method)} · Ref. <span className="font-mono">{latest.reference || "—"}</span>
+                  <MethodChip method={latest.payment_method} label={methodLabel(latest.payment_method)} /> · Ref. <span className="font-mono">{latest.reference || "—"}</span>
                 </p>
               </div>
               <p className="shrink-0 text-xl font-semibold tabular-nums">{formatMT(latest.amount)}</p>
@@ -185,7 +186,7 @@ export default async function Pagamentos({
                 <p className="text-xs text-dark-muted">{formatDate(payment.created_at)}</p>
                 <h2 className="mt-1 text-lg font-semibold">{planName(payment)}</h2>
                 <p className="text-sm text-dark-muted">
-                  {methodLabel(payment.payment_method)} · Ciclo {payment.billing_cycle === "monthly" ? "mensal" : "anual"}
+                  <MethodChip method={payment.payment_method} label={methodLabel(payment.payment_method)} /> · Ciclo {payment.billing_cycle === "monthly" ? "mensal" : "anual"}
                 </p>
               </div>
               <p className="shrink-0 text-xl font-semibold tabular-nums text-brandGlow">{formatMT(payment.amount)}</p>
@@ -220,7 +221,7 @@ export default async function Pagamentos({
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{planName(p)}</p>
                       <p className="text-xs text-dark-muted">
-                        {formatDate(p.created_at)} · {methodLabel(p.payment_method)}
+                        {formatDate(p.created_at)} · <MethodChip method={p.payment_method} label={methodLabel(p.payment_method)} />
                       </p>
                       {p.status === "rejected" && p.notes && (
                         <p className="mt-0.5 truncate text-xs text-danger">Motivo: {p.notes}</p>

@@ -25,7 +25,7 @@ function isStandalone() {
 }
 
 /**
- * Activar/desactivar avisos no telemóvel (resumo diário às 8h:
+ * Activar/desactivar avisos no celular (resumo diário às 8h:
  * vendas de ontem, stock a acabar, dívidas em atraso, assinatura).
  */
 export function PushToggle({ compact = false }: { compact?: boolean }) {
@@ -129,7 +129,7 @@ export function PushToggle({ compact = false }: { compact?: boolean }) {
   return (
     <section
       className={`rounded-2xl border border-dark-border bg-dark-surface ${compact ? "p-4" : "p-4 sm:p-5"}`}
-      aria-label="Avisos no telemóvel"
+      aria-label="Avisos no celular"
     >
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand/15">
@@ -142,7 +142,7 @@ export function PushToggle({ compact = false }: { compact?: boolean }) {
           )}
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold text-dark-text">Avisos no telemóvel</h2>
+          <h2 className="text-base font-semibold text-dark-text">Avisos no celular</h2>
           <p className="mt-0.5 text-sm text-dark-muted">
             {state === "on"
               ? "Activos. Recebe às 8h as vendas de ontem, o stock a acabar e as dívidas em atraso."

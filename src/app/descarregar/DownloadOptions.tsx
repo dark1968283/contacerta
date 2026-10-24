@@ -42,7 +42,7 @@ function AndroidCard({ highlight }: { highlight: boolean }) {
           quando terminar.
         </li>
         <li>
-          <b className="text-dark-text">3.</b> Se o telemóvel pedir, permita{" "}
+          <b className="text-dark-text">3.</b> Se o celular pedir, permita{" "}
           <b className="text-dark-text">instalar apps desta origem</b> e toque em{" "}
           <b className="text-dark-text">Instalar</b>.
         </li>

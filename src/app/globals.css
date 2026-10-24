@@ -595,3 +595,9 @@ html .cc-tab-droplet[data-liquid-glass] {
   /* A animação de abertura nunca vai para o papel. */
   body > [role="img"][aria-label="ContaCerta"] { display: none !important; }
 }
+
+/* Folhas por cima do conteúdo (ex.: confirmar venda): quase opacas, para não baralhar com o que está atrás. */
+html .cc-sheet[class] {
+  background-color: rgb(var(--c-surface) / 0.96) !important;
+  background-image: none !important;
+}

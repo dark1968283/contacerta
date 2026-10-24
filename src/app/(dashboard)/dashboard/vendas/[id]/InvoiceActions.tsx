@@ -14,14 +14,14 @@ function IssueButton() {
       className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-onbrand transition hover:bg-brand/90 disabled:opacity-60"
     >
       <FileText className="h-4 w-4" aria-hidden />
-      {pending ? "A emitir…" : "Emitir fatura"}
+      {pending ? "A emitir…" : "Emitir factura"}
     </button>
   );
 }
 
 /**
- * Recibo simples (sempre disponível) e fatura-recibo numerada.
- * Se a fatura já existir, mostra só o botão para a abrir.
+ * Recibo simples (sempre disponível) e factura-recibo numerada.
+ * Se a factura já existir, mostra só o botão para a abrir.
  */
 export function InvoiceActions({ saleId, invoiceNumber }: { saleId: string; invoiceNumber: string | null }) {
   const [state, action] = useFormState<InvoiceState, FormData>(issueInvoice, { error: null });
@@ -35,7 +35,7 @@ export function InvoiceActions({ saleId, invoiceNumber }: { saleId: string; invo
           className="flex items-center justify-center gap-2 rounded-2xl border border-white/[0.12] bg-white/[0.04] px-4 py-3.5 text-sm font-semibold text-dark-text transition hover:bg-white/[0.07]"
         >
           <Printer className="h-4 w-4 text-brandGlow" aria-hidden />
-          {invoiceNumber ? "Ver fatura" : "Recibo PDF"}
+          {invoiceNumber ? "Ver factura" : "Recibo PDF"}
         </a>
         {invoiceNumber ? (
           <span className="flex items-center justify-center rounded-2xl border border-brandGlow/25 bg-brandGlow/[0.07] px-4 py-3.5 text-sm font-semibold text-brandGlow">
@@ -49,7 +49,7 @@ export function InvoiceActions({ saleId, invoiceNumber }: { saleId: string; invo
             aria-expanded={open}
           >
             <FileText className="h-4 w-4 text-brandGlow" aria-hidden />
-            Fatura
+            Factura
           </button>
         )}
       </div>
@@ -58,7 +58,7 @@ export function InvoiceActions({ saleId, invoiceNumber }: { saleId: string; invo
         <form action={action} className="space-y-3 rounded-2xl border border-dark-border bg-dark-surface/60 p-4">
           <input type="hidden" name="sale_id" value={saleId} />
           <p className="text-sm text-dark-muted">
-            A fatura recebe um número próprio (ex.: FR 2026/1) e conta para o limite de faturas do seu plano.
+            A factura recebe um número próprio (ex.: FR 2026/1) e conta para o limite de facturas do seu plano.
           </p>
           <label className="block text-sm font-medium text-dark-text">
             NUIT do cliente <span className="font-normal text-dark-faint">(opcional)</span>

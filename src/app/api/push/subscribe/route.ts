@@ -5,7 +5,7 @@ import { getBusinessContext } from "@/lib/supabase/business";
 
 type Body = { endpoint?: string; keys?: { p256dh?: string; auth?: string } };
 
-/** Guarda este telemóvel/computador para receber avisos. */
+/** Guarda este celular/computador para receber avisos. */
 export async function POST(request: NextRequest) {
   const { userId, businessId } = await getBusinessContext();
   const body = (await request.json().catch(() => ({}))) as Body;
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
   // push_subscriptions vem da migração 0022 (ainda fora dos tipos gerados).
   const db = createClient() as unknown as SupabaseClient;
-  // Se o mesmo telemóvel já estava registado (por exemplo, por outra conta), substitui.
+  // Se o mesmo celular já estava registado (por exemplo, por outra conta), substitui.
   await db.from("push_subscriptions").delete().eq("endpoint", endpoint);
   const { error } = await db.from("push_subscriptions").insert({
     user_id: userId,

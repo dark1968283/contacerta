@@ -26,7 +26,7 @@ export function warmOfflinePages(force = false) {
   void postToWorker({ type: "WARM_OFFLINE" });
 }
 
-/** Apaga as páginas do negócio guardadas no telemóvel (ao terminar sessão). */
+/** Apaga as páginas do negócio guardadas no celular (ao terminar sessão). */
 export function clearOfflinePages() {
   try {
     localStorage.removeItem(WARM_KEY);

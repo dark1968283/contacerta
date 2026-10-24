@@ -60,7 +60,7 @@ export default async function PrintSalePage({
     unitPrice: Number(item.unit_price),
   }));
 
-  const docTitle = inv ? (credit ? "Fatura" : "Fatura-recibo") : "Recibo de venda";
+  const docTitle = inv ? (credit ? "Factura" : "Factura-recibo") : "Recibo de venda";
   const docNumber = inv ? `${inv.series} ${inv.year}/${inv.number}` : `Venda ${sale.id.slice(0, 8).toUpperCase()}`;
   const fmtDate = (d: Date) =>
     d.toLocaleDateString("pt-MZ", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: BUSINESS_TIMEZONE });

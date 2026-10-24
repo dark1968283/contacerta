@@ -19,7 +19,7 @@ function Save() {
   );
 }
 
-/** Dados que aparecem no topo das faturas e recibos em PDF. */
+/** Dados que aparecem no topo das facturas e recibos em PDF. */
 export function BusinessDetailsForm({
   businessId,
   initial,
@@ -32,9 +32,9 @@ export function BusinessDetailsForm({
   return (
     <section aria-labelledby="negocio-title" className="mt-6 rounded-2xl border border-dark-border bg-dark-surface p-4 sm:p-5">
       <h2 id="negocio-title" className="text-base font-semibold text-dark-text">
-        Dados do negócio nas faturas
+        Dados do negócio nas facturas
       </h2>
-      <p className="mt-1 text-sm text-dark-muted">Aparecem no topo dos recibos e faturas em PDF. Todos são opcionais.</p>
+      <p className="mt-1 text-sm text-dark-muted">Aparecem no topo dos recibos e facturas em PDF. Todos são opcionais.</p>
 
       <form action={action} className="mt-4 grid max-w-xl gap-4">
         <input type="hidden" name="business_id" value={businessId} />

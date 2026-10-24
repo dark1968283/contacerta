@@ -1,5 +1,5 @@
 /**
- * Fila de vendas guardadas no telemóvel quando não há internet.
+ * Fila de vendas guardadas no celular quando não há internet.
  * Só corre no browser. O servidor continua a ser quem confirma a venda:
  * enquanto estiver aqui, a venda está "por enviar", não "registada".
  */

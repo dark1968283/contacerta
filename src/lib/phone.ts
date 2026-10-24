@@ -1,6 +1,6 @@
 /**
  * Números de telefone de Moçambique.
- *  - Telemóvel: 9 dígitos começados por 82–87 → "84 123 4567"
+ *  - Celular: 9 dígitos começados por 82–87 → "84 123 4567"
  *  - Fixo: 8 dígitos começados por 2 → "21 123 456"
  * Aceita o indicativo 258 / +258 / 00258 e ignora espaços e traços.
  */
@@ -32,7 +32,7 @@ export function checkMzPhone(input: string | null | undefined): PhoneCheck {
 
   if (digits.startsWith("8")) {
     if (!/^8[2-7]/.test(digits)) {
-      return { ok: false, reason: "Os números de telemóvel começam por 82, 83, 84, 85, 86 ou 87.", empty: false };
+      return { ok: false, reason: "Os números de celular começam por 82, 83, 84, 85, 86 ou 87.", empty: false };
     }
     if (digits.length < 9) return { ok: false, reason: `Faltam ${9 - digits.length} dígito(s).`, empty: false };
     if (digits.length > 9) return { ok: false, reason: `Tem ${digits.length - 9} dígito(s) a mais.`, empty: false };

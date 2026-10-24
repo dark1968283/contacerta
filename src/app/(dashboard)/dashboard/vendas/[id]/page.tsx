@@ -26,7 +26,7 @@ export default async function VendaDetalhePage({ params }: { params: { id: strin
     supabase.from("sale_items").select("product_id, quantity, unit_price, products(name)").eq("sale_id", sale.id),
     supabase.from("debts").select("id, status, total_amount, amount_paid").eq("sale_id", sale.id).maybeSingle(),
     supabase.from("users").select("name").eq("id", sale.created_by).maybeSingle(),
-    // Tabela da migração 0021 (ainda fora dos tipos gerados). Se não existir, fica sem fatura.
+    // Tabela da migração 0021 (ainda fora dos tipos gerados). Se não existir, fica sem factura.
     (supabase as unknown as { from: (t: string) => any })
       .from("invoices")
       .select("series, year, number")

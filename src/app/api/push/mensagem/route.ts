@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Texto da notificação, pedido pelo service worker quando chega um toque.
- * Usa a sessão de quem está no telemóvel, por isso cada pessoa só vê o
+ * Usa a sessão de quem está no celular, por isso cada pessoa só vê o
  * seu negócio. Exemplo: "Ontem vendeu 3 450 MT · 2 produtos a acabar".
  */
 export async function GET() {

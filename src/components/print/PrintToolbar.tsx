@@ -5,7 +5,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 
 /**
  * Barra das páginas de impressão. Some no papel/PDF.
- * "Guardar PDF" abre o diálogo de impressão do telemóvel ou computador,
+ * "Guardar PDF" abre o diálogo de impressão do celular ou computador,
  * onde se escolhe "Guardar como PDF" (Android, iPhone, Windows e Mac).
  */
 export function PrintToolbar({ backHref, autoPrint = false }: { backHref: string; autoPrint?: boolean }) {

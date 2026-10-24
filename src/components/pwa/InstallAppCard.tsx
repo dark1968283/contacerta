@@ -112,7 +112,7 @@ export function InstallAppCard() {
           <p className="mt-1 text-sm leading-6 text-dark-muted">
             {isInstalled
               ? "Já pode aceder à aplicação a partir do seu ecrã inicial."
-              : "Aceda ao seu negócio directamente do telemóvel, sem precisar de procurar o site no navegador."}
+              : "Aceda ao seu negócio directamente do celular, sem precisar de procurar o site no navegador."}
           </p>
         </div>
       </div>

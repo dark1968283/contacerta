@@ -16,6 +16,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { formatMT } from "@/lib/format";
+import { MethodChip } from "@/components/payments/MethodLogo";
 
 const labels: Record<string, string> = {
   pending: "Pendente",
@@ -426,8 +427,7 @@ export default async function MeuPlano() {
                                 ? "Mensal"
                                 : "Anual"}
                               {" · "}
-                              {paymentMethods[payment.payment_method] ??
-                                payment.payment_method}
+                              <MethodChip method={payment.payment_method} label={paymentMethods[payment.payment_method] ?? payment.payment_method} />
                             </p>
                           </div>
 

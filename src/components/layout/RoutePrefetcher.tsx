@@ -48,7 +48,7 @@ export function RoutePrefetcher() {
       if (running.current || cancelled) return;
       if (typeof navigator !== "undefined" && navigator.onLine === false) return;
       if (document.visibilityState !== "visible") return;
-      // Poupança de dados activada no telemóvel: não pré-carrega.
+      // Poupança de dados activada no celular: não pré-carrega.
       const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
       if (conn?.saveData) return;
 

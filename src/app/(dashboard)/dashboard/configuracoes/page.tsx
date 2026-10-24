@@ -47,7 +47,7 @@ export default async function ConfiguracoesPage() {
           Aparência
         </h2>
         <p className="mt-1 text-sm text-dark-muted">
-          Claro é melhor ao sol; escuro poupa bateria à noite. “Automático” segue o telemóvel.
+          Claro é melhor ao sol; escuro poupa bateria à noite. “Automático” segue o celular.
         </p>
         <div className="mt-4 max-w-md">
           <ThemeChooser />

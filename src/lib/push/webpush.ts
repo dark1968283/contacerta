@@ -3,7 +3,7 @@ import { createPrivateKey, sign } from "node:crypto";
 /**
  * Envio de Web Push sem bibliotecas externas.
  *
- * Enviamos um "toque" sem conteúdo (corpo vazio): o telemóvel acorda o
+ * Enviamos um "toque" sem conteúdo (corpo vazio): o celular acorda o
  * service worker, que vai buscar a mensagem certa a /api/push/mensagem com
  * a sessão da pessoa. Assim não é preciso cifrar dados no servidor e a
  * mensagem é sempre a mais actual.
@@ -57,7 +57,7 @@ function vapidHeader(endpoint: string) {
 }
 
 /**
- * Envia um toque a uma subscrição. Devolve "gone" quando o telemóvel já
+ * Envia um toque a uma subscrição. Devolve "gone" quando o celular já
  * não aceita notificações (app desinstalada / permissão retirada), para a
  * apagarmos da base de dados.
  */

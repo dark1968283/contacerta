@@ -52,7 +52,7 @@ type CartLine = { id: string; quantity: number };
 type PaymentMethod = "pago" | "credito";
 
 type FormState = SaleActionState & {
-  /** Venda guardada no telemóvel por falta de internet. */
+  /** Venda guardada no celular por falta de internet. */
   offline?: { ref: string; total: number; createdAt: string } | null;
 };
 
@@ -399,7 +399,7 @@ export function NewSaleForm({
             <SaleSuccessCheck />
           )}
           <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-            {completedSale.offline ? "Venda guardada no telemóvel" : "Venda registada"}
+            {completedSale.offline ? "Venda guardada no celular" : "Venda registada"}
           </h2>
           <p className="mt-1 text-sm text-dark-muted">
             {completedSale.offline
@@ -593,17 +593,17 @@ export function NewSaleForm({
       </div>
 
       {/* Janela de confirmação — aberta num "portal" no <body>, para ficar
-          sempre por cima da barra de navegação do telemóvel. */}
+          sempre por cima da barra de navegação do celular. */}
       {checkoutOpen && createPortal(
         <div className="fixed inset-0 z-[100] flex items-end justify-center text-dark-text md:items-center md:p-6" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
           <button
             type="button"
             aria-label="Fechar"
             onClick={() => setCheckoutOpen(false)}
-            className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/70 backdrop-blur-md"
           />
 
-          <div className="relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/[0.1] bg-dark-surface shadow-2xl md:max-w-lg md:rounded-3xl">
+          <div className="relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/[0.1] bg-dark-surface shadow-2xl cc-sheet backdrop-blur-2xl backdrop-saturate-150 md:max-w-lg md:rounded-3xl">
             <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
               <h2 id="checkout-title" className="text-lg font-semibold">Confirmar venda</h2>
               <button
