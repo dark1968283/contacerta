@@ -602,10 +602,6 @@ html .cc-sheet[class] {
   background-image: none !important;
 }
 
-/* Menu do tema: aparece com um pequeno zoom. */
-.cc-theme-menu { animation: cc-menu-in 140ms ease-out; }
-@keyframes cc-menu-in { from { opacity: 0; transform: scale(0.95) translateY(-4px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .cc-theme-menu { animation: none; } }
 
 /* Gráfico de vendas: barras sobem, a curva desenha-se, as etiquetas aparecem. */
 .cc-bar { transform-origin: bottom; animation: cc-bar-grow 650ms cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -615,3 +611,8 @@ html .cc-sheet[class] {
 .cc-fade-in { animation: cc-fade 400ms 900ms ease-out both; }
 @keyframes cc-fade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .cc-bar, .cc-trend, .cc-fade-in { animation: none; stroke-dashoffset: 0; } }
+
+/* Botão do tema: pequeno brilho a expandir ao trocar. */
+.cc-theme-pop { background: radial-gradient(circle, rgb(var(--c-brand-glow) / 0.35), transparent 70%); animation: cc-theme-pop 520ms ease-out forwards; }
+@keyframes cc-theme-pop { from { transform: scale(0.2); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cc-theme-pop { animation: none; opacity: 0; } }

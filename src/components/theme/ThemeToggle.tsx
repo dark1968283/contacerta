@@ -1,98 +1,44 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Check, Monitor, Moon, Sun } from "lucide-react";
+import { useState } from "react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "./useTheme";
 import type { ThemePref } from "@/lib/theme";
 
-/** Botão da barra superior: abre um menu com Claro, Escuro e Automático. */
+/**
+ * Botão da barra superior: alterna entre claro e escuro.
+ * O sol e a lua estão sobrepostos; ao clicar, um gira e encolhe enquanto o outro
+ * gira e aparece (no tema escuro vê-se a lua, no claro o sol).
+ */
 export function ThemeToggleButton() {
-  const { pref, resolved, setTheme } = useTheme();
-  const [open, setOpen] = useState(false);
-  const wrap = useRef<HTMLDivElement>(null);
-  const items = useRef<(HTMLButtonElement | null)[]>([]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      if (wrap.current && !wrap.current.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("pointerdown", onDown);
-    document.addEventListener("keydown", onKey);
-    // foca a opção escolhida, para dar para usar só com o teclado
-    const i = OPTIONS.findIndex((o) => o.value === pref);
-    items.current[i < 0 ? 0 : i]?.focus();
-    return () => {
-      document.removeEventListener("pointerdown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open, pref]);
-
-  const onMenuKey = (e: React.KeyboardEvent) => {
-    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
-    e.preventDefault();
-    const list = items.current.filter(Boolean) as HTMLButtonElement[];
-    const i = list.indexOf(document.activeElement as HTMLButtonElement);
-    const next = e.key === "ArrowDown" ? (i + 1) % list.length : (i - 1 + list.length) % list.length;
-    list[next]?.focus();
-  };
-
+  const { resolved, setTheme } = useTheme();
+  const isDark = resolved === "dark";
+  const [spin, setSpin] = useState(0);
   return (
-    <div ref={wrap} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Mudar o tema"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        title="Tema"
-        className={`flex h-10 w-10 items-center justify-center rounded-xl transition hover:bg-white/5 hover:text-dark-text ${
-          open ? "bg-white/5 text-dark-text" : "text-dark-muted"
+    <button
+      type="button"
+      onClick={() => {
+        setTheme(isDark ? "light" : "dark");
+        setSpin((n) => n + 1);
+      }}
+      aria-label={isDark ? "Mudar para modo claro" : "Mudar para modo escuro"}
+      title={isDark ? "Modo claro" : "Modo escuro"}
+      className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl text-dark-muted transition hover:bg-white/5 hover:text-dark-text active:scale-90"
+    >
+      <span key={spin} className={spin ? "cc-theme-pop absolute inset-0 rounded-xl" : "hidden"} aria-hidden />
+      <Sun
+        className={`absolute h-5 w-5 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          isDark ? "-rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"
         }`}
-      >
-        {resolved === "dark" ? <Moon className="h-5 w-5" aria-hidden /> : <Sun className="h-5 w-5" aria-hidden />}
-      </button>
-
-      {open && (
-        <div
-          role="menu"
-          aria-label="Tema"
-          onKeyDown={onMenuKey}
-          className="cc-sheet cc-theme-menu absolute right-0 top-full z-[70] mt-2 w-48 origin-top-right rounded-2xl border border-dark-border bg-dark-surface p-1.5 shadow-2xl backdrop-blur-2xl"
-        >
-          <p className="px-2.5 pb-1.5 pt-1 text-xs font-semibold uppercase tracking-[0.14em] text-dark-muted">Tema</p>
-          <div className="-mx-1.5 mb-1 h-px bg-dark-border" />
-          {OPTIONS.map(({ value, label, Icon }, i) => {
-            const active = pref === value;
-            return (
-              <button
-                key={value}
-                ref={(el) => {
-                  items.current[i] = el;
-                }}
-                type="button"
-                role="menuitemradio"
-                aria-checked={active}
-                onClick={() => {
-                  setTheme(value);
-                  setOpen(false);
-                }}
-                className={`flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-sm outline-none transition focus-visible:bg-white/[0.06] ${
-                  active ? "font-semibold text-dark-text" : "text-dark-muted hover:bg-white/[0.06] hover:text-dark-text"
-                }`}
-              >
-                <Icon className="h-4 w-4" aria-hidden />
-                <span className="flex-1 text-left">{label}</span>
-                {active && <Check className="h-4 w-4 text-brandGlow" aria-hidden />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
+        aria-hidden
+      />
+      <Moon
+        className={`absolute h-5 w-5 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          isDark ? "rotate-0 scale-100 opacity-100" : "rotate-90 scale-0 opacity-0"
+        }`}
+        aria-hidden
+      />
+    </button>
   );
 }
 
