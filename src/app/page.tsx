@@ -73,10 +73,15 @@ export default async function HomePage() {
 
       <section className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pb-16 pt-8 lg:grid-cols-[1.1fr_0.9fr] lg:pt-16">
         <div>
-          <div className="flex items-center gap-4">
-            <Image src="/icons/icon-512.png" alt="" width={72} height={72} priority />
-            <p className="text-3xl font-extrabold tracking-tight sm:text-4xl">ContaCerta</p>
-          </div>
+          {/* Logótipo oficial (o mesmo do ecrã de início de sessão com Google). */}
+          <Image
+            src="/images/contacerta-google-branding-1024.png"
+            alt="ContaCerta — logótipo"
+            width={1024}
+            height={1024}
+            priority
+            className="h-28 w-28 rounded-3xl shadow-xl sm:h-32 sm:w-32"
+          />
           <h1 className="mt-8 text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl">
             O seu negócio.
             <br />
