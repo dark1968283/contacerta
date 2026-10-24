@@ -26,6 +26,7 @@ import {
   type SaleActionState,
 } from "../actions";
 import { SaleSuccessCheck } from "./SaleSuccessCheck";
+import { playSaleSound, primeSaleSound } from "@/lib/sale-sound";
 import { PhoneInput } from "@/components/ui/PhoneInput";
 import {
   OFFLINE_SALES_EVENT,
@@ -279,6 +280,8 @@ export function NewSaleForm({
     if (state.sale || state.offline) {
       setCheckoutOpen(false);
       vibrate(30);
+      // Som só quando aparece o visto (venda registada com internet).
+      if (state.sale) playSaleSound();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [state.sale, state.offline]);
@@ -870,6 +873,7 @@ function ConfirmButton({ disabled, label }: { disabled: boolean; label: string }
       type="submit"
       form="sale-form"
       disabled={disabled || pending}
+      onPointerDown={primeSaleSound}
       className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brandGlow px-5 py-4 text-lg font-bold text-onglow transition active:scale-[0.98] disabled:bg-white/[0.08] disabled:text-dark-faint"
     >
       {pending ? "A registar a venda…" : (
