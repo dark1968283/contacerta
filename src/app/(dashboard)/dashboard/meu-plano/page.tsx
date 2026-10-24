@@ -75,10 +75,10 @@ function statusStyle(status: string) {
     return "border-brandGlow/20 bg-brandGlow/10 text-brandGlow";
   }
   if (status === "pending") {
-    return "border-amber-400/20 bg-amber-400/10 text-amber-300";
+    return "border-warning/20 bg-warning/10 text-warning";
   }
   if (status === "past_due" || status === "rejected") {
-    return "border-red-400/20 bg-red-400/10 text-red-300";
+    return "border-danger/20 bg-danger/10 text-danger";
   }
   return "border-white/10 bg-white/[0.04] text-dark-muted";
 }
@@ -185,7 +185,7 @@ export default async function MeuPlano() {
                 </div>
 
                 <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-black/10 p-3 sm:min-w-48">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brandGlow/10 text-brandGlow">
+                  <div className="flex shrink-0 items-center text-brandGlow">
                     <CalendarDays size={19} />
                   </div>
                   <div>
@@ -201,7 +201,7 @@ export default async function MeuPlano() {
 
               <div className="mt-6 grid gap-3 border-t border-white/[0.08] pt-5 sm:grid-cols-2">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.05] text-dark-muted">
+                  <div className="flex shrink-0 items-center text-dark-muted">
                     <CreditCard size={17} />
                   </div>
                   <div>
@@ -215,7 +215,7 @@ export default async function MeuPlano() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.05] text-dark-muted">
+                  <div className="flex shrink-0 items-center text-dark-muted">
                     <ShieldCheck size={17} />
                   </div>
                   <div>
@@ -233,7 +233,7 @@ export default async function MeuPlano() {
         ) : (
           <section className="rounded-2xl border border-white/[0.08] bg-dark-surface p-5 sm:p-7">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-400/10 text-amber-300">
+              <div className="flex shrink-0 items-center text-warning">
                 {sub?.status === "pending" ? (
                   <Clock3 size={23} />
                 ) : (
@@ -273,7 +273,7 @@ export default async function MeuPlano() {
                   {sub?.status === "pending" && (
                     <Link
                       href="/dashboard/pagamentos"
-                      className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-brandGlow px-4 text-sm font-semibold text-[#07110B] transition hover:brightness-110"
+                      className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-brandGlow px-4 text-sm font-semibold text-onglow transition hover:brightness-110"
                     >
                       Consultar pagamentos
                       <ArrowRight size={16} />
@@ -309,7 +309,7 @@ export default async function MeuPlano() {
             <div className="grid gap-4 md:grid-cols-2">
               <section className="rounded-2xl border border-white/[0.08] bg-dark-surface p-5">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brandGlow/10 text-brandGlow">
+                  <div className="flex shrink-0 items-center text-brandGlow">
                     <Sparkles size={17} />
                   </div>
                   <h3 className="text-sm font-semibold">Benefícios</h3>
@@ -339,7 +339,7 @@ export default async function MeuPlano() {
 
               <section className="rounded-2xl border border-white/[0.08] bg-dark-surface p-5">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.06] text-dark-muted">
+                  <div className="flex shrink-0 items-center text-dark-muted">
                     <ShieldCheck size={17} />
                   </div>
                   <h3 className="text-sm font-semibold">Limites do plano</h3>
@@ -409,7 +409,7 @@ export default async function MeuPlano() {
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-dark-muted">
+                      <div className="flex shrink-0 items-center text-dark-muted">
                         <CreditCard size={18} />
                       </div>
 

@@ -67,7 +67,7 @@ export function QuickRestock({ productId, productName }: { productId: string; pr
         aria-expanded={open}
         aria-label={`Repor stock de ${productName}`}
         className={`flex h-10 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition active:scale-95 ${
-          done ? "bg-[#22C766] text-[#06120C]" : "bg-white/[0.06] text-dark-text hover:bg-white/[0.1]"
+          done ? "bg-brandGlow text-onglow" : "bg-white/[0.06] text-dark-text hover:bg-white/[0.1]"
         }`}
       >
         {done ? <Check className="h-4 w-4" strokeWidth={3} aria-hidden /> : <PackagePlus className="h-4 w-4" aria-hidden />}
@@ -78,7 +78,7 @@ export function QuickRestock({ productId, productName }: { productId: string; pr
         <div
           role="dialog"
           aria-label={`Repor ${productName}`}
-          className="absolute right-0 top-12 z-40 w-[min(84vw,300px)] rounded-2xl border border-white/[0.12] bg-[#16201C] p-4 shadow-2xl shadow-black/50"
+          className="absolute right-0 top-12 z-40 w-[min(84vw,300px)] rounded-2xl border border-white/[0.12] bg-dark-elevated p-4 shadow-2xl shadow-black/50"
         >
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
@@ -102,7 +102,7 @@ export function QuickRestock({ productId, productName }: { productId: string; pr
                 type="button"
                 disabled={pending}
                 onClick={() => submit(q)}
-                className="rounded-xl bg-[#22C766]/[0.12] py-2.5 text-sm font-bold text-[#78E6A0] transition hover:bg-[#22C766]/[0.2] active:scale-95 disabled:opacity-50"
+                className="rounded-xl bg-brandGlow/[0.12] py-2.5 text-sm font-bold text-accent transition hover:bg-brandGlow/[0.2] active:scale-95 disabled:opacity-50"
               >
                 +{q}
               </button>
@@ -120,19 +120,19 @@ export function QuickRestock({ productId, productName }: { productId: string; pr
               }}
               placeholder="Outro número"
               aria-label="Outra quantidade"
-              className="min-w-0 flex-1 rounded-xl border border-white/[0.12] bg-[#0B1110] px-3 py-2.5 text-base text-dark-text outline-none focus:border-[#22C766]/60"
+              className="min-w-0 flex-1 rounded-xl border border-white/[0.12] bg-dark-bg px-3 py-2.5 text-base text-dark-text outline-none focus:border-brandGlow/60"
             />
             <button
               type="button"
               disabled={pending || !(typed > 0)}
               onClick={() => submit(typed)}
-              className="rounded-xl bg-[#22C766] px-4 text-sm font-bold text-[#06120C] disabled:opacity-40"
+              className="rounded-xl bg-brandGlow px-4 text-sm font-bold text-onglow disabled:opacity-40"
             >
               {pending ? "…" : "OK"}
             </button>
           </div>
 
-          {error && <p className="mt-2 text-xs text-[#FF9A90]">{error}</p>}
+          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
         </div>
       )}
     </div>

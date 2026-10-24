@@ -31,14 +31,14 @@ const methods = [
     label: "Dinheiro",
     description: "Notas e moedas",
     icon: Banknote,
-    badge: "bg-emerald-500/10 text-emerald-400",
+    badge: "bg-emerald-500/10 text-accent",
   },
   {
     value: "mpesa",
     label: "M-Pesa",
     description: "Carteira móvel",
     icon: Smartphone,
-    badge: "bg-green-500/10 text-green-400",
+    badge: "bg-green-500/10 text-accent",
   },
   {
     value: "emola",

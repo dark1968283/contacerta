@@ -20,7 +20,7 @@ export default function OnboardingPage() {
   const [state, formAction] = useFormState(createBusiness, initialState);
 
   return (
-    <main className="min-h-dvh bg-dark-bg text-dark-text lg:grid lg:grid-cols-[0.92fr_1.08fr]">
+    <main className="force-dark min-h-dvh bg-dark-bg text-dark-text lg:grid lg:grid-cols-[0.92fr_1.08fr]">
       <aside className="relative hidden min-h-dvh flex-col justify-between overflow-hidden border-r border-white/[0.06] bg-[#0D1713] p-10 lg:flex xl:p-14">
     <div
       aria-hidden="true"

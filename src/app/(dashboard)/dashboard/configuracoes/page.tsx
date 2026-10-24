@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { ProfileSettingsForm } from "./ProfileSettingsForm";
 import { InstallAppCard } from "@/components/pwa/InstallAppCard";
+import { ThemeChooser } from "@/components/theme/ThemeToggle";
 
 export default async function ConfiguracoesPage() {
   const supabase = createClient();
@@ -31,6 +32,18 @@ export default async function ConfiguracoesPage() {
           Personalize o seu perfil. As alterações ficam associadas à sua conta.
         </p>
       </header>
+
+      <section aria-labelledby="aparencia-title" className="mt-6 rounded-2xl border border-dark-border bg-dark-surface p-4 sm:p-5">
+        <h2 id="aparencia-title" className="text-base font-semibold text-dark-text">
+          Aparência
+        </h2>
+        <p className="mt-1 text-sm text-dark-muted">
+          Claro é melhor ao sol; escuro poupa bateria à noite. “Automático” segue o telemóvel.
+        </p>
+        <div className="mt-4 max-w-md">
+          <ThemeChooser />
+        </div>
+      </section>
 
       <div className="mt-6">
         <InstallAppCard />

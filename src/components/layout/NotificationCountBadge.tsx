@@ -53,7 +53,7 @@ export function NotificationCountBadge({ ids }: { ids?: string[] }) {
   if (count < 1) return null;
 
   return (
-    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-onbrand">
       {count > 99 ? "99+" : count}
     </span>
   );

@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
  * Só usa tokens existentes do tailwind.config.ts.
  */
 export const SURFACE =
-  "relative rounded-2xl border border-dark-border bg-gradient-to-b from-dark-elevated to-dark-surface shadow-[8px_8px_20px_rgba(0,0,0,0.45),-4px_-4px_12px_rgba(255,255,255,0.02),inset_0_1px_0_rgba(255,255,255,0.04)]";
+  "cc-glass relative rounded-2xl border border-dark-border bg-gradient-to-b from-dark-elevated to-dark-surface shadow-[8px_8px_20px_rgba(0,0,0,0.45),-4px_-4px_12px_rgba(255,255,255,0.02),inset_0_1px_0_rgba(255,255,255,0.04)]";
 
 type PanelProps = {
   as?: "section" | "article" | "div";

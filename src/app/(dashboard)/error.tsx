@@ -35,7 +35,7 @@ export default function DashboardError({ reset }: { error: Error; reset: () => v
       <button
         type="button"
         onClick={() => reset()}
-        className="mt-6 flex items-center gap-2 rounded-xl bg-[#22C766] px-5 py-3 font-semibold text-[#06120C]"
+        className="mt-6 flex items-center gap-2 rounded-xl bg-brandGlow px-5 py-3 font-semibold text-onglow"
       >
         <RefreshCw className="h-4 w-4" aria-hidden /> Tentar de novo
       </button>

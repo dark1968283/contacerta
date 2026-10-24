@@ -47,7 +47,7 @@ const OFFLINE_HTML = `<!doctype html><html lang="pt"><head><meta charset="utf-8"
 <style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0B1110;color:#F5F6F4;font-family:system-ui,-apple-system,sans-serif;padding:24px;text-align:center}
 .c{max-width:340px}h1{font-size:22px;margin:16px 0 8px}p{color:rgba(245,246,244,.7);line-height:1.5;margin:0 0 20px}
 button{background:#22C766;color:#06120C;border:0;border-radius:14px;padding:14px 22px;font-size:16px;font-weight:700}</style></head>
-<body><div class="c"><div style="font-size:48px">📶</div><h1>Sem internet</h1>
+<body><div class="c"><h1>Sem internet</h1>
 <p>Esta página ainda não foi aberta neste telemóvel com internet. Ligue-se uma vez à internet e depois a app passa a abrir mesmo sem rede.</p>
 <button onclick="location.reload()">Tentar de novo</button></div></body></html>`;
 

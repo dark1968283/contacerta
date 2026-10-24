@@ -10,12 +10,6 @@ function formatMT(value: number) {
   return `${Math.round(value).toLocaleString("pt-MZ")} MT`;
 }
 
-const CHIP: Record<"out" | "low" | "ok", string> = {
-  out: "bg-danger/10 text-danger",
-  low: "bg-warning/10 text-warning",
-  ok: "bg-brandGlow/10 text-brandGlow",
-};
-
 export default async function ProdutosPage({
   searchParams,
 }: {
@@ -93,7 +87,7 @@ export default async function ProdutosPage({
           {role === "admin" && !query && (
             <Link
               href="/dashboard/produtos/novo"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 active:scale-[0.97]"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-onbrand shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 active:scale-[0.97]"
             >
               <Plus className="h-4 w-4" aria-hidden />
               Criar o primeiro produto
@@ -111,13 +105,6 @@ export default async function ProdutosPage({
               className="group block min-w-0 flex-1 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50"
             >
                 <div className="flex items-center gap-3.5">
-                  <span
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                      CHIP[stockState(product.stock_quantity, product.low_stock_threshold)]
-                    }`}
-                  >
-                    <Package className="h-5 w-5" aria-hidden />
-                  </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-dark-text">{product.name}</p>
                     <p className="text-sm text-dark-muted">{product.stock_quantity} em stock</p>

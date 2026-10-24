@@ -78,7 +78,7 @@ export function FirstSteps({
   return (
     <section
       aria-labelledby="first-steps-title"
-      className="rounded-2xl border border-[#22C766]/25 bg-gradient-to-br from-[#22C766]/[0.10] to-[#101816] p-4 sm:p-5"
+      className="rounded-2xl border border-brandGlow/25 bg-gradient-to-br from-brandGlow/[0.10] to-dark-surface p-4 sm:p-5"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -101,7 +101,7 @@ export function FirstSteps({
 
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.08]">
         <div
-          className="h-full rounded-full bg-[#22C766] transition-all duration-500"
+          className="h-full rounded-full bg-brandGlow transition-all duration-500"
           style={{ width: `${(doneCount / steps.length) * 100}%` }}
         />
       </div>
@@ -118,17 +118,17 @@ export function FirstSteps({
                   step.done
                     ? "pointer-events-none border-transparent opacity-60"
                     : isNext
-                      ? "border-[#22C766]/40 bg-[#22C766]/[0.08] hover:bg-[#22C766]/[0.12]"
+                      ? "border-brandGlow/40 bg-brandGlow/[0.08] hover:bg-brandGlow/[0.12]"
                       : "border-white/[0.07] bg-white/[0.02] hover:border-white/[0.15]"
                 }`}
               >
                 <span
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                     step.done
-                      ? "bg-[#22C766] text-[#06120C]"
+                      ? "bg-brandGlow text-onglow"
                       : isNext
-                        ? "border-2 border-[#22C766] text-[#78E6A0]"
-                        : "border border-white/20 text-white/50"
+                        ? "border-2 border-brandGlow text-accent"
+                        : "border border-white/20 text-dark-faint"
                   }`}
                 >
                   {step.done ? <Check className="h-4 w-4" strokeWidth={3} aria-hidden /> : index + 1}
@@ -142,7 +142,7 @@ export function FirstSteps({
                 {!step.done && (
                   <span
                     className={`flex shrink-0 items-center gap-0.5 text-sm font-semibold ${
-                      isNext ? "text-[#78E6A0]" : "text-dark-muted"
+                      isNext ? "text-accent" : "text-dark-muted"
                     }`}
                   >
                     {step.cta}

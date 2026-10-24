@@ -1,148 +1,171 @@
 import Link from "next/link";
+import { ChevronRight, FileText, LogOut, Settings, ShieldCheck, Smartphone } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { getBusinessContext } from "@/lib/supabase/business";
+import { signOut } from "../../../(auth)/actions";
+import { ThemeChooser } from "@/components/theme/ThemeToggle";
 import {
-  ArrowUpRight,
-  CreditCard,
-  Layers3,
-  Sparkles,
-  Users,
-  UsersRound,
-  Wallet,
-  type LucideIcon,
-} from "lucide-react";
+  IconCustomers,
+  IconPayments,
+  IconPlan,
+  IconProducts,
+  IconSales,
+  IconTeam,
+  type NavIcon,
+} from "@/components/icons/NavIcons";
+import { BUSINESS_TIMEZONE } from "@/lib/timezone";
 
-const sections: {
-  title: string;
-  description: string;
-  links: {
-    href: string;
-    label: string;
-    description: string;
-    Icon: LucideIcon;
-    accent: string;
-  }[];
-}[] = [
-  {
-    title: "Negócio",
-    description: "Organize a relação com os seus clientes.",
-    links: [
-      {
-        href: "/dashboard/clientes",
-        label: "Clientes",
-        description: "Consulte, registe e acompanhe os seus clientes.",
-        Icon: Users,
-        accent: "text-sky-300 bg-sky-400/10 border-sky-400/15",
-      },
-      {
-        href: "/dashboard/funcionarios",
-        label: "Funcionários",
-        description: "Consulte a equipa e gira os convites de acesso.",
-        Icon: UsersRound,
-        accent: "text-emerald-300 bg-emerald-400/10 border-emerald-400/15",
-      },
-    ],
-  },
-  {
-    title: "Conta e assinatura",
-    description: "Consulte os planos e acompanhe a sua subscrição.",
-    links: [
-      {
-        href: "/dashboard/planos",
-        label: "Planos disponíveis",
-        description: "Compare opções e escolha o plano adequado.",
-        Icon: Sparkles,
-        accent: "text-brandGlow bg-brandGlow/10 border-brandGlow/15",
-      },
-      {
-        href: "/dashboard/meu-plano",
-        label: "Meu plano",
-        description: "Estado da assinatura, renovação e limites.",
-        Icon: Wallet,
-        accent: "text-violet-300 bg-violet-400/10 border-violet-400/15",
-      },
-      {
-        href: "/dashboard/pagamentos",
-        label: "Pagamentos",
-        description: "Consulte os pedidos e o estado da confirmação.",
-        Icon: CreditCard,
-        accent: "text-amber-300 bg-amber-400/10 border-amber-400/15",
-      },
-    ],
-  },
-];
+type Row = { href: string; label: string; hint?: string; Icon: NavIcon };
 
-export default function MaisPage() {
+function RowLink({ href, label, hint, Icon }: Row) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className="flex min-h-[56px] items-center gap-3.5 px-4 py-3 transition-colors hover:bg-white/[0.04] focus-visible:bg-white/[0.04] focus-visible:outline-none"
+      >
+        <Icon className="h-5 w-5 shrink-0 text-dark-muted" />
+        <span className="min-w-0 flex-1">
+          <span className="block text-[15px] font-medium text-dark-text">{label}</span>
+          {hint && <span className="block truncate text-sm text-dark-muted">{hint}</span>}
+        </span>
+        <ChevronRight className="h-4 w-4 shrink-0 text-dark-faint" aria-hidden />
+      </Link>
+    </li>
+  );
+}
+
+function Group({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-[0.12em] text-dark-faint">{title}</h2>
+      <ul className="divide-y divide-dark-border overflow-hidden rounded-2xl border border-dark-border bg-dark-surface">
+        {children}
+      </ul>
+    </section>
+  );
+}
+
+const asNav = (Icon: typeof Settings): NavIcon =>
+  function Wrapped({ className }) {
+    return <Icon className={className} aria-hidden />;
+  };
+
+export default async function MaisPage() {
+  const { businessId, businessName, role } = await getBusinessContext();
+  const supabase = createClient();
+
+  const [
+    {
+      data: { user },
+    },
+    { data: subscriptions },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("subscriptions")
+      .select("status, current_period_end, plans(name)")
+      .eq("business_id", businessId)
+      .order("created_at", { ascending: false })
+      .limit(1),
+  ]);
+
+  const name =
+    (typeof user?.user_metadata?.full_name === "string" && user.user_metadata.full_name.trim()) ||
+    user?.email?.split("@")[0] ||
+    "Utilizador";
+  const avatar = typeof user?.user_metadata?.avatar_url === "string" ? user.user_metadata.avatar_url : "";
+  const sub = subscriptions?.[0];
+  const planName = (sub?.plans as unknown as { name: string } | null)?.name ?? "Grátis";
+  const renewal = sub?.current_period_end
+    ? new Date(sub.current_period_end).toLocaleDateString("pt-MZ", { day: "numeric", month: "long", timeZone: BUSINESS_TIMEZONE })
+    : null;
+  const isAdmin = role === "admin";
+
   return (
     <div className="-mx-4 -mt-5 -mb-6 min-h-[calc(100dvh-5rem)] bg-dark-bg px-4 pb-16 pt-6 text-dark-text shadow-[0_0_0_100vmax_theme(colors.dark.bg)] [clip-path:inset(-6rem_-100vmax_-100vmax_-100vmax)] sm:-mx-6 sm:px-6">
-      <div className="mx-auto max-w-5xl space-y-8">
-        <header>
-          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-brandGlow/20 bg-brandGlow/10 text-brandGlow">
-            <Layers3 size={22} />
-          </div>
+      <div className="mx-auto max-w-4xl">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Mais</h1>
 
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-brandGlow">
-            ContaCerta
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Plataforma
-          </h1>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-dark-muted">
-            Aceda às ferramentas do seu negócio e gira a sua conta num só
-            lugar, de forma simples e organizada.
-          </p>
-        </header>
-
-        <div className="grid gap-8 md:grid-cols-2">
-          {sections.map((section) => (
-            <section key={section.title} className="space-y-4">
-              <div>
-                <h2 className="text-base font-semibold">{section.title}</h2>
-                <p className="mt-1 text-sm leading-5 text-dark-muted">
-                  {section.description}
-                </p>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] lg:items-start lg:gap-8">
+          {/* Coluna da conta */}
+          <div className="space-y-6 lg:sticky lg:top-24">
+            <section className="rounded-2xl border border-dark-border bg-dark-surface p-5">
+              <div className="flex items-center gap-4">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-dark-strong text-lg font-semibold text-dark-text">
+                  {avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatar} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    name.slice(0, 1).toUpperCase()
+                  )}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold">{name}</p>
+                  <p className="truncate text-sm text-dark-muted">{user?.email}</p>
+                  <p className="truncate text-sm text-dark-muted">{businessName}</p>
+                </div>
               </div>
 
-              <div className="space-y-3">
-                {section.links.map(({ href, label, description, Icon, accent }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="group flex min-h-[104px] items-center gap-4 rounded-2xl border border-dark-border bg-dark-surface p-4 transition duration-200 hover:border-brandGlow/35 hover:bg-dark-elevated sm:p-5"
+              <Link
+                href="/dashboard/meu-plano"
+                className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-white/[0.04] px-4 py-3 transition hover:bg-white/[0.07]"
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">Plano {planName}</span>
+                  <span className="block text-xs text-dark-muted">
+                    {sub?.status === "active" && renewal ? `Renova a ${renewal}` : "Ver detalhes do plano"}
+                  </span>
+                </span>
+                <ChevronRight className="h-4 w-4 shrink-0 text-dark-faint" aria-hidden />
+              </Link>
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Link
+                  href="/dashboard/configuracoes"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-dark-border px-3 py-2.5 text-sm font-medium transition hover:bg-white/[0.04]"
+                >
+                  <Settings className="h-4 w-4" aria-hidden /> Perfil
+                </Link>
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-dark-border px-3 py-2.5 text-sm font-medium text-danger transition hover:bg-danger/[0.06]"
                   >
-                    <span
-                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${accent}`}
-                    >
-                      <Icon size={21} strokeWidth={1.8} aria-hidden="true" />
-                    </span>
-
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-semibold text-dark-text">
-                        {label}
-                      </span>
-                      <span className="mt-1 block text-sm leading-5 text-dark-muted">
-                        {description}
-                      </span>
-                    </span>
-
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-dark-faint transition group-hover:bg-brandGlow/10 group-hover:text-brandGlow">
-                      <ArrowUpRight size={18} />
-                    </span>
-                  </Link>
-                ))}
+                    <LogOut className="h-4 w-4" aria-hidden /> Sair
+                  </button>
+                </form>
               </div>
             </section>
-          ))}
-        </div>
 
-        <div className="flex items-start gap-3 rounded-2xl border border-dark-border bg-dark-surface/70 p-4 sm:p-5">
-          <div className="rounded-xl border border-brandGlow/15 bg-brandGlow/10 p-2 text-brandGlow">
-            <Sparkles size={18} />
+            <section>
+              <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-[0.12em] text-dark-faint">Aparência</h2>
+              <ThemeChooser />
+            </section>
           </div>
-          <div>
-            <p className="text-sm font-medium">O seu negócio. Sob controlo.</p>
-            <p className="mt-1 text-sm leading-5 text-dark-muted">
-              O ContaCerta reúne as ferramentas essenciais para acompanhar o
-              seu negócio, com uma experiência simples e organizada.
-            </p>
+
+          {/* Coluna das áreas */}
+          <div className="space-y-6">
+            <Group title="Negócio">
+              <RowLink href="/dashboard/vendas" label="Histórico de vendas" hint="Todas as vendas e recibos" Icon={IconSales} />
+              <RowLink href="/dashboard/clientes" label="Clientes" hint="Contactos e quem lhe deve" Icon={IconCustomers} />
+              {isAdmin && (
+                <RowLink href="/dashboard/produtos/categorias" label="Categorias de produtos" hint="Organizar o catálogo" Icon={IconProducts} />
+              )}
+              <RowLink href="/dashboard/funcionarios" label="Funcionários" hint="Equipa e convites" Icon={IconTeam} />
+            </Group>
+
+            <Group title="Conta e assinatura">
+              <RowLink href="/dashboard/meu-plano" label="Meu plano" hint={`Plano ${planName}`} Icon={IconPlan} />
+              <RowLink href="/dashboard/planos" label="Mudar de plano" hint="Comparar preços e funcionalidades" Icon={asNav(ShieldCheck)} />
+              <RowLink href="/dashboard/pagamentos" label="Pagamentos" hint="Pedidos e histórico" Icon={IconPayments} />
+            </Group>
+
+            <Group title="App">
+              <RowLink href="/dashboard/configuracoes" label="Instalar no telemóvel" hint="Abrir como uma app, mesmo sem internet" Icon={asNav(Smartphone)} />
+              <RowLink href="/termos-de-servico" label="Termos de serviço" Icon={asNav(FileText)} />
+              <RowLink href="/politica-de-privacidade" label="Política de privacidade" Icon={asNav(FileText)} />
+            </Group>
           </div>
         </div>
       </div>

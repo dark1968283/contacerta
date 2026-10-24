@@ -9,8 +9,11 @@ import {
   Settings,
   X,
   ChevronRight,
+  LogOut,
   Plus,
 } from "lucide-react";
+import { signOut } from "@/app/(auth)/actions";
+import { ThemeChooser } from "@/components/theme/ThemeToggle";
 import {
   MOBILE_LEFT_ITEMS,
   MOBILE_RIGHT_ITEMS,
@@ -128,7 +131,7 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
                           : "text-dark-muted hover:bg-white/[0.04] hover:text-dark-text"
                       }`}
                     >
-                      <item.Icon className="h-[18px] w-[18px] shrink-0" aria-hidden />
+                      <item.Icon className="h-5 w-5 shrink-0" />
                       <span className="flex-1">{item.label}</span>
                       <ChevronRight className="h-4 w-4 opacity-50" aria-hidden />
                     </Link>
@@ -150,10 +153,22 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
                 </Link>
               </div>
 
-              <div className="border-t border-dark-border px-4 py-3">
-                <p className="text-[11px] leading-5 text-dark-muted">
-                  Gerencie o seu negócio e a sua conta num só lugar.
-                </p>
+              <div className="space-y-3 border-t border-dark-border p-3">
+                <div>
+                  <p className="px-1 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-dark-muted">
+                    Aparência
+                  </p>
+                  <ThemeChooser compact />
+                </div>
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-danger transition hover:bg-danger/[0.06]"
+                  >
+                    <LogOut className="h-5 w-5" aria-hidden />
+                    Terminar sessão
+                  </button>
+                </form>
               </div>
             </motion.aside>
           </>
@@ -173,8 +188,8 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
             href={NEW_SALE_HREF}
             aria-label="Vender: registar nova venda"
             aria-current={isActivePath(pathname, NEW_SALE_HREF) ? "page" : undefined}
-            className={`mx-1 flex h-14 min-w-[64px] flex-col items-center justify-center gap-0.5 rounded-full px-4 text-[11px] font-bold text-[#06120C] shadow-[0_6px_24px_rgba(34,199,102,0.45)] outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-white ${
-              isActivePath(pathname, "/dashboard/vendas") ? "bg-[#4BE08A]" : "bg-[#22C766]"
+            className={`mx-1 flex h-14 min-w-[64px] flex-col items-center justify-center gap-0.5 rounded-full px-4 text-[11px] font-bold text-onglow shadow-[0_6px_24px_rgba(34,199,102,0.45)] outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-white ${
+              isActivePath(pathname, "/dashboard/vendas") ? "bg-brandGlow" : "bg-brandGlow"
             }`}
           >
             <Plus className="h-6 w-6" strokeWidth={3} aria-hidden />
@@ -226,7 +241,7 @@ function NavTab({
           transition={{ type: "spring", stiffness: 420, damping: 32 }}
         />
       )}
-      <item.Icon className={`relative h-5 w-5 ${active ? "text-brandGlow" : "text-dark-muted"}`} aria-hidden />
+      <item.Icon filled={active} className={`relative h-6 w-6 ${active ? "text-brandGlow" : "text-dark-muted"}`} />
       <span className="relative">{item.label}</span>
     </>
   );

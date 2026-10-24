@@ -1,4 +1,4 @@
-import { UsersRound, UserPlus, Clock3, ShieldCheck } from "lucide-react";
+import { UserPlus, Clock3, ShieldCheck } from "lucide-react";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { InviteEmployeeForm } from "./InviteEmployeeForm";
@@ -72,10 +72,6 @@ export default async function FuncionariosPage() {
     <div className="-mx-4 -mt-5 -mb-6 min-h-[calc(100dvh-5rem)] bg-dark-bg px-4 pb-16 pt-6 text-dark-text shadow-[0_0_0_100vmax_theme(colors.dark.bg)] [clip-path:inset(-6rem_-100vmax_-100vmax_-100vmax)] sm:-mx-6 sm:px-6">
       <div className="mx-auto max-w-5xl space-y-8">
         <header>
-          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-brandGlow/20 bg-brandGlow/10 text-brandGlow">
-            <UsersRound size={22} aria-hidden="true" />
-          </div>
-
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-brandGlow">
             Gestão do negócio
           </p>
@@ -106,7 +102,7 @@ export default async function FuncionariosPage() {
         {isAdmin ? (
           <section className="space-y-4 rounded-2xl border border-dark-border bg-dark-surface p-4 sm:p-6">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brandGlow/20 bg-brandGlow/10 text-brandGlow">
+              <div className="flex shrink-0 items-center text-brandGlow">
                 <UserPlus size={20} aria-hidden="true" />
               </div>
               <div>
@@ -184,7 +180,7 @@ export default async function FuncionariosPage() {
                             <input type="hidden" name="userId" value={member.user_id} />
                             <button
                               type="submit"
-                              className="rounded-lg px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-400/10"
+                              className="rounded-lg px-3 py-2 text-xs font-medium text-danger transition hover:bg-danger/10"
                             >
                               Remover
                             </button>
@@ -235,7 +231,7 @@ export default async function FuncionariosPage() {
                         <input type="hidden" name="inviteId" value={invite.id} />
                         <button
                           type="submit"
-                          className="self-start rounded-lg px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-400/10 sm:self-auto"
+                          className="self-start rounded-lg px-3 py-2 text-xs font-medium text-danger transition hover:bg-danger/10 sm:self-auto"
                         >
                           Cancelar convite
                         </button>

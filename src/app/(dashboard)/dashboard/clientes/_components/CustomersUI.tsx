@@ -15,7 +15,7 @@ export const FIELD_INPUT =
 export const FIELD_INPUT_ICON = `${FIELD_INPUT} pl-10`;
 
 export const PRIMARY_LINK =
-  "group flex items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2.5 text-sm font-medium text-white shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 hover:shadow-brand/30 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-brandGlow/40 focus:ring-offset-2 focus:ring-offset-dark-bg sm:px-4 sm:py-3";
+  "group flex items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2.5 text-sm font-medium text-onbrand shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 hover:shadow-brand/30 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-brandGlow/40 focus:ring-offset-2 focus:ring-offset-dark-bg sm:px-4 sm:py-3";
 export const GHOST_LINK =
   "flex items-center gap-1.5 rounded-xl border border-dark-border bg-white/[0.03] px-3.5 py-2.5 text-sm font-medium text-dark-muted transition-colors hover:border-dark-borderStrong hover:text-dark-text sm:py-3";
 
@@ -78,16 +78,11 @@ export function SectionTitle({ icon: Icon, children }: { icon?: LucideIcon; chil
 }
 
 /** Cabeçalho de um bloco dentro de um formulário. */
-export function BlockTitle({ icon: Icon, title, description }: { icon: LucideIcon; title: string; description?: string }) {
+export function BlockTitle({ title, description }: { icon?: LucideIcon; title: string; description?: string }) {
   return (
-    <div className="mb-4 flex items-start gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] ring-1 ring-white/[0.06]">
-        <Icon className="h-4 w-4 text-brandGlow" aria-hidden />
-      </span>
-      <div className="min-w-0">
-        <h3 className="text-base font-semibold text-dark-text">{title}</h3>
-        {description && <p className="text-xs text-dark-muted">{description}</p>}
-      </div>
+    <div className="mb-4">
+      <h3 className="text-base font-semibold text-dark-text">{title}</h3>
+      {description && <p className="mt-0.5 text-sm text-dark-muted">{description}</p>}
     </div>
   );
 }

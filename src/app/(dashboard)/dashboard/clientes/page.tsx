@@ -88,7 +88,7 @@ export default async function ClientesPage({
               key={tab.label}
               href={`/dashboard/clientes${qs ? `?${qs}` : ""}`}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                active ? "bg-brand text-white" : "text-dark-muted hover:text-dark-text"
+                active ? "bg-brand text-onbrand" : "text-dark-muted hover:text-dark-text"
               }`}
             >
               {tab.label}
@@ -103,12 +103,12 @@ export default async function ClientesPage({
             <Users className="h-5 w-5 text-dark-muted" aria-hidden />
           </span>
           <p className="mt-4 text-dark-muted">
-            {onlyDebtors ? "Nenhum cliente lhe deve dinheiro. 🎉" : query ? "Nenhum cliente encontrado." : "Ainda não há clientes."}
+            {onlyDebtors ? "Nenhum cliente lhe deve dinheiro." : query ? "Nenhum cliente encontrado." : "Ainda não há clientes."}
           </p>
           {!query && !onlyDebtors && (
             <Link
               href="/dashboard/clientes/novo"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 active:scale-[0.97]"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-onbrand shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 active:scale-[0.97]"
             >
               <Plus className="h-4 w-4" aria-hidden />
               Criar primeiro cliente

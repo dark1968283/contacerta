@@ -64,7 +64,7 @@ const formatMT = (value: number) =>
   `${Math.round(value).toLocaleString("pt-MZ")} MT`;
 
 const fieldClass =
-  "w-full rounded-xl border border-white/[0.12] bg-[#0B1110] px-4 py-3.5 text-base text-[#F5F6F4] outline-none transition placeholder:text-white/35 focus:border-[#22C766]/70 focus:ring-2 focus:ring-[#22C766]/15";
+  "w-full rounded-xl border border-white/[0.12] bg-dark-bg px-4 py-3.5 text-base text-dark-text outline-none transition placeholder:text-dark-faint focus:border-brandGlow/70 focus:ring-2 focus:ring-brandGlow/15";
 
 function vibrate(ms = 8) {
   try {
@@ -389,10 +389,10 @@ export function NewSaleForm({
     const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(receiptLines.join("\n"))}`;
 
     return (
-      <section className="mx-auto max-w-md space-y-4 text-center text-[#F5F6F4]">
-        <div className="rounded-3xl border border-[#22C766]/25 bg-[#101816] px-5 py-8">
+      <section className="mx-auto max-w-md space-y-4 text-center text-dark-text">
+        <div className="rounded-3xl border border-brandGlow/25 bg-dark-surface px-5 py-8">
           {completedSale.offline ? (
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#F5B754]/15 text-[#F5C879]">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-warning/15 text-warning">
               <WifiOff className="h-9 w-9" aria-hidden />
             </div>
           ) : (
@@ -401,14 +401,14 @@ export function NewSaleForm({
           <h2 className="mt-3 text-2xl font-semibold tracking-tight">
             {completedSale.offline ? "Venda guardada no telemóvel" : "Venda registada"}
           </h2>
-          <p className="mt-1 text-sm text-white/55">
+          <p className="mt-1 text-sm text-dark-muted">
             {completedSale.offline
               ? "Está sem internet. A venda é enviada sozinha quando a rede voltar — não precisa de fazer nada."
               : paymentMethod === "credito"
                 ? `Dívida criada para ${selectedCustomer?.name ?? "o cliente"}.`
                 : "O stock já foi actualizado."}
           </p>
-          <p className="mt-5 text-4xl font-bold tabular-nums text-[#78E6A0]">
+          <p className="mt-5 text-4xl font-bold tabular-nums text-accent">
             {formatMT(receiptTotal)}
           </p>
           {paymentMethod === "pago" && hasReceived && change > 0 && (
@@ -421,7 +421,7 @@ export function NewSaleForm({
         <button
           type="button"
           onClick={startNewSale}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#22C766] px-5 py-4 text-lg font-semibold text-[#06120C] transition active:scale-[0.98]"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brandGlow px-5 py-4 text-lg font-semibold text-onglow transition active:scale-[0.98]"
         >
           <Plus className="h-5 w-5" aria-hidden />
           Nova venda
@@ -431,7 +431,7 @@ export function NewSaleForm({
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/[0.12] bg-white/[0.04] px-5 py-4 text-base font-semibold text-[#F5F6F4] transition hover:bg-white/[0.07] active:scale-[0.98]"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/[0.12] bg-white/[0.04] px-5 py-4 text-base font-semibold text-dark-text transition hover:bg-white/[0.07] active:scale-[0.98]"
         >
           <MessageCircle className="h-5 w-5 text-[#25D366]" aria-hidden />
           Enviar recibo por WhatsApp
@@ -439,7 +439,7 @@ export function NewSaleForm({
 
         <Link
           href="/dashboard/vendas"
-          className="block py-2 text-sm font-medium text-white/55 hover:text-white"
+          className="block py-2 text-sm font-medium text-dark-muted hover:text-white"
         >
           Ver todas as vendas
         </Link>
@@ -454,7 +454,7 @@ export function NewSaleForm({
     <form
       id="sale-form"
       action={action}
-      className="text-[#F5F6F4]"
+      className="text-dark-text"
       onKeyDown={(e) => {
         // "Enter" num campo não deve concluir a venda sem querer.
         if (e.key === "Enter" && (e.target as HTMLElement).tagName === "INPUT") e.preventDefault();
@@ -473,7 +473,7 @@ export function NewSaleForm({
       {/* Pesquisa */}
       {products.length > 6 && (
         <div className="relative mb-4">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" aria-hidden />
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-dark-faint" aria-hidden />
           <label htmlFor="product-search" className="sr-only">Pesquisar produto</label>
           <input
             id="product-search"
@@ -490,16 +490,16 @@ export function NewSaleForm({
       {products.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/[0.14] px-5 py-10 text-center">
           <p className="text-base font-medium">Ainda não tem produtos.</p>
-          <p className="mt-1 text-sm text-white/50">Adicione um produto para poder vender.</p>
+          <p className="mt-1 text-sm text-dark-faint">Adicione um produto para poder vender.</p>
           <Link
             href="/dashboard/produtos/novo"
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#22C766] px-5 py-3 font-semibold text-[#06120C]"
+            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brandGlow px-5 py-3 font-semibold text-onglow"
           >
             <Plus className="h-4 w-4" aria-hidden /> Adicionar produto
           </Link>
         </div>
       ) : sortedProducts.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-white/[0.14] px-5 py-8 text-center text-white/60">
+        <p className="rounded-2xl border border-dashed border-white/[0.14] px-5 py-8 text-center text-dark-muted">
           Nenhum produto com esse nome.
         </p>
       ) : (
@@ -515,23 +515,23 @@ export function NewSaleForm({
                   type="button"
                   onClick={() => addProduct(product)}
                   aria-label={`Adicionar ${product.name}, ${formatMT(product.selling_price)}`}
-                  className={`flex h-full min-h-[118px] w-full flex-col rounded-2xl border p-3.5 text-left transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22C766]/60 ${
+                  className={`flex h-full min-h-[118px] w-full flex-col rounded-2xl border p-3.5 text-left transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/60 ${
                     qty > 0
-                      ? "border-[#22C766]/70 bg-[#22C766]/[0.10]"
+                      ? "border-brandGlow/70 bg-brandGlow/[0.10]"
                       : out
-                        ? "border-white/[0.06] bg-white/[0.015] opacity-50"
-                        : "border-white/[0.09] bg-white/[0.035] hover:border-white/[0.2]"
+                        ? "cc-glass border-white/[0.06] bg-white/[0.015] opacity-50"
+                        : "cc-glass border-white/[0.09] bg-white/[0.035] hover:border-white/[0.2]"
                   }`}
                 >
                   <span className="line-clamp-2 pr-8 text-[15px] font-semibold leading-snug">
                     {product.name}
                   </span>
-                  <span className="mt-auto pt-2 text-lg font-bold tabular-nums text-[#78E6A0]">
+                  <span className="mt-auto pt-2 text-lg font-bold tabular-nums text-accent">
                     {formatMT(product.selling_price)}
                   </span>
                   <span
                     className={`text-xs font-medium ${
-                      out ? "text-[#F58C83]" : low ? "text-[#F5C879]" : "text-white/45"
+                      out ? "text-danger" : low ? "text-warning" : "text-dark-faint"
                     }`}
                   >
                     {out ? "Esgotado" : low ? `Só restam ${product.stock_quantity}` : `${product.stock_quantity} em stock`}
@@ -540,14 +540,14 @@ export function NewSaleForm({
 
                 {qty > 0 && (
                   <>
-                    <span className="pointer-events-none absolute right-2.5 top-2.5 flex h-8 min-w-8 items-center justify-center rounded-full bg-[#22C766] px-2 text-sm font-bold tabular-nums text-[#06120C]">
+                    <span className="pointer-events-none absolute right-2.5 top-2.5 flex h-8 min-w-8 items-center justify-center rounded-full bg-brandGlow px-2 text-sm font-bold tabular-nums text-onglow">
                       {qty}
                     </span>
                     <button
                       type="button"
                       onClick={() => setQuantity(product.id, qty - 1)}
                       aria-label={`Tirar um ${product.name}`}
-                      className="absolute bottom-2.5 right-2.5 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-[#0B1110] text-white/80 active:scale-95"
+                      className="absolute bottom-2.5 right-2.5 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-dark-bg text-dark-text active:scale-95"
                     >
                       {qty === 1 ? <Trash2 className="h-4 w-4" aria-hidden /> : <Minus className="h-4 w-4" aria-hidden />}
                     </button>
@@ -562,19 +562,19 @@ export function NewSaleForm({
       {/* Barra fixa: total + continuar */}
       <div className="sticky bottom-[calc(5.9rem+env(safe-area-inset-bottom))] z-30 mt-5 md:bottom-4">
         {stockNote && (
-          <p role="status" className="mb-2 rounded-xl border border-[#F5B754]/30 bg-[#2A2213] px-4 py-2.5 text-center text-sm text-[#F5C879] shadow-lg">
+          <p role="status" className="mb-2 rounded-xl border border-warning/30 bg-dark-elevated px-4 py-2.5 text-center text-sm text-warning shadow-lg">
             {stockNote}
           </p>
         )}
         {lines.length === 0 ? (
-          <div className="rounded-2xl border border-white/[0.08] bg-[#101816]/95 px-4 py-4 text-center text-sm text-white/50 shadow-2xl backdrop-blur">
+          <div className="rounded-2xl border border-white/[0.08] bg-dark-surface/95 px-4 py-4 text-center text-sm text-dark-faint shadow-2xl backdrop-blur">
             Toque num produto para começar a venda
           </div>
         ) : (
           <button
             type="button"
             onClick={() => setCheckoutOpen(true)}
-            className="flex w-full items-center gap-3 rounded-2xl bg-[#22C766] px-4 py-3.5 text-left text-[#06120C] shadow-[0_12px_40px_rgba(34,199,102,0.35)] transition active:scale-[0.98]"
+            className="flex w-full items-center gap-3 rounded-2xl bg-brandGlow px-4 py-3.5 text-left text-onglow shadow-[0_12px_40px_rgba(34,199,102,0.35)] transition active:scale-[0.98]"
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/15">
               <ShoppingCart className="h-5 w-5" aria-hidden />
@@ -595,7 +595,7 @@ export function NewSaleForm({
       {/* Janela de confirmação — aberta num "portal" no <body>, para ficar
           sempre por cima da barra de navegação do telemóvel. */}
       {checkoutOpen && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-end justify-center text-[#F5F6F4] md:items-center md:p-6" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center text-dark-text md:items-center md:p-6" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
           <button
             type="button"
             aria-label="Fechar"
@@ -603,13 +603,13 @@ export function NewSaleForm({
             className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
           />
 
-          <div className="relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/[0.1] bg-[#101816] shadow-2xl md:max-w-lg md:rounded-3xl">
+          <div className="relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/[0.1] bg-dark-surface shadow-2xl md:max-w-lg md:rounded-3xl">
             <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
               <h2 id="checkout-title" className="text-lg font-semibold">Confirmar venda</h2>
               <button
                 type="button"
                 onClick={() => setCheckoutOpen(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.06] text-white/70"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.06] text-dark-muted"
                 aria-label="Voltar aos produtos"
               >
                 <X className="h-5 w-5" aria-hidden />
@@ -619,15 +619,15 @@ export function NewSaleForm({
             <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
               {/* 1. Produtos */}
               <section>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-white/45">Produtos</h3>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-dark-faint">Produtos</h3>
                 <ul className="divide-y divide-white/[0.06] rounded-2xl border border-white/[0.08]">
                   {lines.map((line) => (
                     <li key={line.id} className="flex items-center gap-3 px-3.5 py-3">
                       <div className="min-w-0 flex-1">
                         <p className="break-words font-medium">{line.name}</p>
-                        <p className="text-sm tabular-nums text-white/50">
+                        <p className="text-sm tabular-nums text-dark-faint">
                           {formatMT(line.selling_price)} × {line.quantity} ={" "}
-                          <span className="font-semibold text-[#78E6A0]">{formatMT(line.selling_price * line.quantity)}</span>
+                          <span className="font-semibold text-accent">{formatMT(line.selling_price * line.quantity)}</span>
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
@@ -660,7 +660,7 @@ export function NewSaleForm({
                 <button
                   type="button"
                   onClick={() => setCheckoutOpen(false)}
-                  className="mt-2 flex items-center gap-1.5 px-1 text-sm font-medium text-[#78E6A0]"
+                  className="mt-2 flex items-center gap-1.5 px-1 text-sm font-medium text-accent"
                 >
                   <Plus className="h-4 w-4" aria-hidden /> Adicionar mais produtos
                 </button>
@@ -668,7 +668,7 @@ export function NewSaleForm({
 
               {/* 2. Pagamento */}
               <section>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-white/45">Como vai pagar?</h3>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-dark-faint">Como vai pagar?</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <PaymentOption
                     active={paymentMethod === "pago"}
@@ -690,14 +690,14 @@ export function NewSaleForm({
               {/* 3a. Troco */}
               {paymentMethod === "pago" && (
                 <section>
-                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-white/45">
-                    Quanto recebeu? <span className="normal-case tracking-normal text-white/30">(opcional, para calcular o troco)</span>
+                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-dark-faint">
+                    Quanto recebeu? <span className="normal-case tracking-normal text-dark-faint">(opcional, para calcular o troco)</span>
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => setReceived(String(total))}
-                      className={`rounded-xl px-3.5 py-2.5 text-sm font-semibold ${hasReceived && receivedValue === total ? "bg-[#22C766] text-[#06120C]" : "bg-white/[0.06] text-white/80"}`}
+                      className={`rounded-xl px-3.5 py-2.5 text-sm font-semibold ${hasReceived && receivedValue === total ? "bg-brandGlow text-onglow" : "bg-white/[0.06] text-dark-text"}`}
                     >
                       Valor certo
                     </button>
@@ -706,7 +706,7 @@ export function NewSaleForm({
                         key={v}
                         type="button"
                         onClick={() => setReceived(String(v))}
-                        className={`rounded-xl px-3.5 py-2.5 text-sm font-semibold tabular-nums ${hasReceived && receivedValue === v ? "bg-[#22C766] text-[#06120C]" : "bg-white/[0.06] text-white/80"}`}
+                        className={`rounded-xl px-3.5 py-2.5 text-sm font-semibold tabular-nums ${hasReceived && receivedValue === v ? "bg-brandGlow text-onglow" : "bg-white/[0.06] text-dark-text"}`}
                       >
                         {formatMT(v)}
                       </button>
@@ -724,7 +724,7 @@ export function NewSaleForm({
                   {hasReceived && (
                     <p
                       className={`mt-2 rounded-xl px-4 py-3 text-base font-semibold ${
-                        change < 0 ? "bg-[#F2685C]/10 text-[#FF9A90]" : "bg-[#22C766]/10 text-[#78E6A0]"
+                        change < 0 ? "bg-danger/10 text-danger" : "bg-brandGlow/10 text-accent"
                       }`}
                     >
                       {change < 0
@@ -740,18 +740,18 @@ export function NewSaleForm({
               {/* 3b. Cliente para crédito */}
               {paymentMethod === "credito" && (
                 <section>
-                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-white/45">Quem fica a dever?</h3>
+                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-dark-faint">Quem fica a dever?</h3>
 
                   {selectedCustomer ? (
-                    <div className="flex items-center gap-3 rounded-2xl border border-[#F5B754]/40 bg-[#F5B754]/[0.08] px-4 py-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F5B754]/20 text-sm font-bold text-[#F5C879]">
+                    <div className="flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/[0.08] px-4 py-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-warning/20 text-sm font-bold text-warning">
                         {selectedCustomer.name.slice(0, 2).toUpperCase()}
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold">{selectedCustomer.name}</p>
-                        {selectedCustomer.phone && <p className="text-sm text-white/50">{selectedCustomer.phone}</p>}
+                        {selectedCustomer.phone && <p className="text-sm text-dark-faint">{selectedCustomer.phone}</p>}
                       </div>
-                      <button type="button" onClick={() => setCustomerId("")} className="text-sm font-medium text-[#F5C879]">
+                      <button type="button" onClick={() => setCustomerId("")} className="text-sm font-medium text-warning">
                         Trocar
                       </button>
                     </div>
@@ -773,12 +773,12 @@ export function NewSaleForm({
                         aria-label="Telefone do cliente"
                         className={fieldClass}
                       />
-                      {newCustomerError && <p className="text-sm text-[#FF9A90]">{newCustomerError}</p>}
+                      {newCustomerError && <p className="text-sm text-danger">{newCustomerError}</p>}
                       <div className="flex gap-2 pt-1">
                         <button
                           type="button"
                           onClick={() => setNewCustomerOpen(false)}
-                          className="flex-1 rounded-xl bg-white/[0.06] py-3 font-medium text-white/80"
+                          className="flex-1 rounded-xl bg-white/[0.06] py-3 font-medium text-dark-text"
                         >
                           Cancelar
                         </button>
@@ -786,7 +786,7 @@ export function NewSaleForm({
                           type="button"
                           onClick={saveNewCustomer}
                           disabled={savingCustomer || !newName.trim()}
-                          className="flex-1 rounded-xl bg-[#F5B754] py-3 font-semibold text-[#1A1206] disabled:opacity-50"
+                          className="flex-1 rounded-xl bg-warning py-3 font-semibold text-onwarning disabled:opacity-50"
                         >
                           {savingCustomer ? "A guardar…" : "Guardar cliente"}
                         </button>
@@ -812,12 +812,12 @@ export function NewSaleForm({
                               onClick={() => setCustomerId(c.id)}
                               className="flex w-full items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-left hover:border-white/[0.2]"
                             >
-                              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-sm font-bold text-white/70">
+                              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-sm font-bold text-dark-muted">
                                 {c.name.slice(0, 2).toUpperCase()}
                               </span>
                               <span className="min-w-0 flex-1">
                                 <span className="block truncate font-medium">{c.name}</span>
-                                {c.phone && <span className="block text-sm text-white/45">{c.phone}</span>}
+                                {c.phone && <span className="block text-sm text-dark-faint">{c.phone}</span>}
                               </span>
                             </button>
                           </li>
@@ -829,7 +829,7 @@ export function NewSaleForm({
                           setNewCustomerOpen(true);
                           setNewName(customerQuery);
                         }}
-                        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#F5B754]/40 py-3.5 font-medium text-[#F5C879]"
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-warning/40 py-3.5 font-medium text-warning"
                       >
                         <UserPlus className="h-5 w-5" aria-hidden /> Novo cliente
                       </button>
@@ -839,13 +839,13 @@ export function NewSaleForm({
               )}
 
               {state.error && (
-                <p role="alert" className="rounded-xl border border-[#F2685C]/25 bg-[#F2685C]/[0.08] p-4 text-sm leading-relaxed text-[#FF9A90]">
+                <p role="alert" className="rounded-xl border border-danger/25 bg-danger/[0.08] p-4 text-sm leading-relaxed text-danger">
                   {state.error}
                 </p>
               )}
             </div>
 
-            <div className="border-t border-white/[0.08] bg-[#0B1110] px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
+            <div className="border-t border-white/[0.08] bg-dark-bg px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
               <ConfirmButton
                 disabled={!canSubmit}
                 label={
@@ -870,7 +870,7 @@ function ConfirmButton({ disabled, label }: { disabled: boolean; label: string }
       type="submit"
       form="sale-form"
       disabled={disabled || pending}
-      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#22C766] px-5 py-4 text-lg font-bold text-[#06120C] transition active:scale-[0.98] disabled:bg-white/[0.08] disabled:text-white/40"
+      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brandGlow px-5 py-4 text-lg font-bold text-onglow transition active:scale-[0.98] disabled:bg-white/[0.08] disabled:text-dark-faint"
     >
       {pending ? "A registar a venda…" : (
         <>
@@ -896,15 +896,15 @@ function PaymentOption({
 }) {
   const activeClass =
     tone === "green"
-      ? "border-[#22C766] bg-[#22C766]/[0.12] text-[#78E6A0]"
-      : "border-[#F5B754] bg-[#F5B754]/[0.10] text-[#F5C879]";
+      ? "border-brandGlow bg-brandGlow/[0.12] text-accent"
+      : "border-warning bg-warning/[0.10] text-warning";
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
       className={`flex flex-col items-center gap-2 rounded-2xl border-2 px-3 py-4 text-base font-semibold transition active:scale-[0.97] ${
-        active ? activeClass : "border-white/[0.08] bg-white/[0.03] text-white/70"
+        active ? activeClass : "border-white/[0.08] bg-white/[0.03] text-dark-muted"
       }`}
     >
       {icon}
@@ -947,7 +947,7 @@ function QuantityInput({
         }
       }}
       onFocus={(e) => e.target.select()}
-      className="h-10 w-12 rounded-xl bg-[#0B1110] text-center text-base font-bold tabular-nums text-white outline-none ring-1 ring-white/10 focus:ring-[#22C766]/60"
+      className="h-10 w-12 rounded-xl bg-dark-bg text-center text-base font-bold tabular-nums text-white outline-none ring-1 ring-white/10 focus:ring-brandGlow/60"
     />
   );
 }

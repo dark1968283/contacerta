@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { NotificationCountBadge } from "./NotificationCountBadge";
+import { ThemeToggleButton } from "@/components/theme/ThemeToggle";
 import { NOTIFICATIONS_HREF, NOTIFICATIONS_ICON as BellIcon } from "./nav-items";
 
 type TopBarProps = {
@@ -23,13 +24,14 @@ export function TopBar({ businessName, noticeIds, children }: TopBarProps) {
           <Logo showText={false} className="md:hidden" />
           <span className="truncate text-sm font-semibold text-dark-text">{businessName}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1">
+          <ThemeToggleButton />
           <Link
             href={NOTIFICATIONS_HREF}
             aria-label="Notificações"
             className="relative flex h-10 w-10 items-center justify-center rounded-xl text-dark-muted transition hover:bg-white/5 hover:text-dark-text"
           >
-            <BellIcon className="h-5 w-5" aria-hidden />
+            <BellIcon className="h-5 w-5" />
             <span className="absolute -right-0.5 -top-0.5">
               <NotificationCountBadge ids={noticeIds} />
             </span>

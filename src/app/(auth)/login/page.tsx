@@ -56,7 +56,7 @@ export default function LoginPage({
   }, []);
 
   return (
-    <main className="min-h-dvh bg-dark-bg text-dark-text lg:grid lg:grid-cols-[0.92fr_1.08fr]">
+    <main className="force-dark min-h-dvh bg-dark-bg text-dark-text lg:grid lg:grid-cols-[0.92fr_1.08fr]">
       {/* Painel de identidade */}
       <section className="relative hidden min-h-dvh flex-col justify-between overflow-hidden border-r border-white/[0.06] bg-[#0D1713] p-10 xl:p-14 lg:flex">
     <div

@@ -157,8 +157,8 @@ export default async function ProdutoDetalhePage({
                   return (
                     <li key={m.id} className="flex items-center gap-3 py-3.5">
                       <span
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                          positive ? "bg-brandGlow/10 text-brandGlow" : "bg-danger/10 text-danger"
+                        className={`flex shrink-0 items-center ${
+                          positive ? "text-accent" : "text-danger"
                         }`}
                       >
                         <Icon className="h-[18px] w-[18px]" aria-hidden />

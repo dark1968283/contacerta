@@ -44,9 +44,6 @@ export function RecentActivity({ items, periodLabel }: { items: ActivityItem[]; 
             const kind = KIND[item.method] ?? FALLBACK;
             return (
               <li key={item.id} className="flex items-center gap-3 py-3.5 first:pt-2 last:pb-0">
-                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${kind.chip}`}>
-                  <kind.Icon className="h-[18px] w-[18px]" aria-hidden />
-                </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-dark-text">{item.customerLabel}</p>
                   <p className="truncate text-xs text-dark-muted">{item.timeLabel}</p>

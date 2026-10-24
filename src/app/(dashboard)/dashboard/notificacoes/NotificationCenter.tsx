@@ -55,14 +55,14 @@ function NoticeCard({
   dismiss: (id: string) => void;
 }) {
   const tone = {
-    warning: "bg-amber-400/10 text-amber-300",
-    danger: "bg-red-400/10 text-red-300",
-    info: "bg-sky-400/10 text-sky-300",
+    warning: "bg-warning/10 text-warning",
+    danger: "bg-danger/10 text-danger",
+    info: "bg-white/[0.05] text-dark-text",
   }[item.tone];
 
   return (
     <article className="flex items-start gap-2 rounded-xl border border-dark-border bg-white/[0.02] p-3 sm:items-center sm:gap-3 sm:p-4">
-      <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:mt-0 sm:h-9 sm:w-9 ${tone}`}>
+      <div className={`mt-0.5 flex shrink-0 items-center sm:mt-0 ${tone}`}>
         <AlertTriangle size={16} aria-hidden="true" />
       </div>
 
@@ -98,7 +98,7 @@ function NoticeCard({
           onClick={() => dismiss(item.id)}
           title="Apagar aviso"
           aria-label={`Apagar aviso: ${item.title}`}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-dark-muted transition hover:bg-red-400/10 hover:text-red-300"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-dark-muted transition hover:bg-danger/10 hover:text-danger"
         >
           <Trash2 size={15} aria-hidden="true" />
         </button>
@@ -168,7 +168,7 @@ export default function NotificationCenter({
     return (
       <section className="space-y-3 rounded-2xl border border-dark-border bg-dark-surface p-3 sm:space-y-4 sm:p-6">
         <div className="flex items-start gap-2.5 sm:gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-dark-border bg-white/[0.04] text-brandGlow sm:h-10 sm:w-10">
+          <div className="flex shrink-0 items-center text-brandGlow">
             <Icon size={18} aria-hidden="true" />
           </div>
           <div className="min-w-0 flex-1">
@@ -216,7 +216,7 @@ export default function NotificationCenter({
         </header>
 
         {hasError && (
-          <div className="rounded-xl border border-red-400/20 bg-red-400/[0.06] p-3 text-xs leading-5 text-red-300 sm:p-4 sm:text-sm sm:leading-6">
+          <div className="rounded-xl border border-danger/20 bg-danger/[0.06] p-3 text-xs leading-5 text-danger sm:p-4 sm:text-sm sm:leading-6">
             Não foi possível carregar algumas notificações. Actualize a página ou tente novamente.
           </div>
         )}

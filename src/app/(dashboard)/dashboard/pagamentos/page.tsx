@@ -44,7 +44,7 @@ type Payment = {
 };
 
 const STATUS: Record<string, { label: string; className: string }> = {
-  pending: { label: "A aguardar", className: "border-amber-400/20 bg-amber-400/10 text-amber-300" },
+  pending: { label: "A aguardar", className: "border-warning/20 bg-warning/10 text-warning" },
   confirmed: { label: "Confirmado", className: "border-brandGlow/20 bg-brandGlow/10 text-brandGlow" },
   rejected: { label: "Rejeitado", className: "border-danger/25 bg-danger/10 text-danger" },
   cancelled: { label: "Cancelado", className: "border-white/10 bg-white/[0.05] text-dark-muted" },
@@ -106,7 +106,7 @@ export default async function Pagamentos({ searchParams }: { searchParams: { cri
             state.tone === "danger"
               ? "border-danger/25 bg-danger/[0.06]"
               : state.tone === "amber"
-                ? "border-amber-400/20 bg-amber-400/[0.05]"
+                ? "border-warning/20 bg-warning/[0.05]"
                 : "border-brandGlow/20 bg-brandGlow/[0.05]"
           }`}
         >
@@ -115,7 +115,7 @@ export default async function Pagamentos({ searchParams }: { searchParams: { cri
               state.tone === "danger"
                 ? "bg-danger/15 text-danger"
                 : state.tone === "amber"
-                  ? "bg-amber-400/15 text-amber-300"
+                  ? "bg-warning/15 text-warning"
                   : "bg-brandGlow/15 text-brandGlow"
             }`}
           >
@@ -160,7 +160,7 @@ export default async function Pagamentos({ searchParams }: { searchParams: { cri
 
         {/* Pendentes */}
         {pending.map((payment) => (
-          <article key={payment.id} className="overflow-hidden rounded-2xl border border-amber-400/20 bg-dark-surface">
+          <article key={payment.id} className="overflow-hidden rounded-2xl border border-warning/20 bg-dark-surface">
             <div className="flex items-start justify-between gap-3 p-5">
               <div>
                 <p className="text-xs text-dark-muted">{formatDate(payment.created_at)}</p>

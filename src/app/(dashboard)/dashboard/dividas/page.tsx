@@ -174,7 +174,7 @@ export default async function DividasPage({
                       <div className="mt-4 grid grid-cols-2 gap-2 border-t border-dark-border pt-4">
                         <Link
                           href={`/dashboard/dividas/${debt.id}#receber`}
-                          className="flex items-center justify-center gap-2 rounded-xl bg-[#22C766] py-3 text-sm font-bold text-[#06120C] transition active:scale-[0.98]"
+                          className="flex items-center justify-center gap-2 rounded-xl bg-brandGlow py-3 text-sm font-bold text-onglow transition active:scale-[0.98]"
                         >
                           <HandCoins className="h-4 w-4" aria-hidden />
                           Receber

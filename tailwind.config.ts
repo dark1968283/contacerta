@@ -6,8 +6,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#1C1B19",
-        paper: "#FAFAF7",
+        // Cores que mudam com o tema (claro/escuro): valores em src/app/globals.css.
+        ink: "rgb(var(--c-text) / <alpha-value>)",
+        paper: "rgb(var(--c-bg) / <alpha-value>)",
+        // "white" passa a ser a cor de primeiro plano: branco no escuro, quase preto no claro.
+        // Assim todos os bg-white/5, border-white/10, text-white/60... funcionam nos dois temas.
+        white: "rgb(var(--c-fg) / <alpha-value>)",
+        // Branco verdadeiro, para texto sobre botões/etiquetas coloridos.
+        onbrand: "#FFFFFF",
+        // Verde de destaque para texto (claro no escuro, escuro no claro).
+        accent: "rgb(var(--c-accent) / <alpha-value>)",
         line: "#E4E2DC",
 
         brand: {
@@ -30,21 +38,22 @@ const config: Config = {
           soft: "#E0F2FE",
         },
 
+        // Nome histórico "dark", mas os valores seguem o tema activo.
         dark: {
-          bg: "#0B1110",
-          surface: "#101816",
-          elevated: "#141F1C",
-          strong: "#182722",
-          border: "rgba(255,255,255,0.08)",
-          borderStrong: "rgba(255,255,255,0.14)",
-          text: "#F5F6F4",
-          muted: "rgba(245,246,244,0.70)",
-          faint: "rgba(245,246,244,0.50)",
+          bg: "rgb(var(--c-bg) / <alpha-value>)",
+          surface: "rgb(var(--c-surface) / <alpha-value>)",
+          elevated: "rgb(var(--c-elevated) / <alpha-value>)",
+          strong: "rgb(var(--c-strong) / <alpha-value>)",
+          border: "rgb(var(--c-fg) / 0.09)",
+          borderStrong: "rgb(var(--c-fg) / 0.16)",
+          text: "rgb(var(--c-text) / <alpha-value>)",
+          muted: "rgb(var(--c-text) / var(--a-muted))",
+          faint: "rgb(var(--c-text) / var(--a-faint))",
         },
 
-        brandGlow: "#22C766",
-        warning: "#F5B754",
-        danger: "#F2685C",
+        brandGlow: "rgb(var(--c-brand-glow) / <alpha-value>)",
+        warning: "rgb(var(--c-warning) / <alpha-value>)",
+        danger: "rgb(var(--c-danger) / <alpha-value>)",
 
         surface: "#FFFFFF",
         muted: "#6B6B67",

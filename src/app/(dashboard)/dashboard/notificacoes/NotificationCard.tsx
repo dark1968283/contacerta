@@ -37,9 +37,9 @@ export function NotificationCard({
   onDismiss: (id: string) => void;
 }) {
   const toneClasses = {
-    warning: "bg-amber-400/10 text-amber-300",
-    danger: "bg-red-400/10 text-red-300",
-    info: "bg-sky-400/10 text-sky-300",
+    warning: "bg-warning/10 text-warning",
+    danger: "bg-danger/10 text-danger",
+    info: "bg-white/[0.05] text-dark-text",
   };
 
   function dismiss() {
@@ -88,7 +88,7 @@ export function NotificationCard({
           onClick={dismiss}
           aria-label={`Apagar notificação: ${item.title}`}
           title="Apagar notificação"
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-dark-muted transition hover:bg-red-400/10 hover:text-red-300"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-dark-muted transition hover:bg-danger/10 hover:text-danger"
         >
           <Trash2 size={15} aria-hidden="true" />
         </button>

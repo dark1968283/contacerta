@@ -42,7 +42,7 @@ function SubmitButtonCompact() {
   return (
     <button
       type="submit"
-      className="flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-4 py-3 text-base font-medium text-white shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50"
+      className="flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-4 py-3 text-base font-medium text-onbrand shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50"
     >
       <Plus className="h-4 w-4" aria-hidden />
       Criar

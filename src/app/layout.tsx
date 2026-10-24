@@ -3,6 +3,7 @@ import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import IntroBootScript from "@/components/intro/IntroBootScript";
 import ContaCertaSplash from "@/components/intro/ContaCertaSplash";
+import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: "ContaCerta — O seu negócio. Sob controlo.",
@@ -35,7 +36,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-MZ" suppressHydrationWarning>
+    <html lang="pt-MZ" data-theme="dark" suppressHydrationWarning>
+      <head>
+        {/* Aplica o tema guardado antes de desenhar a página. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
       <body className="bg-paper text-ink antialiased min-h-dvh">
         <IntroBootScript />
         <ContaCertaSplash />

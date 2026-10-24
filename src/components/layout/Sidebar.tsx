@@ -23,15 +23,15 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${
+      className={`cc-nav-item flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${active ? "cc-nav-item-active" : ""} ${
         active
           ? "bg-dark-strong text-dark-text"
           : "text-dark-muted hover:bg-white/5 hover:text-dark-text"
       }`}
     >
       <item.Icon
-        className={`h-[18px] w-[18px] shrink-0 ${active ? "text-brandGlow" : ""}`}
-        aria-hidden
+        filled={active}
+        className={`h-5 w-5 shrink-0 ${active ? "text-brandGlow" : ""}`}
       />
       <span className="min-w-0 flex-1">{item.label}</span>
       {item.href === "/dashboard/notificacoes" && <NotificationCountBadge />}
@@ -75,7 +75,7 @@ export function Sidebar({
       >
         <Link
           href={NEW_SALE_HREF}
-          className="mb-4 flex items-center justify-center gap-2 rounded-xl bg-[#22C766] px-3 py-3 text-sm font-bold text-[#06120C] shadow-[0_6px_24px_rgba(34,199,102,0.25)] transition hover:bg-[#2BD672] active:scale-[0.98]"
+          className="mb-4 flex items-center justify-center gap-2 rounded-xl bg-brandGlow px-3 py-3 text-sm font-bold text-onglow shadow-[0_6px_24px_rgba(34,199,102,0.25)] transition hover:bg-brandGlow active:scale-[0.98]"
         >
           <Plus className="h-4 w-4" strokeWidth={3} aria-hidden />
           Nova venda
@@ -105,7 +105,7 @@ export function Sidebar({
         {accountMenuOpen && (
           <div
             id="sidebar-account-menu"
-            className="mb-2 overflow-hidden rounded-2xl border border-dark-border bg-[#17211C] p-1.5 shadow-2xl shadow-black/30"
+            className="mb-2 overflow-hidden rounded-2xl border border-dark-border bg-dark-elevated p-1.5 shadow-2xl shadow-black/30"
           >
             <div className="border-b border-dark-border px-3 py-3">
               <p className="truncate text-sm font-medium text-dark-text">

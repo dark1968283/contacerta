@@ -27,7 +27,7 @@ export function BalanceCard({
   const isPositive = percentageChange >= 0;
 
   return (
-    <section className="card-lg overflow-hidden bg-brand text-white shadow-floating">
+    <section className="force-dark card-lg overflow-hidden bg-brand text-white shadow-floating">
       <div className="p-5 sm:p-6">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between">

@@ -35,22 +35,22 @@ export function FinanceWallet({
       label: "Vendas",
       value: sales,
       description: "Total vendido no período",
-      color: "text-white",
+      color: "text-dark-text",
       marker: "bg-white/50",
     },
     {
       label: "Recebido",
       value: received,
       description: "Pagamentos recebidos no período",
-      color: "text-[#78E6A0]",
-      marker: "bg-[#78E6A0]",
+      color: "text-accent",
+      marker: "bg-accent",
     },
     {
       label: "A receber",
       value: outstanding,
       description: "Dívidas ainda em aberto",
-      color: "text-[#F5C879]",
-      marker: "bg-[#F5C879]",
+      color: "text-warning",
+      marker: "bg-warning",
     },
   ];
 
@@ -63,7 +63,7 @@ export function FinanceWallet({
       className="grid grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(250px,0.65fr)] lg:gap-6"
     >
       {/* Cartão físico estilizado à esquerda no desktop */}
-      <div className="w-full min-w-0">
+      <div className="force-dark w-full min-w-0">
         <motion.article
           initial={reduceMotion ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -218,7 +218,7 @@ export function FinanceWallet({
             {/* Rodapé gravado no cartão */}
             <div className="flex items-end justify-between gap-3 border-t border-white/[0.12] pt-[2.5%]">
               <div>
-                <p className="text-[8px] font-medium uppercase tracking-[0.2em] text-white/40 sm:text-[9px]">
+                <p className="text-[8px] font-medium uppercase tracking-[0.2em] text-white/60 sm:text-[9px]">
                   Moeda
                 </p>
                 <p className="mt-0.5 text-[10px] font-semibold tracking-[0.12em] text-white/75 sm:text-xs">
@@ -242,7 +242,7 @@ export function FinanceWallet({
       </div>
 
       {/* Indicadores: abaixo no telemóvel, coluna vertical no desktop */}
-      <div className="grid min-w-0 grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#101816] lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
+      <div className="grid min-w-0 grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-2xl border border-white/[0.08] bg-dark-surface lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
         {metrics.map((metric) => (
           <div
             key={metric.label}
@@ -253,7 +253,7 @@ export function FinanceWallet({
               className={`hidden h-8 w-1 shrink-0 rounded-full lg:block ${metric.marker}`}
             />
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-white/45 sm:text-xs">
+              <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-dark-muted sm:text-xs">
                 {metric.label}
               </p>
               <p
@@ -261,7 +261,7 @@ export function FinanceWallet({
               >
                 {display(metric.value)}
               </p>
-              <p className="mt-1 hidden text-xs text-white/35 lg:block">
+              <p className="mt-1 hidden text-xs text-dark-faint lg:block">
                 {metric.description}
               </p>
             </div>

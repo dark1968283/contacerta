@@ -1,25 +1,27 @@
+import { ShieldCheck } from "lucide-react";
 import {
-  LayoutDashboard,
-  Bell,
-  ShoppingCart,
-  Package,
-  Users,
-  UsersRound,
-  WalletCards,
-  Sparkles,
-  Wallet,
-  CreditCard,
-  Menu,
-  ShieldCheck,
-  type LucideIcon,
-} from "lucide-react";
+  IconBell,
+  IconCustomers,
+  IconDebts,
+  IconHome,
+  IconMore,
+  IconPayments,
+  IconPlan,
+  IconProducts,
+  IconSales,
+  IconTeam,
+  type NavIcon,
+} from "@/components/icons/NavIcons";
 
-export type NavItem = { href: string; label: string; Icon: LucideIcon };
+export type NavItem = { href: string; label: string; Icon: NavIcon };
+
+/** Ícone do Lucide adaptado ao formato dos ícones de navegação (sem versão preenchida). */
+const ShieldIcon: NavIcon = ({ className }) => <ShieldCheck className={className} aria-hidden />;
 
 export const DASHBOARD_HREF = "/dashboard";
 export const NEW_SALE_HREF = "/dashboard/vendas/nova";
 export const NOTIFICATIONS_HREF = "/dashboard/notificacoes";
-export const NOTIFICATIONS_ICON = Bell;
+export const NOTIFICATIONS_ICON = IconBell;
 
 /**
  * Sidebar (md+), organizada em dois grupos para ser fácil de ler:
@@ -30,19 +32,19 @@ export const SIDEBAR_GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: "Dia-a-dia",
     items: [
-      { href: "/dashboard", label: "Início", Icon: LayoutDashboard },
-      { href: "/dashboard/vendas", label: "Vendas", Icon: ShoppingCart },
-      { href: "/dashboard/produtos", label: "Produtos", Icon: Package },
-      { href: "/dashboard/dividas", label: "Dívidas", Icon: WalletCards },
-      { href: "/dashboard/clientes", label: "Clientes", Icon: Users },
+      { href: "/dashboard", label: "Início", Icon: IconHome },
+      { href: "/dashboard/vendas", label: "Vendas", Icon: IconSales },
+      { href: "/dashboard/produtos", label: "Produtos", Icon: IconProducts },
+      { href: "/dashboard/dividas", label: "Dívidas", Icon: IconDebts },
+      { href: "/dashboard/clientes", label: "Clientes", Icon: IconCustomers },
     ],
   },
   {
     title: "Gestão",
     items: [
-      { href: "/dashboard/funcionarios", label: "Funcionários", Icon: UsersRound },
-      { href: "/dashboard/meu-plano", label: "Meu plano", Icon: Wallet },
-      { href: "/dashboard/pagamentos", label: "Pagamentos", Icon: CreditCard },
+      { href: "/dashboard/funcionarios", label: "Funcionários", Icon: IconTeam },
+      { href: "/dashboard/meu-plano", label: "Meu plano", Icon: IconPlan },
+      { href: "/dashboard/pagamentos", label: "Pagamentos", Icon: IconPayments },
     ],
   },
 ];
@@ -54,7 +56,7 @@ export const SIDEBAR_ITEMS: NavItem[] = SIDEBAR_GROUPS.flatMap((g) => g.items);
 export const PLATFORM_ITEM: NavItem = {
   href: "/platform-admin",
   label: "Plataforma",
-  Icon: ShieldCheck,
+  Icon: ShieldIcon,
 };
 
 /**
@@ -62,13 +64,13 @@ export const PLATFORM_ITEM: NavItem = {
  * O botão central é desenhado à parte no MobileNav.
  */
 export const MOBILE_LEFT_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Início", Icon: LayoutDashboard },
-  { href: "/dashboard/produtos", label: "Produtos", Icon: Package },
+  { href: "/dashboard", label: "Início", Icon: IconHome },
+  { href: "/dashboard/produtos", label: "Produtos", Icon: IconProducts },
 ];
 
 export const MOBILE_RIGHT_ITEMS: NavItem[] = [
-  { href: "/dashboard/dividas", label: "Dívidas", Icon: WalletCards },
-  { href: "/dashboard/mais", label: "Mais", Icon: Menu },
+  { href: "/dashboard/dividas", label: "Dívidas", Icon: IconDebts },
+  { href: "/dashboard/mais", label: "Mais", Icon: IconMore },
 ];
 
 /** Mantido para compatibilidade com código antigo. */
@@ -76,12 +78,12 @@ export const MOBILE_ITEMS: NavItem[] = [...MOBILE_LEFT_ITEMS, ...MOBILE_RIGHT_IT
 
 /** Itens do menu "Mais" no telemóvel. */
 export const MORE_ITEMS: NavItem[] = [
-  { href: "/dashboard/vendas", label: "Histórico de vendas", Icon: ShoppingCart },
-  { href: "/dashboard/clientes", label: "Clientes", Icon: Users },
-  { href: "/dashboard/funcionarios", label: "Funcionários", Icon: UsersRound },
-  { href: "/dashboard/meu-plano", label: "Meu plano", Icon: Wallet },
-  { href: "/dashboard/planos", label: "Planos", Icon: Sparkles },
-  { href: "/dashboard/pagamentos", label: "Pagamentos", Icon: CreditCard },
+  { href: "/dashboard/vendas", label: "Histórico de vendas", Icon: IconSales },
+  { href: "/dashboard/clientes", label: "Clientes", Icon: IconCustomers },
+  { href: "/dashboard/funcionarios", label: "Funcionários", Icon: IconTeam },
+  { href: "/dashboard/meu-plano", label: "Meu plano", Icon: IconPlan },
+  { href: "/dashboard/planos", label: "Planos", Icon: IconPlan },
+  { href: "/dashboard/pagamentos", label: "Pagamentos", Icon: IconPayments },
 ];
 
 /** Rotas que destacam o botão "Mais" no telemóvel. */

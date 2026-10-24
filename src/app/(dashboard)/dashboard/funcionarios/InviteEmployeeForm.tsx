@@ -47,13 +47,13 @@ export function InviteEmployeeForm() {
       </div>
 
       {state.error && (
-        <p role="alert" className="rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-300">
+        <p role="alert" className="rounded-xl border border-danger/20 bg-danger/10 p-3 text-sm text-danger">
           {state.error}
         </p>
       )}
 
       {state.success && (
-        <p role="status" className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-300">
+        <p role="status" className="rounded-xl border border-brandGlow/20 bg-brandGlow/10 p-3 text-sm text-accent">
           {state.success}
         </p>
       )}

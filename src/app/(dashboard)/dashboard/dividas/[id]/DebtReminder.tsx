@@ -139,7 +139,7 @@ export function DebtReminder({
           target="_blank"
           rel="noreferrer"
           onClick={() => setOpenedWhatsapp(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-brand/20 transition-colors hover:bg-brand/90 sm:flex-1"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-onbrand shadow-lg shadow-brand/20 transition-colors hover:bg-brand/90 sm:flex-1"
         >
           <Send className="h-4 w-4" aria-hidden />
           Abrir WhatsApp

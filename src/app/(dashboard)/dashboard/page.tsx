@@ -255,7 +255,7 @@ export default async function DashboardPage({
               </span>
               <Link
                 href="/dashboard/vendas/nova"
-                className="group flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2.5 text-sm font-medium text-white shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 hover:shadow-brand/30 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-brandGlow/40 focus:ring-offset-2 focus:ring-offset-dark-bg sm:px-4 sm:py-3"
+                className="group flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2.5 text-sm font-medium text-onbrand shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 hover:shadow-brand/30 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-brandGlow/40 focus:ring-offset-2 focus:ring-offset-dark-bg sm:px-4 sm:py-3"
               >
                 <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" aria-hidden />
                 Nova venda
@@ -272,7 +272,7 @@ export default async function DashboardPage({
                 key={value}
                 href={value === "hoje" ? "/dashboard" : `/dashboard?periodo=${value}`}
                 className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
-                  value === period ? "bg-brand text-white shadow-sm" : "text-dark-muted hover:bg-white/5 hover:text-dark-text"
+                  value === period ? "bg-brand text-onbrand shadow-sm" : "text-dark-muted hover:bg-white/5 hover:text-dark-text"
                 }`}
               >
                 {label}

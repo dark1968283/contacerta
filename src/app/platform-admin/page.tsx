@@ -385,7 +385,7 @@ export default async function PlatformAdmin({
                   <div className="flex flex-col justify-between gap-4 border-t border-dark-border pt-4 sm:flex-row sm:items-center">
                     <label className="flex cursor-pointer items-center gap-3 text-sm text-dark-muted">
                       <input
-                        className="h-4 w-4 accent-[#22C766]"
+                        className="h-4 w-4 accent-brandGlow"
                         name="active"
                         type="checkbox"
                         defaultChecked={plan.active}
