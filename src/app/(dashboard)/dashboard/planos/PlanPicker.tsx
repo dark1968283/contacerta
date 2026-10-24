@@ -31,6 +31,23 @@ function formatPrice(amount: number, currency: string) {
 }
 
 
+
+/** Limites mostrados em cada plano (os mesmos que a app aplica). */
+const LIMIT_ROWS: { key: string; label: string }[] = [
+  { key: "products", label: "Produtos" },
+  { key: "sales_per_month", label: "Vendas por mês" },
+  { key: "invoices_per_month", label: "Faturas por mês" },
+  { key: "clients", label: "Clientes" },
+  { key: "users", label: "Pessoas na conta" },
+];
+
+function limitText(key: string, raw: unknown) {
+  const n = raw === undefined || raw === null ? -1 : Number(raw);
+  if (!Number.isFinite(n) || n < 0) return "Ilimitado";
+  if (key === "users") return n <= 1 ? "Só você" : `Você + ${n - 1}`;
+  return `Até ${n.toLocaleString("pt-MZ")}`;
+}
+
 export function PlanPicker({
   plans,
   error,
@@ -197,6 +214,24 @@ export function PlanPicker({
                       Poupe {savings}% por ano
                     </span>
                   )}
+                </div>
+
+                <div className="pt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-dark-muted">
+                    Limites
+                  </p>
+                  <dl className="divide-y divide-dark-border/70 rounded-xl border border-dark-border/80 bg-dark-bg/40">
+                    {LIMIT_ROWS.map(({ key, label }) => {
+                      const value = limitText(key, plan.limits[key]);
+                      const unlimited = value === "Ilimitado";
+                      return (
+                        <div key={key} className="flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm">
+                          <dt className="text-dark-muted">{label}</dt>
+                          <dd className={`font-semibold tabular-nums ${unlimited ? "text-brandGlow" : "text-dark-text"}`}>{value}</dd>
+                        </div>
+                      );
+                    })}
+                  </dl>
                 </div>
 
                 <div className="flex-1 py-5">
