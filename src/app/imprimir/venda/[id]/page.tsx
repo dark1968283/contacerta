@@ -67,10 +67,10 @@ export default async function PrintSalePage({
   const fmtTime = (d: Date) => d.toLocaleTimeString("pt-MZ", { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TIMEZONE });
 
   return (
-    <div className="min-h-dvh bg-neutral-100 text-neutral-900 print:bg-white">
+    <div className="min-h-dvh bg-neutral-100 text-neutral-900 print:bg-[#fff]">
       <PrintToolbar backHref={`/dashboard/vendas/${sale.id}`} autoPrint={searchParams.imprimir === "1"} />
 
-      <article className="mx-auto my-6 max-w-[148mm] bg-white p-7 shadow-sm print:my-0 print:max-w-none print:p-0 print:shadow-none">
+      <article className="mx-auto my-6 max-w-[148mm] bg-[#fff] p-7 shadow-sm print:my-0 print:max-w-none print:p-0 print:shadow-none">
         <header className="flex items-start justify-between gap-6">
           <div className="min-w-0">
             <h1 className="text-xl font-extrabold leading-tight">{biz.name}</h1>
@@ -87,7 +87,7 @@ export default async function PrintSalePage({
           </div>
         </header>
 
-        <section className="mt-5 rounded-lg bg-neutral-50 px-4 py-3 text-sm print:border print:border-neutral-200 print:bg-white">
+        <section className="mt-5 rounded-lg bg-neutral-50 px-4 py-3 text-sm print:border print:border-neutral-200 print:bg-[#fff]">
           <p>
             <span className="text-neutral-500">Cliente: </span>
             <span className="font-semibold">{inv?.customer_name ?? customer?.name ?? "Consumidor final"}</span>

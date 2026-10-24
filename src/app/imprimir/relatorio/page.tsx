@@ -45,10 +45,10 @@ export default async function PrintReportPage({ searchParams }: { searchParams: 
   ];
 
   return (
-    <div className="min-h-dvh bg-neutral-100 text-neutral-900 print:bg-white">
+    <div className="min-h-dvh bg-neutral-100 text-neutral-900 print:bg-[#fff]">
       <PrintToolbar backHref={`/dashboard/relatorios?mes=${monthParam(key)}`} />
 
-      <article className="mx-auto my-6 max-w-[210mm] bg-white p-8 shadow-sm print:my-0 print:p-0 print:shadow-none">
+      <article className="mx-auto my-6 max-w-[210mm] bg-[#fff] p-8 shadow-sm print:my-0 print:p-0 print:shadow-none">
         <header className="flex items-start justify-between gap-6 border-b-2 border-[#166C4E] pb-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#166C4E]">Relatório mensal</p>
