@@ -601,3 +601,8 @@ html .cc-sheet[class] {
   background-color: rgb(var(--c-surface) / 0.96) !important;
   background-image: none !important;
 }
+
+/* Menu do tema: aparece com um pequeno zoom. */
+.cc-theme-menu { animation: cc-menu-in 140ms ease-out; }
+@keyframes cc-menu-in { from { opacity: 0; transform: scale(0.95) translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .cc-theme-menu { animation: none; } }
