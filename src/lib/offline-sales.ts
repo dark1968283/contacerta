@@ -20,6 +20,8 @@ export type QueuedSale = {
   customerName: string | null;
   items: QueuedSaleItem[];
   total: number;
+  /** Total com desconto (só quando houve desconto). */
+  finalTotal?: number | null;
   status: "pending" | "error";
   error?: string;
 };

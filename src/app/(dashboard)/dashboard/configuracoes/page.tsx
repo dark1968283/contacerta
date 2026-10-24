@@ -14,7 +14,7 @@ export default async function ConfiguracoesPage() {
     // "*" para não falhar antes da migração 0021 (colunas nuit/phone/address).
     supabase.from("businesses").select("*").eq("id", businessId).maybeSingle(),
   ]);
-  const biz = (business ?? {}) as { nuit?: string | null; phone?: string | null; address?: string | null };
+  const biz = (business ?? {}) as { name?: string; nuit?: string | null; phone?: string | null; address?: string | null };
 
   const initialName =
     (typeof user?.user_metadata?.full_name === "string"
@@ -61,7 +61,7 @@ export default async function ConfiguracoesPage() {
       {role === "admin" && (
         <BusinessDetailsForm
           businessId={businessId}
-          initial={{ nuit: biz.nuit ?? "", phone: biz.phone ?? "", address: biz.address ?? "" }}
+          initial={{ name: biz.name ?? "", nuit: biz.nuit ?? "", phone: biz.phone ?? "", address: biz.address ?? "" }}
         />
       )}
 

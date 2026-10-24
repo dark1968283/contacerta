@@ -103,3 +103,47 @@ function traduzErroAuth(message: string): string {
   }
   return "Não foi possível concluir. Tente novamente.";
 }
+
+export type ResetState = { error: string | null; sent?: boolean; email?: string };
+
+/** Envia o email com o link para criar uma nova palavra-passe. */
+export async function requestPasswordReset(_prev: ResetState, formData: FormData): Promise<ResetState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return { error: "Escreva o seu email." };
+  }
+
+  const supabase = createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${getSiteURL()}/auth/callback?next=/nova-senha`,
+  });
+
+  // Por segurança, não dizemos se o email existe ou não.
+  if (error && /rate|too many|seconds/i.test(error.message)) {
+    return { error: "Já pedimos um link há pouco. Espere um minuto e tente de novo." };
+  }
+  return { error: null, sent: true, email };
+}
+
+export type NewPasswordState = { error: string | null };
+
+/** Guarda a nova palavra-passe (o utilizador entrou pelo link do email). */
+export async function setNewPassword(_prev: NewPasswordState, formData: FormData): Promise<NewPasswordState> {
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+  if (password.length < 6) return { error: "A palavra-passe deve ter pelo menos 6 caracteres." };
+  if (password !== confirm) return { error: "As duas palavras-passe não são iguais." };
+
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "O link expirou. Peça um link novo." };
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    if (/different from the old|same/i.test(error.message)) {
+      return { error: "Escolha uma palavra-passe diferente da antiga." };
+    }
+    return { error: traduzErroAuth(error.message) };
+  }
+  redirect("/dashboard?senha=nova");
+}

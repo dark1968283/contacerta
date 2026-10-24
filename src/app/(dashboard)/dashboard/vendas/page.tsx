@@ -8,7 +8,7 @@ import { SalesHeader, SalesShell } from "./_components/SalesShell";
 
 export default async function VendasPage() {
   const supabase = createClient();
-  const { data: sales } = await supabase.from("sales").select("id, total_amount, payment_method, created_at, customers(name)").order("created_at", { ascending: false }).limit(50);
+  const { data: sales } = await supabase.from("sales").select("id, total_amount, payment_method, created_at, status, customers(name)").order("created_at", { ascending: false }).limit(50);
 
   // Apresentação da data/hora no fuso do negócio (mesmos helpers do Dashboard).
   const now = new Date();
@@ -59,10 +59,11 @@ export default async function VendasPage() {
         {sales?.map((sale) => {
           const customer = sale.customers as unknown as { name: string } | null;
           const credit = sale.payment_method === "credito";
+          const cancelled = (sale as { status?: string }).status === "anulada";
           return (
             <li key={sale.id}>
               <Link prefetch={false} href={`/dashboard/vendas/${sale.id}`} className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50">
-              <Panel className="p-3.5 transition-transform duration-200 hover:-translate-y-0.5 sm:p-4">
+              <Panel className={`p-3.5 transition-transform duration-200 hover:-translate-y-0.5 sm:p-4 ${cancelled ? "opacity-55" : ""}`}>
                 <div className="flex items-center gap-3.5">
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-dark-text">{credit ? "Venda a crédito" : "Venda paga"}</p>
@@ -70,13 +71,13 @@ export default async function VendasPage() {
                     <p className="truncate text-xs text-dark-faint">{whenLabel(sale.created_at)}</p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="font-semibold tabular-nums text-dark-text">{formatMT(sale.total_amount)}</p>
+                    <p className={`font-semibold tabular-nums text-dark-text ${cancelled ? "line-through" : ""}`}>{formatMT(sale.total_amount)}</p>
                     <span
                       className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                        credit ? "bg-warning/10 text-warning" : "bg-brandGlow/10 text-brandGlow"
+                        cancelled ? "bg-danger/10 text-danger" : credit ? "bg-warning/10 text-warning" : "bg-brandGlow/10 text-brandGlow"
                       }`}
                     >
-                      {credit ? "Crédito" : "Pago"}
+                      {cancelled ? "Anulada" : credit ? "Crédito" : "Pago"}
                     </span>
                   </div>
                 </div>

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { AlertTriangle, ArrowDownToLine, History, Package, Pencil, PackagePlus, Power, ShoppingCart, SlidersHorizontal, type LucideIcon } from "lucide-react";
+import { AlertTriangle, ArrowDownToLine, History, Package, Pencil, PackagePlus, Power, ShoppingCart, SlidersHorizontal, Undo2, type LucideIcon } from "lucide-react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { BUSINESS_TIMEZONE } from "@/lib/timezone";
@@ -17,12 +18,14 @@ const movementLabel: Record<string, string> = {
   entrada: "Entrada",
   ajuste: "Ajuste",
   venda: "Venda",
+  anulacao: "Voltou ao stock",
 };
 
 const movementIcon: Record<string, LucideIcon> = {
   entrada: ArrowDownToLine,
   ajuste: SlidersHorizontal,
   venda: ShoppingCart,
+  anulacao: Undo2,
 };
 
 export default async function ProdutoDetalhePage({
@@ -62,6 +65,18 @@ export default async function ProdutoDetalhePage({
     .limit(20);
 
   const isAdmin = role === "admin";
+
+  // Fornecedores já usados (coluna da migração 0025; sem ela fica vazio).
+  const { data: supplierRows } = await (supabase as unknown as SupabaseClient)
+    .from("stock_movements")
+    .select("supplier_name")
+    .eq("business_id", product.business_id)
+    .not("supplier_name", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const suppliers = [
+    ...new Set(((supplierRows ?? []) as { supplier_name: string | null }[]).map((r) => r.supplier_name).filter((n): n is string => !!n)),
+  ].slice(0, 20);
 
   const categoryName = (product.categories as unknown as { name: string } | null)?.name;
   const state = stockState(product.stock_quantity, product.low_stock_threshold);
@@ -112,7 +127,12 @@ export default async function ProdutoDetalhePage({
           <div className="space-y-6">
             <section>
               <SectionTitle icon={PackagePlus}>Registar movimento de stock</SectionTitle>
-              <StockAdjustmentForm productId={product.id} currentStock={product.stock_quantity} />
+              <StockAdjustmentForm
+                productId={product.id}
+                currentStock={product.stock_quantity}
+                currentCost={product.cost_price === null ? null : Number(product.cost_price)}
+                suppliers={suppliers}
+              />
             </section>
 
             <section>

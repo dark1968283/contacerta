@@ -160,7 +160,13 @@ export default async function RelatoriosPage({ searchParams }: { searchParams: {
           delta={
             report.hasProfitData && previous.hasProfitData ? <Delta value={change(report.profit, previous.profit)} /> : undefined
           }
-          hint={report.hasProfitData ? "Vendas menos o custo dos produtos" : "Ponha o preço de compra nos produtos"}
+          hint={
+            !report.hasProfitData
+              ? "Ponha o preço de compra nos produtos"
+              : report.expenses > 0
+                ? `Já sem ${formatMT(report.expenses)} de despesas`
+                : "Vendas menos o custo dos produtos"
+          }
         />
         <Kpi
           label="Recebido"

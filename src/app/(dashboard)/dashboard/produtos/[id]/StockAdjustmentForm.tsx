@@ -21,15 +21,22 @@ type Mode = "entrada" | "contagem";
 export function StockAdjustmentForm({
   productId,
   currentStock,
+  currentCost = null,
+  suppliers = [],
 }: {
   productId: string;
   currentStock: number;
+  /** Preço de compra actual (por unidade). */
+  currentCost?: number | null;
+  /** Fornecedores já usados, para sugerir. */
+  suppliers?: string[];
 }) {
   const action = adjustStock.bind(null, productId);
   const [state, formAction] = useFormState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const [mode, setMode] = useState<Mode>("entrada");
   const [value, setValue] = useState("");
+  const [paid, setPaid] = useState("");
   const [saved, setSaved] = useState(false);
   const firstRender = useRef(true);
 
@@ -41,6 +48,7 @@ export function StockAdjustmentForm({
     if (!state.error) {
       formRef.current?.reset();
       setValue("");
+      setPaid("");
       setMode("entrada");
       setSaved(true);
       const t = setTimeout(() => setSaved(false), 2500);
@@ -51,6 +59,9 @@ export function StockAdjustmentForm({
   const typed = parseInt(value, 10);
   const valid = !Number.isNaN(typed);
   const delta = mode === "entrada" ? typed : typed - currentStock;
+  const paidValue = Number(paid.replace(/\s/g, "").replace(",", "."));
+  const unitCost = mode === "entrada" && valid && typed > 0 && paid.trim() !== "" && paidValue > 0 ? paidValue / typed : null;
+  const fmt = (v: number) => `${(Math.round(v * 100) / 100).toLocaleString("pt-MZ")} MT`;
 
   return (
     <Panel as="div" className="p-4 sm:p-5">
@@ -107,18 +118,59 @@ export function StockAdjustmentForm({
           )}
         </div>
 
-        <div>
-          <label htmlFor="note" className={FIELD_LABEL}>
-            Nota (opcional)
-          </label>
-          <input
-            id="note"
-            name="note"
-            type="text"
-            placeholder={mode === "entrada" ? "Ex.: compra ao fornecedor" : "Ex.: contagem do fim do mês"}
-            className={FIELD_INPUT}
-          />
-        </div>
+        {mode === "entrada" ? (
+          <>
+            <div>
+              <label htmlFor="total-paid" className={FIELD_LABEL}>
+                Quanto pagou por tudo? <span className="font-normal text-dark-faint">(opcional)</span>
+              </label>
+              <input
+                id="total-paid"
+                name="total_paid"
+                type="text"
+                inputMode="decimal"
+                value={paid}
+                onChange={(e) => setPaid(e.target.value.replace(/[^\d.,\s]/g, ""))}
+                placeholder="Ex.: 3 000"
+                className={FIELD_INPUT}
+              />
+              {unitCost !== null && (
+                <p className="mt-2 text-sm text-dark-muted">
+                  Fica a <strong className="text-dark-text">{fmt(unitCost)}</strong> cada um
+                  {currentCost !== null && Math.abs(currentCost - unitCost) >= 0.01 ? ` (antes ${fmt(currentCost)})` : ""}. O preço
+                  de compra do produto actualiza sozinho.
+                </p>
+              )}
+            </div>
+            <div>
+              <label htmlFor="supplier" className={FIELD_LABEL}>
+                Fornecedor <span className="font-normal text-dark-faint">(opcional)</span>
+              </label>
+              <input
+                id="supplier"
+                name="supplier"
+                type="text"
+                list="supplier-list"
+                maxLength={80}
+                autoComplete="off"
+                placeholder="Ex.: Armazém Xiquelene"
+                className={FIELD_INPUT}
+              />
+              <datalist id="supplier-list">
+                {suppliers.map((s) => (
+                  <option key={s} value={s} />
+                ))}
+              </datalist>
+            </div>
+          </>
+        ) : (
+          <div>
+            <label htmlFor="note" className={FIELD_LABEL}>
+              Nota (opcional)
+            </label>
+            <input id="note" name="note" type="text" placeholder="Ex.: contagem do fim do mês" className={FIELD_INPUT} />
+          </div>
+        )}
 
         {state.error && <FormError>{state.error}</FormError>}
         {saved && !state.error && (

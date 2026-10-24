@@ -34,7 +34,10 @@ export async function GET(request: NextRequest) {
   lines.push(row(`Relatório ContaCerta — ${businessName}`));
   lines.push(row("Mês", monthLabel(key)));
   lines.push(row("Total vendido (MT)", num(report.revenue)));
-  lines.push(row("Lucro (MT)", report.hasProfitData ? num(report.profit) : "sem dados"));
+  lines.push(row("Lucro dos produtos (MT)", report.hasProfitData ? num(report.grossProfit) : "sem dados"));
+  lines.push(row("Descontos (MT)", num(report.discounts)));
+  lines.push(row("Despesas (MT)", num(report.expenses)));
+  lines.push(row("Lucro depois das despesas (MT)", report.hasProfitData ? num(report.profit) : "sem dados"));
   lines.push(row("Recebido (MT)", num(report.received)));
   lines.push(row("Vendido a crédito (MT)", num(report.credit)));
   lines.push(row("Número de vendas", report.salesCount));

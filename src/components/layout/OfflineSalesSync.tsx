@@ -48,6 +48,7 @@ export function OfflineSalesSync({ businessId }: { businessId: string }) {
             paymentMethod: sale.paymentMethod,
             customerId: sale.customerId,
             items: sale.items.map(({ product_id, quantity }) => ({ product_id, quantity })),
+            finalTotal: sale.finalTotal ?? null,
           });
           if (result.ok) {
             removeQueuedSale(sale.ref);

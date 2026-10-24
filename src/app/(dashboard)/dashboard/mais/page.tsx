@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, Bell, ChevronRight, FileText, LogOut, Settings, ShieldCheck, Smartphone } from "lucide-react";
+import { BarChart3, Bell, ChevronRight, Coins, FileText, LogOut, Settings, ShieldCheck, Smartphone, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { signOut } from "../../../(auth)/actions";
@@ -151,6 +151,8 @@ export default async function MaisPage() {
               {isAdmin && (
                 <RowLink href="/dashboard/relatorios" label="Relatórios" hint="Lucro do mês, mais vendidos, Excel e PDF" Icon={asNav(BarChart3)} />
               )}
+              <RowLink href="/dashboard/despesas" label="Despesas" hint="Renda, luz, transporte e outros gastos" Icon={asNav(Wallet)} />
+              <RowLink href="/dashboard/caixa" label="Contar a caixa" hint="Ver se o dinheiro do dia bate certo" Icon={asNav(Coins)} />
               <RowLink href="/dashboard/clientes" label="Clientes" hint="Contactos e quem lhe deve" Icon={IconCustomers} />
               {isAdmin && (
                 <RowLink href="/dashboard/produtos/categorias" label="Categorias de produtos" hint="Organizar o catálogo" Icon={IconProducts} />

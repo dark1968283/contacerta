@@ -34,10 +34,11 @@ export default async function PrintReportPage({ searchParams }: { searchParams: 
   const rows: [string, string, string][] = [
     ["Total vendido", formatMT(report.revenue), pct(change(report.revenue, previous.revenue))],
     [
-      "Lucro",
+      "Lucro (depois das despesas)",
       report.hasProfitData ? formatMT(report.profit) : "—",
       report.hasProfitData && previous.hasProfitData ? pct(change(report.profit, previous.profit)) : "—",
     ],
+    ["Despesas", formatMT(report.expenses), pct(change(report.expenses, previous.expenses))],
     ["Recebido", formatMT(report.received), pct(change(report.received, previous.received))],
     ["Vendido a crédito", formatMT(report.credit), "—"],
     ["Número de vendas", String(report.salesCount), pct(change(report.salesCount, previous.salesCount))],

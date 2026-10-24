@@ -12,6 +12,7 @@ export function buildReceiptText({
   paymentMethod,
   customerName,
   received,
+  discount,
 }: {
   businessName: string;
   createdAt: string | Date;
@@ -20,6 +21,8 @@ export function buildReceiptText({
   paymentMethod: "pago" | "credito" | string;
   customerName?: string | null;
   received?: number | null;
+  /** Desconto já incluído no total (mostra-se a linha só se > 0). */
+  discount?: number | null;
 }) {
   const date = new Date(createdAt);
   const when = `${date.toLocaleDateString("pt-MZ", { timeZone: BUSINESS_TIMEZONE })} ${date.toLocaleTimeString("pt-MZ", {
@@ -36,6 +39,7 @@ export function buildReceiptText({
     "",
     ...lines.map((l) => `${l.quantity} × ${l.name} — ${formatMT(l.unitPrice * l.quantity)}`),
     "",
+    discount && discount > 0 ? `Desconto: −${formatMT(discount)}` : null,
     `*Total: ${formatMT(total)}*`,
     paymentMethod === "credito"
       ? "Pagamento: a crédito (em dívida)"

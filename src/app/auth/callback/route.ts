@@ -10,6 +10,11 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
+      // Link de "Esqueci a palavra-passe": vai directo criar a nova.
+      if (searchParams.get("next") === "/nova-senha") {
+        return NextResponse.redirect(`${origin}/nova-senha`);
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -65,5 +70,8 @@ export async function GET(request: Request) {
     }
   }
 
+  if (searchParams.get("next") === "/nova-senha") {
+    return NextResponse.redirect(`${origin}/esqueci-senha?expirado=1`);
+  }
   return NextResponse.redirect(`${origin}/login`);
 }

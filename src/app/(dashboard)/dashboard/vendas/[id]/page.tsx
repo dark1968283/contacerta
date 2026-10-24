@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowUpRight, CheckCircle2, Clock3, MessageCircle, UserRound } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Ban, CheckCircle2, Clock3, MessageCircle, UserRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { formatMT } from "@/lib/format";
@@ -9,14 +9,16 @@ import { buildReceiptText, whatsappLink } from "@/lib/receipt";
 import { Panel } from "@/components/dashboard/Panel";
 import { SalesShell } from "../_components/SalesShell";
 import { InvoiceActions } from "./InvoiceActions";
+import { CancelSale } from "./CancelSale";
 
 export default async function VendaDetalhePage({ params }: { params: { id: string } }) {
-  const { businessName } = await getBusinessContext();
+  const { businessName, role } = await getBusinessContext();
   const supabase = createClient();
 
   const { data: sale } = await supabase
     .from("sales")
-    .select("id, total_amount, payment_method, created_at, created_by, customer_id, customers(name, phone)")
+    // "*" para ler também as colunas da 0025 (desconto, anulada) quando existirem.
+    .select("*, customers(name, phone)")
     .eq("id", params.id)
     .maybeSingle();
 
@@ -54,9 +56,14 @@ export default async function VendaDetalhePage({ params }: { params: { id: strin
     total,
     paymentMethod: sale.payment_method,
     customerName: customer?.name,
+    discount: Number((sale as unknown as { discount_amount?: number | string | null }).discount_amount ?? 0),
   });
 
   const debtRemaining = debt ? Math.max(0, Number(debt.total_amount) - Number(debt.amount_paid)) : 0;
+  const extra = sale as unknown as { status?: string; discount_amount?: number | string | null; cancel_reason?: string | null };
+  const cancelled = extra.status === "anulada";
+  const discount = Number(extra.discount_amount ?? 0);
+  const debtPaid = debt ? Number(debt.amount_paid) : 0;
 
   return (
     <SalesShell>
@@ -70,7 +77,19 @@ export default async function VendaDetalhePage({ params }: { params: { id: strin
 
       <div className="mx-auto max-w-lg space-y-4">
         {/* Recibo */}
-        <Panel className="overflow-hidden p-0">
+        {cancelled && (
+          <div className="flex items-start gap-3 rounded-2xl border border-danger/30 bg-danger/[0.08] px-4 py-3.5">
+            <Ban className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden />
+            <span className="text-sm">
+              <span className="block font-semibold text-dark-text">Venda anulada</span>
+              <span className="block text-dark-muted">
+                Não conta nas contas e os produtos voltaram ao stock.{extra.cancel_reason ? ` Motivo: ${extra.cancel_reason}.` : ""}
+              </span>
+            </span>
+          </div>
+        )}
+
+        <Panel className={`overflow-hidden p-0 ${cancelled ? "opacity-60" : ""}`}>
           <div className="border-b border-dashed border-dark-border px-5 py-6 text-center">
             <span
               className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full ${
@@ -79,7 +98,7 @@ export default async function VendaDetalhePage({ params }: { params: { id: strin
             >
               {credit ? <Clock3 className="h-6 w-6" aria-hidden /> : <CheckCircle2 className="h-6 w-6" aria-hidden />}
             </span>
-            <p className="mt-3 text-4xl font-bold tabular-nums text-dark-text">{formatMT(total)}</p>
+            <p className={`mt-3 text-4xl font-bold tabular-nums text-dark-text ${cancelled ? "line-through" : ""}`}>{formatMT(total)}</p>
             <p className={`mt-1 text-sm font-semibold ${credit ? "text-warning" : "text-brandGlow"}`}>
               {credit ? "Vendido a crédito" : "Pago"}
             </p>
@@ -111,7 +130,13 @@ export default async function VendaDetalhePage({ params }: { params: { id: strin
             ))}
           </ul>
 
-          <div className="flex items-center justify-between border-t border-dashed border-dark-border px-5 py-4">
+          {discount > 0 && (
+            <div className="flex items-center justify-between border-t border-dashed border-dark-border px-5 pt-4 text-sm">
+              <span className="text-dark-muted">Desconto</span>
+              <span className="font-semibold tabular-nums text-brandGlow">−{formatMT(discount)}</span>
+            </div>
+          )}
+          <div className={`flex items-center justify-between px-5 py-4 ${discount > 0 ? "" : "border-t border-dashed border-dark-border"}`}>
             <span className="text-dark-muted">Total</span>
             <span className="text-xl font-bold tabular-nums text-dark-text">{formatMT(total)}</span>
           </div>
@@ -159,9 +184,9 @@ export default async function VendaDetalhePage({ params }: { params: { id: strin
           </Link>
         )}
 
-        <InvoiceActions saleId={sale.id} invoiceNumber={invoiceNumber} />
+        {!cancelled && <InvoiceActions saleId={sale.id} invoiceNumber={invoiceNumber} />}
 
-        <a
+        {!cancelled && <a
           href={whatsappLink(receipt, customer?.phone)}
           target="_blank"
           rel="noopener noreferrer"
@@ -169,7 +194,20 @@ export default async function VendaDetalhePage({ params }: { params: { id: strin
         >
           <MessageCircle className="h-5 w-5 text-[#25D366]" aria-hidden />
           Enviar recibo por WhatsApp
-        </a>
+        </a>}
+
+        {!cancelled && (
+          <CancelSale
+            saleId={sale.id}
+            totalLabel={formatMT(total)}
+            isOwner={role === "admin"}
+            blockedReason={
+              debtPaid > 0
+                ? `O cliente já pagou ${formatMT(debtPaid)} desta venda, por isso já não dá para anular.`
+                : null
+            }
+          />
+        )}
       </div>
     </SalesShell>
   );

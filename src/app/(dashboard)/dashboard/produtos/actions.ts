@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessContext } from "@/lib/supabase/business";
 
@@ -123,6 +124,30 @@ export async function adjustStock(
   // Para "ajuste" o utilizador escolhe direção (+/-) no formulário;
   // para "entrada" a quantidade é sempre positiva.
   const quantity = type === "entrada" ? Math.abs(quantityRaw) : quantityRaw;
+
+  // "Chegou mercadoria": com quanto pagou e fornecedor (migração 0025).
+  if (type === "entrada") {
+    const paidRaw = String(formData.get("total_paid") ?? "").replace(/\s/g, "").replace(",", ".");
+    const paid = paidRaw ? Number(paidRaw) : null;
+    if (paid !== null && (!Number.isFinite(paid) || paid < 0)) return { error: "Escreva um valor pago válido." };
+    const supplier = String(formData.get("supplier") ?? "").trim() || null;
+
+    const db = supabase as unknown as SupabaseClient;
+    const { error: receiveError } = await db.rpc("receive_stock", {
+      p_product_id: productId,
+      p_quantity: quantity,
+      p_total_paid: paid,
+      p_supplier: supplier,
+    });
+    const missing = receiveError && (receiveError.code === "PGRST202" || /receive_stock|schema cache/i.test(receiveError.message));
+    if (!receiveError) {
+      revalidatePath(`/dashboard/produtos/${productId}`);
+      revalidatePath("/dashboard/produtos");
+      return { error: null };
+    }
+    if (!missing) return { error: receiveError.message.replace(/^.*?:\s*/, "") || "Não foi possível registar a mercadoria." };
+    if (paid || supplier) return { error: "Para guardar o valor pago e o fornecedor falta aplicar a actualização 0025 no Supabase." };
+  }
 
   const { error } = await supabase.rpc("adjust_stock", {
     p_product_id: productId,

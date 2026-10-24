@@ -17,6 +17,8 @@ type FinanceWalletProps = {
   outstanding: string;
   periodLabel: string;
   hasProfitData: boolean;
+  /** Linha por baixo do lucro (ex.: despesas já descontadas). */
+  profitNote?: string;
 };
 
 export function FinanceWallet({
@@ -26,6 +28,7 @@ export function FinanceWallet({
   outstanding,
   periodLabel,
   hasProfitData,
+  profitNote,
 }: FinanceWalletProps) {
   const [hidden, setHidden] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -210,7 +213,7 @@ export function FinanceWallet({
               </div>
               <p className="mt-1 truncate text-[9px] text-white/50 sm:text-[11px]">
                 {hasProfitData
-                  ? "Vendas menos o custo dos produtos"
+                  ? profitNote ?? "Vendas menos o custo dos produtos"
                   : "Indique o preço de compra para ver o lucro"}
               </p>
             </div>

@@ -25,19 +25,24 @@ export function BusinessDetailsForm({
   initial,
 }: {
   businessId: string;
-  initial: { nuit: string; phone: string; address: string };
+  initial: { name: string; nuit: string; phone: string; address: string };
 }) {
   const [state, action] = useFormState<BusinessDetailsState, FormData>(saveBusinessDetails, {});
 
   return (
     <section aria-labelledby="negocio-title" className="mt-6 rounded-2xl border border-dark-border bg-dark-surface p-4 sm:p-5">
       <h2 id="negocio-title" className="text-base font-semibold text-dark-text">
-        Dados do negócio nas facturas
+        O seu negócio
       </h2>
-      <p className="mt-1 text-sm text-dark-muted">Aparecem no topo dos recibos e facturas em PDF. Todos são opcionais.</p>
+      <p className="mt-1 text-sm text-dark-muted">O nome aparece no topo da app, nos recibos e nas facturas. O resto é opcional.</p>
 
       <form action={action} className="mt-4 grid max-w-xl gap-4">
         <input type="hidden" name="business_id" value={businessId} />
+        <input type="hidden" name="current_name" value={initial.name} />
+        <label className="block text-sm font-medium text-dark-text">
+          Nome do negócio
+          <input name="name" defaultValue={initial.name} required minLength={2} maxLength={80} placeholder="Ex.: Mercearia da Ana" className={INPUT} />
+        </label>
         <label className="block text-sm font-medium text-dark-text">
           NUIT
           <input name="nuit" defaultValue={initial.nuit} inputMode="numeric" maxLength={11} placeholder="9 algarismos" className={INPUT} />

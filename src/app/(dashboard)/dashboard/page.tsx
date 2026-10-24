@@ -12,6 +12,8 @@ import { SalesChart, type ChartPoint } from "@/components/dashboard/SalesChart";
 import { FirstSteps } from "@/components/dashboard/FirstSteps";
 import { LightGlass } from "@/components/ui/liquid-glass";
 import { LowStockAlert } from "./LowStockAlert";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { CashCountCard } from "@/components/dashboard/CashCountCard";
 import {
   Wallet,
   Clock3,
@@ -21,7 +23,9 @@ import {
   AlertTriangle,
   ArrowUpRight,
   CalendarDays,
+  CheckCircle2,
   Plus,
+  Wallet as WalletIcon,
 } from "lucide-react";
 
 const periods = { hoje: "Hoje", "7-dias": "7 dias", "30-dias": "30 dias", mes: "Este mês" } as const;
@@ -64,7 +68,7 @@ function previousWindow(period: Period, start: Date, now: Date): { from: Date; t
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { periodo?: string };
+  searchParams: { periodo?: string; senha?: string };
 }) {
   const { userId, businessId } = await getBusinessContext();
   const supabase = createClient();
@@ -89,8 +93,10 @@ export default async function DashboardPage({
       supabase.from("users").select("name").eq("id", userId).single(),
       supabase
         .from("sales")
-        .select("id,total_amount,payment_method,customer_id,created_at")
+        // "*" para ler também o desconto da 0025 (quando existir).
+        .select("*")
         .eq("business_id", businessId)
+        .neq("status", "anulada")
         .gte("created_at", start.toISOString())
         .order("created_at", { ascending: false }),
       // "Por receber" é o saldo em aberto AGORA, não depende do período selecionado.
@@ -117,9 +123,29 @@ export default async function DashboardPage({
         .from("sales")
         .select("total_amount")
         .eq("business_id", businessId)
+        .neq("status", "anulada")
         .gte("created_at", prev.from.toISOString())
         .lt("created_at", prev.to.toISOString()),
     ]);
+
+  // Despesas do período e caixa de hoje (migração 0025; sem ela ficam a zero).
+  const db = supabase as unknown as SupabaseClient;
+  const maputoHour = Number(
+    new Intl.DateTimeFormat("en-GB", { timeZone: BUSINESS_TIMEZONE, hour: "numeric", hourCycle: "h23" }).format(now),
+  );
+  const todayDay = zonedDayKey(now, BUSINESS_TIMEZONE);
+  const showCash = maputoHour >= 17;
+  const [{ data: expenseRows }, cashExpected, cashToday] = await Promise.all([
+    db.from("expenses").select("amount").eq("business_id", businessId).gte("spent_at", start.toISOString()),
+    showCash ? db.rpc("cash_expected_today", { p_business_id: businessId }) : Promise.resolve({ data: null, error: null }),
+    showCash
+      ? db.from("cash_counts").select("counted_cash, counted_mobile, difference").eq("business_id", businessId).eq("day", todayDay).maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+  ]);
+  const expensesTotal = ((expenseRows ?? []) as { amount: number | string }[]).reduce((sum, e) => sum + Number(e.amount), 0);
+  const expensesReady = expenseRows !== null;
+  const cashReady = showCash && !cashExpected.error;
+  const cashRow = cashToday.data as { counted_cash: number | string; counted_mobile: number | string; difference: number | string } | null;
 
   const saleIds = sales?.map((s) => s.id) ?? [];
   const customerIds = [
@@ -168,7 +194,12 @@ export default async function DashboardPage({
   // Lucro bruto com o custo guardado em cada venda (ver src/lib/profit.ts).
   // Itens sem custo nenhum ficam fora da conta — nunca inventamos custo 0.
   const profitResult = grossProfitOf(items ?? [], productCosts);
-  const grossProfit = profitResult.profit;
+  const discountsTotal = (sales ?? []).reduce(
+    (sum, s) => sum + Number((s as { discount_amount?: number | string | null }).discount_amount ?? 0),
+    0,
+  );
+  // Lucro = vendas − custo dos produtos − descontos − despesas.
+  const grossProfit = profitResult.profit - discountsTotal - expensesTotal;
   const hasProfitData = profitResult.hasData;
 
   // Produtos vendidos no período SEM preço de compra: o lucro não os conta,
@@ -308,6 +339,23 @@ export default async function DashboardPage({
           </LightGlass>
         </header>
 
+        {searchParams.senha === "nova" && (
+          <p className="flex items-center gap-2 rounded-2xl bg-brandGlow/10 px-4 py-3 text-sm font-medium text-brandGlow">
+            <CheckCircle2 className="h-5 w-5" aria-hidden /> Palavra-passe nova guardada.
+          </p>
+        )}
+
+        {cashReady && (
+          <CashCountCard
+            expected={Number(cashExpected.data ?? 0)}
+            done={
+              cashRow
+                ? { counted: Number(cashRow.counted_cash) + Number(cashRow.counted_mobile), difference: Number(cashRow.difference) }
+                : null
+            }
+          />
+        )}
+
         <FirstSteps
           hasProducts={(activeProducts?.length ?? 0) > 0}
           hasSales={(allTimeSalesCount ?? 0) > 0}
@@ -322,7 +370,23 @@ export default async function DashboardPage({
           outstanding={formatMT(outstanding)}
           periodLabel={periods[period]}
           hasProfitData={hasProfitData}
+          profitNote={expensesTotal > 0 ? `Já sem ${formatMT(expensesTotal)} de despesas` : undefined}
         />
+
+        {/* Despesas: um toque para registar o que se gastou. */}
+        <div className="-mt-2 flex items-center justify-between gap-3 rounded-2xl border border-dark-border bg-white/[0.02] px-4 py-3">
+          <Link href="/dashboard/despesas" className="min-w-0 text-sm">
+            <span className="block text-dark-muted">Despesas · {periods[period]}</span>
+            <span className="block font-semibold tabular-nums text-dark-text">{expensesReady ? formatMT(expensesTotal) : "—"}</span>
+          </Link>
+          <Link
+            href="/dashboard/despesas/nova"
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-dark-borderStrong bg-white/[0.04] px-3.5 py-2.5 text-sm font-semibold text-dark-text transition hover:bg-white/[0.08] active:scale-[0.97]"
+          >
+            <WalletIcon className="h-4 w-4 text-warning" aria-hidden />
+            Gastei dinheiro
+          </Link>
+        </div>
 
         {missingCostProducts.length > 0 && (
           <Link

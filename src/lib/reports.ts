@@ -61,8 +61,10 @@ async function fetchSales(supabase: Client, businessId: string, start: Date, end
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase
       .from("sales")
-      .select("id,total_amount,payment_method,created_at,customer_id,sale_items(product_id,quantity,unit_price,subtotal,cost_price)")
+      // "*" para ler também o desconto da 0025 quando existir.
+      .select("*,sale_items(product_id,quantity,unit_price,subtotal,cost_price)")
       .eq("business_id", businessId)
+      .neq("status", "anulada")
       .gte("created_at", start.toISOString())
       .lt("created_at", end.toISOString())
       .order("created_at", { ascending: true })
@@ -91,6 +93,25 @@ async function fetchDebtPayments(supabase: Client, businessId: string, start: Da
   return total;
 }
 
+/** Total das despesas do mês (tabela da migração 0025; sem ela devolve 0). */
+async function fetchExpenses(supabase: Client, businessId: string, start: Date, end: Date) {
+  const db = supabase as unknown as SupabaseClient;
+  let total = 0;
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await db
+      .from("expenses")
+      .select("amount")
+      .eq("business_id", businessId)
+      .gte("spent_at", start.toISOString())
+      .lt("spent_at", end.toISOString())
+      .range(from, from + PAGE - 1);
+    if (error) return 0;
+    total += ((data ?? []) as { amount: number | string }[]).reduce((s, e) => s + Number(e.amount), 0);
+    if (!data || data.length < PAGE) break;
+  }
+  return total;
+}
+
 export type ProductStat = { id: string; name: string; quantity: number; revenue: number; profit: number | null };
 
 export type MonthReport = {
@@ -101,7 +122,12 @@ export type MonthReport = {
   credit: number;
   receivedFromDebts: number;
   received: number;
+  /** Lucro depois dos descontos e das despesas. */
   profit: number;
+  /** Lucro só dos produtos (vendas − custo), antes de descontos e despesas. */
+  grossProfit: number;
+  discounts: number;
+  expenses: number;
   hasProfitData: boolean;
   missingCostCount: number;
   avgTicket: number | null;
@@ -120,10 +146,12 @@ export type MonthReport = {
  */
 export async function loadMonthReport(supabase: Client, businessId: string, key: MonthKey): Promise<MonthReport> {
   const { start, end } = monthRange(key);
-  const [sales, receivedFromDebts] = await Promise.all([
+  const [sales, receivedFromDebts, expenses] = await Promise.all([
     fetchSales(supabase, businessId, start, end),
     fetchDebtPayments(supabase, businessId, start, end),
+    fetchExpenses(supabase, businessId, start, end),
   ]);
+  const discounts = sales.reduce((s, x) => s + Number((x as { discount_amount?: number | string | null }).discount_amount ?? 0), 0);
 
   const items = sales.flatMap((s) => s.sale_items ?? []);
   const productIds = [...new Set(items.map((i) => i.product_id))];
@@ -189,7 +217,10 @@ export async function loadMonthReport(supabase: Client, businessId: string, key:
     credit: revenue - paidNow,
     receivedFromDebts,
     received: paidNow + receivedFromDebts,
-    profit: profitResult.profit,
+    profit: profitResult.profit - discounts - expenses,
+    grossProfit: profitResult.profit,
+    discounts,
+    expenses,
     hasProfitData: profitResult.hasData,
     missingCostCount: profitResult.missingProductIds.size,
     avgTicket: sales.length ? revenue / sales.length : null,

@@ -30,7 +30,7 @@ export default async function PrintSalePage({
 
   const { data: sale } = await db
     .from("sales")
-    .select("id, total_amount, payment_method, created_at, customer_id, customers(name, phone)")
+    .select("*, customers(name, phone)")
     .eq("id", params.id)
     .eq("business_id", businessId)
     .maybeSingle();
@@ -51,6 +51,8 @@ export default async function PrintSalePage({
   const customer = sale.customers as unknown as { name: string; phone: string | null } | null;
   const credit = sale.payment_method === "credito";
   const total = Number(sale.total_amount);
+  const discount = Number((sale as { discount_amount?: number | string | null }).discount_amount ?? 0);
+  const cancelled = (sale as { status?: string }).status === "anulada";
   const date = new Date(inv?.issued_at ?? sale.created_at);
   const saleDate = new Date(sale.created_at);
 
@@ -70,7 +72,12 @@ export default async function PrintSalePage({
     <div className="min-h-dvh bg-neutral-100 text-neutral-900 print:bg-[#fff]">
       <PrintToolbar backHref={`/dashboard/vendas/${sale.id}`} autoPrint={searchParams.imprimir === "1"} />
 
-      <article className="mx-auto my-6 max-w-[148mm] bg-[#fff] p-7 shadow-sm print:my-0 print:max-w-none print:p-0 print:shadow-none">
+      <article className="relative mx-auto my-6 max-w-[148mm] bg-[#fff] p-7 shadow-sm print:my-0 print:max-w-none print:p-0 print:shadow-none">
+        {cancelled && (
+          <p className="pointer-events-none absolute inset-x-0 top-1/3 -rotate-12 text-center text-6xl font-black uppercase tracking-widest text-[#B4472B]/25">
+            Anulada
+          </p>
+        )}
         <header className="flex items-start justify-between gap-6">
           <div className="min-w-0">
             <h1 className="text-xl font-extrabold leading-tight">{biz.name}</h1>
@@ -129,6 +136,18 @@ export default async function PrintSalePage({
 
         <div className="mt-4 flex justify-end">
           <div className="w-56 space-y-1 text-sm">
+            {discount > 0 && (
+              <>
+                <div className="flex justify-between text-neutral-600">
+                  <span>Subtotal</span>
+                  <span className="tabular-nums">{formatMT(total + discount)}</span>
+                </div>
+                <div className="flex justify-between text-neutral-600">
+                  <span>Desconto</span>
+                  <span className="tabular-nums">−{formatMT(discount)}</span>
+                </div>
+              </>
+            )}
             <div className="flex justify-between border-t-2 border-neutral-800 pt-2 text-base font-bold">
               <span>Total</span>
               <span className="tabular-nums">{formatMT(total)}</span>

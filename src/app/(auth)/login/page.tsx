@@ -265,6 +265,12 @@ export default function LoginPage({
                 >
                   Palavra-passe
                 </label>
+                <Link
+                  href="/esqueci-senha"
+                  className="text-[13px] font-medium text-[#71D99A] transition hover:text-[#8FE6B2] hover:underline"
+                >
+                  Esqueceu?
+                </Link>
               </div>
               <div className="group relative">
                 <LockKeyhole

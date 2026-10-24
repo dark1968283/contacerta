@@ -34,6 +34,7 @@ export default async function ClienteDetalhePage({
       .select("id, total_amount, created_at")
       .eq("customer_id", params.id)
       .eq("business_id", businessId)
+      .neq("status", "anulada")
       .order("created_at", { ascending: false }),
     supabase
       .from("debts")

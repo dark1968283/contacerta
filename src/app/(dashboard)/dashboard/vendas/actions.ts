@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getBusinessContext } from "@/lib/supabase/business";
 import { createClient } from "@/lib/supabase/server";
 import { checkMzPhone } from "@/lib/phone";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type CompletedSale = {
   id: string;
@@ -56,7 +57,8 @@ export async function createSale(
   }
 
   const clientRef = String(formData.get("client_ref") ?? "").trim() || null;
-  const result = await registerSale({ businessId, paymentMethod, customerId, items, clientRef, soldAt: null });
+  const finalTotal = parseFinalTotal(formData.get("final_total"));
+  const result = await registerSale({ businessId, paymentMethod, customerId, items, clientRef, soldAt: null, finalTotal });
 
   if (result.error !== null) {
     return { error: result.error };
@@ -88,7 +90,14 @@ type RegisterInput = {
   items: SaleInputItem[];
   clientRef: string | null;
   soldAt: string | null;
+  /** Total com desconto; null = sem desconto. */
+  finalTotal: number | null;
 };
+
+function parseFinalTotal(value: unknown): number | null {
+  const n = Number(String(value ?? "").replace(/\s/g, "").replace(",", "."));
+  return Number.isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : null;
+}
 
 type RegisterResult =
   | { error: null; data: unknown }
@@ -104,6 +113,27 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 async function registerSale(input: RegisterInput): Promise<RegisterResult> {
   const supabase = createClient();
   const ref = input.clientRef && UUID_RE.test(input.clientRef) ? input.clientRef : null;
+
+  // 1.º register_sale (migração 0025: aceita desconto). Sem ela, usa as antigas.
+  const db = supabase as unknown as SupabaseClient;
+  const withDiscount = await db.rpc("register_sale", {
+    p_business_id: input.businessId,
+    p_payment_method: input.paymentMethod,
+    p_customer_id: input.customerId,
+    p_items: input.items,
+    p_client_ref: ref,
+    p_sold_at: input.soldAt,
+    p_final_total: input.finalTotal,
+  });
+  const registerMissing =
+    withDiscount.error &&
+    (withDiscount.error.code === "PGRST202" || /register_sale|schema cache/i.test(withDiscount.error.message));
+  if (!registerMissing) {
+    return interpret(withDiscount.data, withDiscount.error);
+  }
+  if (input.finalTotal !== null) {
+    return { error: "O desconto ainda não está activo. Falta aplicar a actualização 0025 no Supabase.", retry: false };
+  }
 
   let response = ref
     ? await supabase.rpc("create_sale_idempotent", {
@@ -129,7 +159,10 @@ async function registerSale(input: RegisterInput): Promise<RegisterResult> {
     });
   }
 
-  const { data, error } = response;
+  return interpret(response.data, response.error);
+}
+
+function interpret(data: unknown, error: { message: string } | null): RegisterResult {
   if (!error) return { error: null, data };
 
   const msg = error.message;
@@ -138,6 +171,9 @@ async function registerSale(input: RegisterInput): Promise<RegisterResult> {
   }
   if (msg.includes("Cliente não encontrado")) {
     return { error: "O cliente desta venda já não existe.", retry: false };
+  }
+  if (msg.includes("desconto")) {
+    return { error: msg.replace(/^.*?:\s*/, ""), retry: false };
   }
   if (msg.includes("Sem permissão") || msg.toLowerCase().includes("assinatura") || msg.toLowerCase().includes("plano")) {
     return { error: msg, retry: false };
@@ -151,6 +187,7 @@ export type OfflineSalePayload = {
   paymentMethod: "pago" | "credito";
   customerId: string | null;
   items: SaleInputItem[];
+  finalTotal?: number | null;
 };
 
 export type SyncResult = { ok: true; saleId: string | null } | { ok: false; error: string; retry: boolean };
@@ -177,6 +214,7 @@ export async function syncOfflineSale(payload: OfflineSalePayload): Promise<Sync
     items,
     clientRef: payload.ref,
     soldAt: payload.soldAt,
+    finalTotal: payload.finalTotal && payload.finalTotal > 0 ? payload.finalTotal : null,
   });
 
   if (result.error !== null) return { ok: false, error: result.error, retry: result.retry };

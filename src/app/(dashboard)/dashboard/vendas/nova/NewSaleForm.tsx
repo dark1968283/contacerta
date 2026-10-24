@@ -135,8 +135,9 @@ export function NewSaleForm({
   const snapshot = useRef<{
     lines: { id: string; name: string; selling_price: number; quantity: number }[];
     total: number;
+    finalTotal: number | null;
     customerName: string | null;
-  }>({ lines: [], total: 0, customerName: null });
+  }>({ lines: [], total: 0, finalTotal: null, customerName: null });
 
   const [state, action] = useFormState(async (previous: FormState, formData: FormData): Promise<FormState> => {
     const saveOffline = (): FormState => {
@@ -158,6 +159,7 @@ export function NewSaleForm({
           unit_price: l.selling_price,
         })),
         total: snap.total,
+        finalTotal: snap.finalTotal,
         status: "pending",
       });
       return { error: null, sale: null, offline: { ref, total: snap.total, createdAt: now } };
@@ -178,6 +180,9 @@ export function NewSaleForm({
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pago");
   const [received, setReceived] = useState("");
+  // Desconto: o vendedor escreve o novo total (ex.: 450 em vez de 500).
+  const [discountOpen, setDiscountOpen] = useState(false);
+  const [finalTotalInput, setFinalTotalInput] = useState("");
   const [stockNote, setStockNote] = useState<string | null>(null);
   const [dismissedSaleId, setDismissedSaleId] = useState<string | null>(null);
 
@@ -224,7 +229,13 @@ export function NewSaleForm({
     })
     .filter((l): l is Product & { quantity: number } => l !== null);
 
-  const total = lines.reduce((sum, l) => sum + l.selling_price * l.quantity, 0);
+  const subtotal = lines.reduce((sum, l) => sum + l.selling_price * l.quantity, 0);
+  const finalValue = parseAmount(finalTotalInput);
+  const hasDiscount =
+    discountOpen && finalTotalInput.trim() !== "" && Number.isFinite(finalValue) && finalValue > 0 && finalValue < subtotal;
+  // "total" é sempre o que o cliente paga (já com o desconto, se houver).
+  const total = hasDiscount ? Math.round(finalValue * 100) / 100 : subtotal;
+  const discountValue = hasDiscount ? subtotal - total : 0;
   const totalUnits = lines.reduce((sum, l) => sum + l.quantity, 0);
 
   const receivedValue = parseAmount(received);
@@ -251,7 +262,7 @@ export function NewSaleForm({
   }, [total]);
 
   const selectedCustomer = localCustomers.find((c) => c.id === customerId) ?? null;
-  snapshot.current = { lines, total, customerName: selectedCustomer?.name ?? null };
+  snapshot.current = { lines, total, finalTotal: hasDiscount ? total : null, customerName: selectedCustomer?.name ?? null };
 
   const filteredCustomers = useMemo(() => {
     const q = customerQuery.trim().toLocaleLowerCase();
@@ -363,6 +374,8 @@ export function NewSaleForm({
     setQuery("");
     setPaymentMethod("pago");
     setReceived("");
+    setDiscountOpen(false);
+    setFinalTotalInput("");
     setCustomerId("");
     setCustomerQuery("");
     router.refresh();
@@ -381,6 +394,7 @@ export function NewSaleForm({
       "",
       ...lines.map((l) => `${l.quantity} × ${l.name} — ${formatMT(l.selling_price * l.quantity)}`),
       "",
+      ...(discountValue > 0 ? [`Desconto: −${formatMT(discountValue)}`] : []),
       `*Total: ${formatMT(receiptTotal)}*`,
       paymentMethod === "credito"
         ? `Pagamento: a crédito (em dívida)`
@@ -470,6 +484,7 @@ export function NewSaleForm({
       />
       <input type="hidden" name="payment_method" value={paymentMethod} />
       <input type="hidden" name="client_ref" value={clientRef} />
+      <input type="hidden" name="final_total" value={hasDiscount ? String(total) : ""} />
       {paymentMethod === "credito" && <input type="hidden" name="customer_id" value={customerId} />}
 
 
@@ -667,6 +682,65 @@ export function NewSaleForm({
                 >
                   <Plus className="h-4 w-4" aria-hidden /> Adicionar mais produtos
                 </button>
+
+                {/* Total e desconto */}
+                <div className="mt-4 rounded-2xl border border-white/[0.08] px-3.5 py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-dark-muted">Total</span>
+                    <span className="text-right">
+                      {hasDiscount && (
+                        <span className="mr-2 text-sm tabular-nums text-dark-faint line-through">{formatMT(subtotal)}</span>
+                      )}
+                      <span className="text-xl font-bold tabular-nums">{formatMT(total)}</span>
+                    </span>
+                  </div>
+                  {!discountOpen ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDiscountOpen(true);
+                        setFinalTotalInput("");
+                      }}
+                      className="mt-1 text-sm font-medium text-accent"
+                    >
+                      Fazer desconto?
+                    </button>
+                  ) : (
+                    <div className="mt-3 space-y-2">
+                      <label className="block text-sm text-dark-muted" htmlFor="final-total">
+                        Por quanto vai fazer?
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          id="final-total"
+                          inputMode="decimal"
+                          autoFocus
+                          value={finalTotalInput}
+                          onChange={(e) => setFinalTotalInput(e.target.value)}
+                          placeholder={String(Math.max(0, Math.round(subtotal * 0.9)))}
+                          className={`${fieldClass} text-lg font-semibold tabular-nums`}
+                        />
+                        <span className="shrink-0 font-semibold text-dark-muted">MT</span>
+                      </div>
+                      {finalTotalInput.trim() !== "" && !hasDiscount && (
+                        <p className="text-sm text-warning">Escreva um valor menor que {formatMT(subtotal)}.</p>
+                      )}
+                      {hasDiscount && (
+                        <p className="text-sm font-medium text-accent">Desconto de {formatMT(discountValue)}</p>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDiscountOpen(false);
+                          setFinalTotalInput("");
+                        }}
+                        className="text-sm font-medium text-dark-muted underline-offset-4 hover:underline"
+                      >
+                        Sem desconto
+                      </button>
+                    </div>
+                  )}
+                </div>
               </section>
 
               {/* 2. Pagamento */}

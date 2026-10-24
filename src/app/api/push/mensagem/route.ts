@@ -25,6 +25,7 @@ export async function GET() {
         .from("sales")
         .select("total_amount")
         .eq("business_id", businessId)
+        .neq("status", "anulada")
         .gte("created_at", yesterday.toISOString())
         .lt("created_at", today.toISOString()),
     ]);
