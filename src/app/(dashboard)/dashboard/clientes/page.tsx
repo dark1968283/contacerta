@@ -124,7 +124,8 @@ export default async function ClientesPage({
           const tel = customer.phone?.replace(/[^\d+]/g, "");
           return (
             <li key={customer.id} className="min-w-0">
-              <Panel as="div" className="flex items-center gap-2 p-3.5 sm:p-4">
+              <Panel as="div" className="p-3.5 sm:p-4">
+                <div className="flex items-center gap-2">
                 <Link
                   href={`/dashboard/clientes/${customer.id}`}
                   className="flex min-w-0 flex-1 items-center gap-3.5 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50"
@@ -159,6 +160,7 @@ export default async function ClientesPage({
                     <MessageCircle className="h-4 w-4" aria-hidden />
                   </a>
                 )}
+                </div>
               </Panel>
             </li>
           );

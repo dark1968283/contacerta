@@ -99,7 +99,8 @@ export default async function ProdutosPage({
       <ul className="grid gap-3 xl:grid-cols-2">
         {products?.map((product) => (
           <li key={product.id} className="min-w-0">
-            <Panel as="div" className={`flex items-center gap-2 p-3.5 sm:p-4 ${!product.is_active ? "opacity-60" : ""}`}>
+            <Panel as="div" className={`p-3.5 sm:p-4 ${!product.is_active ? "opacity-60" : ""}`}>
+            <div className="flex items-center gap-2">
             <Link
               href={`/dashboard/produtos/${product.id}`}
               className="group block min-w-0 flex-1 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-brandGlow/50"
@@ -123,6 +124,7 @@ export default async function ProdutosPage({
             {role === "admin" && product.is_active && (
               <QuickRestock productId={product.id} productName={product.name} />
             )}
+            </div>
             </Panel>
           </li>
         ))}

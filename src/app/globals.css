@@ -474,3 +474,43 @@ html[data-theme="light"] .cc-nav-item-active {
     backdrop-filter: blur(12px) saturate(160%);
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Vidro líquido com refracção (componente <LightGlass>, só no claro).
+   O elemento deixa de pintar o seu próprio fundo/desfoque: quem o faz
+   é a "lente" do componente, que refracta o que está por trás.
+   ───────────────────────────────────────────────────────────────────── */
+html[data-theme="light"] [data-liquid-glass] {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border-color: rgb(255 255 255 / 0.55) !important;
+}
+/* O "leite" do vidro vai na própria lente (pinta por cima do que ela refracta),
+   para o texto da barra ler bem mesmo quando passa algo escuro por baixo. */
+html[data-theme="light"] [data-liquid-glass] > .lg-lens {
+  background-color: rgb(255 255 255 / 0.5);
+}
+/* Onde o browser não refracta (Safari/iPhone, Firefox): mais branco. */
+html[data-theme="light"] [data-liquid-glass="frost"] > .lg-lens {
+  background-color: rgb(255 255 255 / 0.58);
+}
+
+/* Brilho de borda (luz a entrar pelo canto superior esquerdo e a sair pelo inferior direito),
+   inspirado no componente "liquid-glass": dá volume ao vidro sem pesar na performance. */
+html[data-theme="light"] .cc-glass::after,
+html[data-theme="light"] .cc-nav-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 1.5px 1.5px 1px 0 rgb(255 255 255 / 0.55),
+    inset -1px -1px 1px 0.5px rgb(255 255 255 / 0.35);
+}
+html[data-theme="light"] .cc-nav-item,
+html[data-theme="light"] .cc-glass {
+  position: relative;
+}

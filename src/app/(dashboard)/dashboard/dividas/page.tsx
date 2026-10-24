@@ -86,7 +86,8 @@ export default async function DividasPage({
         </header>
 
         {/* Resumo: uma só resposta — quanto me devem e quantos clientes. */}
-        <Panel className="flex items-center gap-4 p-5 sm:p-6">
+        <Panel className="p-5 sm:p-6">
+          <div className="flex items-center gap-4">
           <span
             className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
               totalOutstanding > 0 ? "bg-warning/10 text-warning" : "bg-brandGlow/10 text-brandGlow"
@@ -112,6 +113,7 @@ export default async function DividasPage({
                 de {openCustomers} cliente{openCustomers === 1 ? "" : "s"}
               </p>
             )}
+          </div>
           </div>
         </Panel>
 
