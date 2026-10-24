@@ -180,7 +180,7 @@ export function MobileNav({ userLabel, avatarUrl }: MobileNavProps) {
         aria-label="Navegação principal"
         className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden"
       >
-        <LightGlass material="regular" refraction={14} interactive={false}>
+        <LightGlass material="clear" refraction={26} dispersion={0.35}>
         <div className="flex items-center gap-1 rounded-full border border-dark-border bg-dark-surface/95 p-1.5 shadow-2xl shadow-black/40 backdrop-blur">
           {MOBILE_LEFT_ITEMS.map((item) => (
             <NavTab key={item.href} item={item} active={isActivePath(pathname, item.href)} />

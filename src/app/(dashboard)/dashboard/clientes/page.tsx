@@ -3,6 +3,7 @@ import { MessageCircle, Phone, Plus, Search, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatMT } from "@/lib/format";
 import { whatsappNumber } from "@/lib/receipt";
+import { LightGlass } from "@/components/ui/liquid-glass";
 import { Panel } from "@/components/dashboard/Panel";
 import { CustomerAvatar, CustomersHeader, CustomersShell, PRIMARY_LINK } from "./_components/CustomersUI";
 
@@ -73,6 +74,7 @@ export default async function ClientesPage({
         />
       </form>
 
+      <LightGlass material="clear" refraction={10} dispersion={0.3}>
       <nav aria-label="Filtrar clientes" className="inline-flex gap-1 rounded-full border border-dark-border bg-white/[0.03] p-1">
         {[
           { key: "", label: "Todos" },
@@ -96,6 +98,7 @@ export default async function ClientesPage({
           );
         })}
       </nav>
+      </LightGlass>
 
       {customers?.length === 0 && (
         <Panel className="px-6 py-10 text-center sm:py-14">

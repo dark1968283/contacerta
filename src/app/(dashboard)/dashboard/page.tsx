@@ -9,6 +9,7 @@ import { Panel } from "@/components/dashboard/Panel";
 import { RecentActivity, type ActivityItem } from "@/components/dashboard/RecentActivity";
 import { SalesChart, type ChartPoint } from "@/components/dashboard/SalesChart";
 import { FirstSteps } from "@/components/dashboard/FirstSteps";
+import { LightGlass } from "@/components/ui/liquid-glass";
 import { LowStockAlert } from "./LowStockAlert";
 import {
   Wallet,
@@ -263,9 +264,10 @@ export default async function DashboardPage({
             </div>
           </div>
 
+          <LightGlass material="clear" refraction={10} dispersion={0.3}>
           <nav
             aria-label="Período"
-            className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-dark-border bg-white/[0.03] p-1"
+            className="inline-flex max-w-full gap-1 rounded-full border border-dark-border bg-white/[0.03] p-1"
           >
             {(Object.entries(periods) as [Period, string][]).map(([value, label]) => (
               <Link
@@ -279,6 +281,7 @@ export default async function DashboardPage({
               </Link>
             ))}
           </nav>
+          </LightGlass>
         </header>
 
         <FirstSteps

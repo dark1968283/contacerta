@@ -13,6 +13,7 @@ import {
   Settings,
 } from "lucide-react";
 import { Logo } from "./Logo";
+import { LightGlass } from "@/components/ui/liquid-glass";
 import { NotificationCountBadge } from "./NotificationCountBadge";
 import { SIDEBAR_GROUPS, PLATFORM_ITEM, NEW_SALE_HREF, isActivePath, type NavItem } from "./nav-items";
 
@@ -20,6 +21,7 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
   const active = isActivePath(pathname, item.href);
 
   return (
+    <LightGlass material="clear" refraction={7} dispersion={0.25} interactive>
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
@@ -36,6 +38,7 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
       <span className="min-w-0 flex-1">{item.label}</span>
       {item.href === "/dashboard/notificacoes" && <NotificationCountBadge />}
     </Link>
+    </LightGlass>
   );
 }
 
@@ -64,7 +67,8 @@ export function Sidebar({
   const initial = safeUserLabel.charAt(0).toUpperCase() || "U";
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-dark-border bg-dark-surface md:flex">
+    <LightGlass material="regular" refraction={26} dispersion={0.3}>
+    <aside className="cc-sidebar fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-dark-border bg-dark-surface md:flex">
       <div className="flex h-16 shrink-0 items-center px-5">
         <Logo />
       </div>
@@ -189,5 +193,6 @@ export function Sidebar({
         </p>
       </div>
     </aside>
+    </LightGlass>
   );
 }

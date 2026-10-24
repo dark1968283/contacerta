@@ -20,7 +20,7 @@ type TopBarProps = {
 export function TopBar({ businessName, noticeIds, children }: TopBarProps) {
   return (
     <div className="sticky top-0 z-20 px-4 pt-4 sm:px-6">
-      <LightGlass material="regular" refraction={12}>
+      <LightGlass material="clear" refraction={24} dispersion={0.35}>
       <div className="flex items-center justify-between gap-3 rounded-2xl border border-dark-border bg-dark-surface/95 px-3 py-2.5 shadow-xl shadow-black/30 backdrop-blur sm:px-4">
         <div className="flex min-w-0 items-center gap-3">
           <Logo showText={false} className="md:hidden" />
